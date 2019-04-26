@@ -24,7 +24,7 @@ function RecognitionException($params)
 	}
 	else 
 	{
-		/*var */$stack = new Error().$stack;
+		$stack = new Error().$stack;
 	}
 	$this->message = $params->message;
     $this->recognizer = $params->recognizer;
@@ -92,7 +92,7 @@ LexerNoViableAltException::prototype->constructor = LexerNoViableAltException;
 
 /* LexerNoViableAltException */function __toString() 
 {
-    /*var */$symbol = "";
+    $symbol = "";
     if ($this->startIndex >= 0 && $this->startIndex < $this->input->size) 
     {
         $symbol = $this->input->getText(($this->startIndex,$this->startIndex));
@@ -147,8 +147,8 @@ function FailedPredicateException($recognizer, $predicate, $message)
 {
 	RecognitionException->call($this, {$message:$this->formatMessage($predicate,$message || null), $recognizer:$recognizer,
                          $input:$recognizer->getInputStream(), $ctx:$recognizer->_ctx});
-    /*var */$s = $recognizer->_interp->atn->states[$recognizer->state];
-    /*var */$trans = $s->transitions[0];
+    $s = $recognizer->_interp->atn->states[$recognizer->state];
+    $trans = $s->transitions[0];
     if ($trans instanceof PredicateTransition) 
     {
         $this->ruleIndex = $trans->ruleIndex;

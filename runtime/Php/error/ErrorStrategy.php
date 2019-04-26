@@ -11,10 +11,10 @@ namespace Antlr4\Error;
 
 use Antlr4\Token; //('./../Token').Token;
 use Antlr4\Errors; //('./Errors');
-/*var */NoViableAltException = Errors::NoViableAltException;
-/*var */InputMismatchException = Errors::InputMismatchException;
-/*var */FailedPredicateException = Errors::FailedPredicateException;
-/*var */ParseCancellationException = Errors::ParseCancellationException;
+NoViableAltException = Errors::NoViableAltException;
+InputMismatchException = Errors::InputMismatchException;
+FailedPredicateException = Errors::FailedPredicateException;
+ParseCancellationException = Errors::ParseCancellationException;
 use Antlr4\ATNState; //('./../atn/ATNState').ATNState;
 use Antlr4\Interval; //('./../IntervalSet').Interval;
 use Antlr4\IntervalSet; //('./../IntervalSet').IntervalSet;
@@ -145,7 +145,7 @@ DefaultErrorStrategy::prototype->constructor = DefaultErrorStrategy;
 /* DefaultErrorStrategy */function reportError($recognizer, $e) 
 {// if we've already reported an error and have not matched a token
 // yet successfully, don't report any errors.
-    if($this->inErrorRecoveryMode($recognizer)) 
+    if ($this->inErrorRecoveryMode($recognizer)) 
     {
         return;// don't report spurious errors
     }
@@ -192,7 +192,7 @@ DefaultErrorStrategy::prototype->constructor = DefaultErrorStrategy;
         $this->lastErrorStates = [];
     }
     array_push($this->lastErrorStates, $recognizer->state);
-    /*var */$followSet = $this->getErrorRecoverySet($recognizer);
+    $followSet = $this->getErrorRecoverySet($recognizer);
     $this->consumeUntil($recognizer, $followSet);
 };
 
@@ -247,10 +247,10 @@ DefaultErrorStrategy::prototype->constructor = DefaultErrorStrategy;
     {
         return;
     }
-    /*var */$s = $recognizer->_interp->atn->states[$recognizer->state];
-    /*var */$la = $recognizer->getTokenStream().LA(1);
+    $s = $recognizer->_interp->atn->states[$recognizer->state];
+    $la = $recognizer->getTokenStream().LA(1);
 // try cheaper subset first; might get lucky. seems to shave a wee bit off
-    /*var */$nextTokens = $recognizer->atn->nextTokens($s);
+    $nextTokens = $recognizer->atn->nextTokens($s);
     if ($nextTokens->contains(Token::EPSILON) || $nextTokens->contains($la)) 
     {
         return;
@@ -262,7 +262,7 @@ DefaultErrorStrategy::prototype->constructor = DefaultErrorStrategy;
     case ATNState::PLUS_BLOCK_START:
     case ATNState::STAR_LOOP_ENTRY:
 // report error and recover if possible
-        if( $this->singleTokenDeletion($recognizer) !== null) 
+        if ( $this->singleTokenDeletion($recognizer) !== null) 
         {
             return;
         }
@@ -274,9 +274,9 @@ DefaultErrorStrategy::prototype->constructor = DefaultErrorStrategy;
     case ATNState::PLUS_LOOP_BACK:
     case ATNState::STAR_LOOP_BACK:
         $this->reportUnwantedToken($recognizer);
-        /*var */$expecting = new IntervalSet();
+        $expecting = new IntervalSet();
         $expecting->addSet($recognizer->getExpectedTokens());
-        /*var */$whatFollowsLoopIterationOrRule = $expecting->addSet($this->getErrorRecoverySet($recognizer));
+        $whatFollowsLoopIterationOrRule = $expecting->addSet($this->getErrorRecoverySet($recognizer));
         $this->consumeUntil($recognizer, $whatFollowsLoopIterationOrRule);
         break;
     $default:
@@ -294,8 +294,8 @@ DefaultErrorStrategy::prototype->constructor = DefaultErrorStrategy;
 //
 /* DefaultErrorStrategy */function reportNoViableAlternative($recognizer, $e) 
 {
-    /*var */$tokens = $recognizer->getTokenStream();
-    /*var */$input;
+    $tokens = $recognizer->getTokenStream();
+    $input;
     if($tokens !== null) 
     {
         if ($e->startToken->type===Token::EOF) 
@@ -311,7 +311,7 @@ DefaultErrorStrategy::prototype->constructor = DefaultErrorStrategy;
     {
         $input = "<unknown input>";
     }
-    /*var */$msg = "no viable alternative at input " . $this->escapeWSAndQuote($input);
+    $msg = "no viable alternative at input " . $this->escapeWSAndQuote($input);
     $recognizer->notifyErrorListeners($msg, $e->offendingToken, $e);
 };
 
@@ -326,7 +326,7 @@ DefaultErrorStrategy::prototype->constructor = DefaultErrorStrategy;
 //
 /* DefaultErrorStrategy */function reportInputMismatch($recognizer, $e) 
 {
-    /*var */$msg = "mismatched input " . $this->getTokenErrorDisplay($e->offendingToken) +
+    $msg = "mismatched input " . $this->getTokenErrorDisplay($e->offendingToken) +
           " expecting " . $e->getExpectedTokens().toString($recognizer->literalNames, $recognizer->symbolicNames);
     $recognizer->notifyErrorListeners($msg, $e->offendingToken, $e);
 };
@@ -342,8 +342,8 @@ DefaultErrorStrategy::prototype->constructor = DefaultErrorStrategy;
 //
 /* DefaultErrorStrategy */function reportFailedPredicate($recognizer, $e) 
 {
-    /*var */$ruleName = $recognizer->ruleNames[$recognizer->_ctx->ruleIndex];
-    /*var */$msg = "rule " + ruleName + " " . $e->message;
+    $ruleName = $recognizer->ruleNames[$recognizer->_ctx->ruleIndex];
+    $msg = "rule " + ruleName + " " . $e->message;
     $recognizer->notifyErrorListeners($msg, $e->offendingToken, $e);
 };
 
@@ -371,10 +371,10 @@ DefaultErrorStrategy::prototype->constructor = DefaultErrorStrategy;
         return;
     }
     $this->beginErrorCondition($recognizer);
-    /*var */$t = $recognizer->getCurrentToken();
-    /*var */$tokenName = $this->getTokenErrorDisplay($t);
-    /*var */$expecting = $this->getExpectedTokens($recognizer);
-    /*var */$msg = "extraneous input " + tokenName + " expecting " .
+    $t = $recognizer->getCurrentToken();
+    $tokenName = $this->getTokenErrorDisplay($t);
+    $expecting = $this->getExpectedTokens($recognizer);
+    $msg = "extraneous input " + tokenName + " expecting " .
         $expecting->toString($recognizer->literalNames, $recognizer->symbolicNames);
     $recognizer->notifyErrorListeners($msg, $t, null);
 };
@@ -401,9 +401,9 @@ DefaultErrorStrategy::prototype->constructor = DefaultErrorStrategy;
         return;
     }
     $this->beginErrorCondition($recognizer);
-    /*var */$t = $recognizer->getCurrentToken();
-    /*var */$expecting = $this->getExpectedTokens($recognizer);
-    /*var */$msg = "missing " . $expecting->toString($recognizer->literalNames, $recognizer->symbolicNames) +
+    $t = $recognizer->getCurrentToken();
+    $expecting = $this->getExpectedTokens($recognizer);
+    $msg = "missing " . $expecting->toString($recognizer->literalNames, $recognizer->symbolicNames) +
           " at " . $this->getTokenErrorDisplay($t);
     $recognizer->notifyErrorListeners($msg, $t, null);
 };
@@ -459,7 +459,7 @@ DefaultErrorStrategy::prototype->constructor = DefaultErrorStrategy;
 //
 /* DefaultErrorStrategy */function recoverInline($recognizer) 
 {// SINGLE TOKEN DELETION
-    /*var */$matchedSymbol = $this->singleTokenDeletion($recognizer);
+    $matchedSymbol = $this->singleTokenDeletion($recognizer);
     if ($matchedSymbol !== null) 
     {// we have deleted the extra token.
 // now, move past ttype token as if all were ok
@@ -494,14 +494,14 @@ DefaultErrorStrategy::prototype->constructor = DefaultErrorStrategy;
 //
 /* DefaultErrorStrategy */function singleTokenInsertion($recognizer) 
 {
-    /*var */$currentSymbolType = $recognizer->getTokenStream().LA(1);
+    $currentSymbolType = $recognizer->getTokenStream().LA(1);
 // if current token is consistent with what could come after current
 // ATN state, then we know we're missing a token; error recovery
 // is free to conjure up and insert the missing token
-    /*var */$atn = $recognizer->_interp->atn;
-    /*var */$currentState = $atn->states[$recognizer->state];
-    /*var */$next = $currentState->transitions[0].$target;
-    /*var */$expectingAtLL2 = $atn->nextTokens($next, $recognizer->_ctx);
+    $atn = $recognizer->_interp->atn;
+    $currentState = $atn->states[$recognizer->state];
+    $next = $currentState->transitions[0].$target;
+    $expectingAtLL2 = $atn->nextTokens($next, $recognizer->_ctx);
     if ($expectingAtLL2->contains($currentSymbolType) )
     {
         $this->reportMissingToken($recognizer);
@@ -533,8 +533,8 @@ DefaultErrorStrategy::prototype->constructor = DefaultErrorStrategy;
 //
 /* DefaultErrorStrategy */function singleTokenDeletion($recognizer) 
 {
-    /*var */$nextTokenType = $recognizer->getTokenStream().LA(2);
-    /*var */$expecting = $this->getExpectedTokens($recognizer);
+    $nextTokenType = $recognizer->getTokenStream().LA(2);
+    $expecting = $this->getExpectedTokens($recognizer);
     if ($expecting->contains($nextTokenType)) 
     {
         $this->reportUnwantedToken($recognizer);
@@ -544,7 +544,7 @@ DefaultErrorStrategy::prototype->constructor = DefaultErrorStrategy;
 // + " is what we want", file=sys.stderr)
         $recognizer->consume();// simply delete extra token
 // we want to return the token we're actually matching
-        /*var */$matchedSymbol = $recognizer->getCurrentToken();
+        $matchedSymbol = $recognizer->getCurrentToken();
         $this->reportMatch($recognizer);// we know current token is correct
         return $matchedSymbol;
     }
@@ -575,10 +575,10 @@ DefaultErrorStrategy::prototype->constructor = DefaultErrorStrategy;
 //
 /* DefaultErrorStrategy */function getMissingSymbol($recognizer) 
 {
-    /*var */$currentSymbol = $recognizer->getCurrentToken();
-    /*var */$expecting = $this->getExpectedTokens($recognizer);
-    /*var */$expectedTokenType = $expecting->first();// get any element
-    /*var */$tokenText;
+    $currentSymbol = $recognizer->getCurrentToken();
+    $expecting = $this->getExpectedTokens($recognizer);
+    $expectedTokenType = $expecting->first();// get any element
+    $tokenText;
     if ($expectedTokenType===Token::EOF) 
     {
         $tokenText = "<missing EOF>";
@@ -587,8 +587,8 @@ DefaultErrorStrategy::prototype->constructor = DefaultErrorStrategy;
     {
         $tokenText = "<missing " + recognizer.literalNames[expectedTokenType] + ">";
     }
-    /*var */$current = $currentSymbol;
-    /*var */$lookback = $recognizer->getTokenStream().LT(-1);
+    $current = $currentSymbol;
+    $lookback = $recognizer->getTokenStream().LT(-1);
     if ($current->type===Token::EOF && $lookback !== null) 
     {
         $current = $lookback;
@@ -617,7 +617,7 @@ DefaultErrorStrategy::prototype->constructor = DefaultErrorStrategy;
     {
         return "<no token>";
     }
-    /*var */$s = $t->text;
+    $s = $t->text;
     if ($s === null) 
     {
         if ($t->type===Token::EOF) 
@@ -734,14 +734,14 @@ DefaultErrorStrategy::prototype->constructor = DefaultErrorStrategy;
 //
 /* DefaultErrorStrategy */function getErrorRecoverySet($recognizer) 
 {
-    /*var */$atn = $recognizer->_interp->atn;
-    /*var */$ctx = $recognizer->_ctx;
-    /*var */$recoverSet = new IntervalSet();
+    $atn = $recognizer->_interp->atn;
+    $ctx = $recognizer->_ctx;
+    $recoverSet = new IntervalSet();
     while ($ctx !== null && $ctx->invokingState>=0) 
     {// compute what follows who invoked us
-        /*var */$invokingState = $atn->states[$ctx->invokingState];
-        /*var */$rt = $invokingState->transitions[0];
-        /*var */$follow = $atn->nextTokens($rt->followState);
+        $invokingState = $atn->states[$ctx->invokingState];
+        $rt = $invokingState->transitions[0];
+        $follow = $atn->nextTokens($rt->followState);
         $recoverSet->addSet($follow);
         $ctx = $ctx->parentCtx;
     }
@@ -752,7 +752,7 @@ DefaultErrorStrategy::prototype->constructor = DefaultErrorStrategy;
 // Consume tokens until one matches the given token set.//
 /* DefaultErrorStrategy */function consumeUntil($recognizer, $set) 
 {
-    /*var */$ttype = $recognizer->getTokenStream().LA(1);
+    $ttype = $recognizer->getTokenStream().LA(1);
     while( $ttype !== Token::EOF && !$set->contains($ttype)) 
     {
         $recognizer->consume();
@@ -804,7 +804,7 @@ BailErrorStrategy::prototype->constructor = BailErrorStrategy;
 //
 /* BailErrorStrategy */function recover($recognizer, $e) 
 {
-    /*var */$context = $recognizer->_ctx;
+    $context = $recognizer->_ctx;
     while ($context !== null) 
     {
         $context->exception = $e;

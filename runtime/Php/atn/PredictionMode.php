@@ -23,8 +23,8 @@ use Antlr4\ATNConfigSet; //('./ATNConfigSet').ATNConfigSet;
 use Antlr4\ATNConfig; //('./ATNConfig').ATNConfig;
 use Antlr4\SemanticContext; //('./SemanticContext').SemanticContext;
 use Antlr4\Hash; //("../Utils").Hash;
-/*var */$hashStuff = require('./../Utils').$hashStuff;
-/*var */$equalArrays = require('./../Utils').$equalArrays;
+$hashStuff = require('./../Utils').$hashStuff;
+$equalArrays = require('./../Utils').$equalArrays;
 
 function PredictionMode() 
 {
@@ -202,10 +202,10 @@ static function /*
 // since we'll often fail over anyway.
         if ($configs->hasSemanticContext) 
         {// dup configs, tossing out semantic predicates
-            /*var */$dup = new ATNConfigSet();
+            $dup = new ATNConfigSet();
             for($i=0;$i<$configs->items->length;$i++) 
             {
-            	/*var */$c = $configs->items[$i];
+            	$c = $configs->items[$i];
                 $c = new ATNConfig({$semanticContext:SemanticContext::NONE}, $c);
                 $dup->add($c);
             }
@@ -214,7 +214,7 @@ static function /*
 // now we have combined contexts for configs with dissimilar preds
     }
 // pure SLL or combined SLL+LL mode parsing
-    /*var */$altsets = PredictionMode->getConflictingAltSubsets($configs);
+    $altsets = PredictionMode->getConflictingAltSubsets($configs);
     return PredictionMode->hasConflictingAltSet($altsets) && !PredictionMode->hasStateAssociatedWithOneAlt($configs);
 };
 
@@ -231,7 +231,7 @@ static function /*
 {
 	for($i=0;$i<$configs->items->length;$i++) 
 	{
-		/*var */$c = $configs->items[$i];
+		$c = $configs->items[$i];
         if ($c->state instanceof RuleStopState) 
         {
             return true;
@@ -253,7 +253,7 @@ static function /*
 {
 	for($i=0;$i<$configs->items->length;$i++) 
 	{
-		/*var */$c = $configs->items[$i];
+		$c = $configs->items[$i];
         if (!($c->state instanceof RuleStopState)) 
         {
             return false;
@@ -435,7 +435,7 @@ static function /*
 {
 	for($i=0;$i<$altsets->length;$i++) 
 	{
-		/*var */$alts = $altsets[$i];
+		$alts = $altsets[$i];
         if ($alts->length===1) 
         {
             return true;
@@ -457,7 +457,7 @@ static function /*
 {
 	for($i=0;$i<$altsets->length;$i++) 
 	{
-		/*var */$alts = $altsets[$i];
+		$alts = $altsets[$i];
         if ($alts->length>1) 
         {
             return true;
@@ -476,10 +476,10 @@ static function /*
 static function /* 
  */PredictionMode($altsets) 
 {
-    /*var */$first = null;
+    $first = null;
 	for($i=0;$i<$altsets->length;$i++) 
 	{
-		/*var */$alts = $altsets[$i];
+		$alts = $altsets[$i];
         if ($first === null) 
         {
             $first = $alts;
@@ -502,7 +502,7 @@ static function /*
 static function /* 
  */PredictionMode($altsets) 
 {
-    /*var */$all = PredictionMode->getAlts($altsets);
+    $all = PredictionMode->getAlts($altsets);
     if ($all->length===1) 
     {
         return $all->minValue();
@@ -523,7 +523,7 @@ static function /*
 static function /* 
  */PredictionMode($altsets) 
 {
-    /*var */$all = new BitSet();
+    $all = new BitSet();
     $altsets->map( function($alts) { $all->or($alts); });
     return $all;
 };
@@ -541,12 +541,12 @@ static function /*
 
  */PredictionMode($configs) 
 {
-    /*var */$configToAlts = new Map();
+    $configToAlts = new Map();
     $configToAlts->hashFunction = function($cfg) { hashStuff($cfg->state->stateNumber, $cfg->context); };
     $configToAlts->equalsFunction = function($c1, $c2) { return $c1->state->stateNumber==$c2->state->stateNumber && $c1->context->equals($c2->context);}
     $configs->items->map(function($cfg) 
     {
-        /*var */$alts = $configToAlts->get($cfg);
+        $alts = $configToAlts->get($cfg);
         if ($alts === null) 
         {
             $alts = new BitSet();
@@ -568,10 +568,10 @@ static function /*
 static function /* 
  */PredictionMode($configs) 
 {
-    /*var */$m = new AltDict();
+    $m = new AltDict();
     $configs->items->map(function($c) 
     {
-        /*var */$alts = $m->get($c->state);
+        $alts = $m->get($c->state);
         if ($alts === null) 
         {
             $alts = new BitSet();
@@ -584,7 +584,7 @@ static function /*
 
 PredictionMode::hasStateAssociatedWithOneAlt = function($configs) 
 {
-    /*var */$values = PredictionMode->getStateToAltMap($configs).values();
+    $values = PredictionMode->getStateToAltMap($configs).values();
     for($i=0;$i<$values->length;$i++) 
     {
         if ($values[$i].$length===1) 
@@ -597,11 +597,11 @@ PredictionMode::hasStateAssociatedWithOneAlt = function($configs)
 
 PredictionMode::getSingleViableAlt = function($altsets) 
 {
-    /*var */$result = null;
+    $result = null;
 	for($i=0;$i<$altsets->length;$i++) 
 	{
-		/*var */$alts = $altsets[$i];
-        /*var */$minAlt = $alts->minValue();
+		$alts = $altsets[$i];
+        $minAlt = $alts->minValue();
         if($result===null) 
         {
             $result = $minAlt;

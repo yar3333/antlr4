@@ -124,7 +124,7 @@ Parser::bypassAltsAtnCache = {};
 
 /* Parser */function match($ttype) 
 {
-	/*var */$t = $this->getCurrentToken();
+	$t = $this->getCurrentToken();
 	if ($t->type === $ttype) 
 	{
 		$this->_errHandler->reportMatch($this);
@@ -160,7 +160,7 @@ Parser::bypassAltsAtnCache = {};
 
 /* Parser */function matchWildcard() 
 {
-	/*var */$t = $this->getCurrentToken();
+	$t = $this->getCurrentToken();
 	if ($t->type > 0) 
 	{
 		$this->_errHandler->reportMatch($this);
@@ -236,7 +236,7 @@ Parser::bypassAltsAtnCache = {};
 {
 	if ($this->_parseListeners !== null) 
 	{
-		/*var */$idx = $this->_parseListeners->indexOf($listener);
+		$idx = $this->_parseListeners->indexOf($listener);
 		if ($idx >= 0) 
 		{
 			$this->_parseListeners->splice($idx, 1);
@@ -259,7 +259,7 @@ Parser::bypassAltsAtnCache = {};
 {
 	if ($this->_parseListeners !== null) 
 	{
-        /*var */$ctx = $this->_ctx;
+        $ctx = $this->_ctx;
 		$this->_parseListeners->map(function($listener) 
 		{
 			$listener->enterEveryRule($ctx);
@@ -277,7 +277,7 @@ Parser::bypassAltsAtnCache = {};
 {
 	if ($this->_parseListeners !== null) 
 	{// reverse order walk of listeners
-        /*var */$ctx = $this->_ctx;
+        $ctx = $this->_ctx;
 		$this->_parseListeners->slice(0).reverse().map(function($listener) 
 		{
 			$ctx->exitRule($listener);
@@ -305,15 +305,15 @@ Parser::bypassAltsAtnCache = {};
 //
 /* Parser */function getATNWithBypassAlts() 
 {
-	/*var */$serializedAtn = $this->getSerializedATN();
+	$serializedAtn = $this->getSerializedATN();
 	if ($serializedAtn === null) 
 	{
 		throw "The current parser does not support an ATN with bypass alternatives.";
 	}
-	/*var */$result = $this->bypassAltsAtnCache[$serializedAtn];
+	$result = $this->bypassAltsAtnCache[$serializedAtn];
 	if ($result === null) 
 	{
-		/*var */$deserializationOptions = new ATNDeserializationOptions();
+		$deserializationOptions = new ATNDeserializationOptions();
 		$deserializationOptions->generateRuleBypassTransitions = true;
 		$result = new ATNDeserializer($deserializationOptions)
 				.deserialize($serializedAtn);
@@ -342,7 +342,7 @@ use Antlr4\Lexer; //('./Lexer').Lexer;
 	{
 		if ($this->getTokenStream() !== null) 
 		{
-			/*var */$tokenSource = $this->getTokenStream().$tokenSource;
+			$tokenSource = $this->getTokenStream().$tokenSource;
 			if ($tokenSource instanceof Lexer) 
 			{
 				$lexer = $tokenSource;
@@ -353,7 +353,7 @@ use Antlr4\Lexer; //('./Lexer').Lexer;
 	{
 		throw "Parser can't discover a lexer to use";
 	}
-	/*var */$m = new ParseTreePatternMatcher($lexer, $this);
+	$m = new ParseTreePatternMatcher($lexer, $this);
 	return $m->compile($pattern, $patternRuleIndex);
 };
 
@@ -397,9 +397,9 @@ use Antlr4\Lexer; //('./Lexer').Lexer;
 		$offendingToken = $this->getCurrentToken();
 	}
 	$this->_syntaxErrors += 1;
-	/*var */$line = $offendingToken->line;
-	/*var */$column = $offendingToken->column;
-	/*var */$listener = $this->getErrorListenerDispatch();
+	$line = $offendingToken->line;
+	$column = $offendingToken->column;
+	$listener = $this->getErrorListenerDispatch();
 	$listener->syntaxError($this, $offendingToken, $line, $column, $msg, $err);
 };
 
@@ -426,15 +426,15 @@ use Antlr4\Lexer; //('./Lexer').Lexer;
 //
 /* Parser */function consume() 
 {
-	/*var */$o = $this->getCurrentToken();
+	$o = $this->getCurrentToken();
 	if ($o->type !== Token::EOF) 
 	{
 		$this->getInputStream().consume();
 	}
-	/*var */$hasListener = $this->_parseListeners !== null && $this->_parseListeners->length > 0;
+	$hasListener = $this->_parseListeners !== null && $this->_parseListeners->length > 0;
 	if ($this->buildParseTrees || $hasListener) 
 	{
-		/*var */$node;
+		$node;
 		if ($this->_errHandler->inErrorRecoveryMode($this)) 
 		{
 			$node = $this->_ctx->addErrorNode($o);
@@ -552,7 +552,7 @@ use Antlr4\Lexer; //('./Lexer').Lexer;
 
 /* Parser */function pushNewRecursionContext($localctx, $state, $ruleIndex) 
 {
-	/*var */$previous = $this->_ctx;
+	$previous = $this->_ctx;
 	$previous->parentCtx = $localctx;
 	$previous->invokingState = $state;
 	$previous->stop = $this->_input->LT(-1);
@@ -574,7 +574,7 @@ use Antlr4\Lexer; //('./Lexer').Lexer;
 {
 	array_pop($this->_precedenceStack, );
 	$this->_ctx->stop = $this->_input->LT(-1);
-	/*var */$retCtx = $this->_ctx;// save current ctx (return value)
+	$retCtx = $this->_ctx;// save current ctx (return value)
 // unroll so _ctx is as it was before call to recursive method
 	if ($this->_parseListeners !== null) 
 	{
@@ -598,7 +598,7 @@ use Antlr4\Lexer; //('./Lexer').Lexer;
 
 /* Parser */function getInvokingContext($ruleIndex) 
 {
-	/*var */$ctx = $this->_ctx;
+	$ctx = $this->_ctx;
 	while ($ctx !== null) 
 	{
 		if ($ctx->ruleIndex === $ruleIndex) 
@@ -636,10 +636,10 @@ use Antlr4\Lexer; //('./Lexer').Lexer;
 
 /* Parser */function isExpectedToken($symbol) 
 {
-	/*var */$atn = $this->_interp->atn;
-	/*var */$ctx = $this->_ctx;
-	/*var */$s = $atn->states[$this->state];
-	/*var */$following = $atn->nextTokens($s);
+	$atn = $this->_interp->atn;
+	$ctx = $this->_ctx;
+	$s = $atn->states[$this->state];
+	$following = $atn->nextTokens($s);
 	if ($following->contains($symbol)) 
 	{
 		return true;
@@ -650,8 +650,8 @@ use Antlr4\Lexer; //('./Lexer').Lexer;
 	}
 	while ($ctx !== null && $ctx->invokingState >= 0 && $following->contains(Token::EPSILON)) 
 	{
-		/*var */$invokingState = $atn->states[$ctx->invokingState];
-		/*var */$rt = $invokingState->transitions[0];
+		$invokingState = $atn->states[$ctx->invokingState];
+		$rt = $invokingState->transitions[0];
 		$following = $atn->nextTokens($rt->followState);
 		if ($following->contains($symbol)) 
 		{
@@ -682,15 +682,15 @@ use Antlr4\Lexer; //('./Lexer').Lexer;
 
 /* Parser */function getExpectedTokensWithinCurrentRule() 
 {
-	/*var */$atn = $this->_interp->atn;
-	/*var */$s = $atn->states[$this->state];
+	$atn = $this->_interp->atn;
+	$s = $atn->states[$this->state];
 	return $atn->nextTokens($s);
 };
 
 // Get a rule's index (i.e., {@code RULE_ruleName} field) or -1 if not found.//
 /* Parser */function getRuleIndex($ruleName) 
 {
-	/*var */$ruleIndex = $this->getRuleIndexMap()[$ruleName];
+	$ruleIndex = $this->getRuleIndexMap()[$ruleName];
 	if ($ruleIndex !== null) 
 	{
 		return $ruleIndex;
@@ -715,10 +715,10 @@ use Antlr4\Lexer; //('./Lexer').Lexer;
 	{
 		$p = $this->_ctx;
 	}
-	/*var */$stack = [];
+	$stack = [];
 	while ($p !== null) 
 	{// compute what follows who invoked us
-		/*var */$ruleIndex = $p->ruleIndex;
+		$ruleIndex = $p->ruleIndex;
 		if ($ruleIndex < 0) 
 		{
 			array_push($stack, "n/a");
@@ -740,10 +740,10 @@ use Antlr4\Lexer; //('./Lexer').Lexer;
 // For debugging and other purposes.//
 /* Parser */function dumpDFA() 
 {
-	/*var */$seenOne = false;
+	$seenOne = false;
 	for ($i = 0; $i < $this->_interp->decisionToDFA->length; $i++) 
 	{
-		/*var */$dfa = $this->_interp->decisionToDFA[$i];
+		$dfa = $this->_interp->decisionToDFA[$i];
 		if ($dfa->states->length > 0) 
 		{
 			if ($seenOne) 

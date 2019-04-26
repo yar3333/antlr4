@@ -16,10 +16,10 @@ namespace Antlr4\Atn;
 
 use Antlr4\ATN; //('./ATN').ATN;
 use Antlr4\Utils; //('./../Utils');
-/*var */Hash = Utils::Hash;
-/*var */Set = Utils::Set;
+Hash = Utils::Hash;
+Set = Utils::Set;
 use Antlr4\SemanticContext; //('./SemanticContext').SemanticContext;
-/*var */$merge = require('./../PredictionContext').$merge;
+$merge = require('./../PredictionContext').$merge;
 
 function hashATNConfig($c) 
 {
@@ -111,7 +111,7 @@ function ATNConfigSet($fullCtx)
 	{
 		$this->dipsIntoOuterContext = true;
 	}
-	/*var */$existing = $this->configLookup->add($config);
+	$existing = $this->configLookup->add($config);
 	if ($existing === $config) 
 	{
 		$this->cachedHashCode = -1;
@@ -119,8 +119,8 @@ function ATNConfigSet($fullCtx)
 		return true;
 	}
 // a previous (s,i,pi,_), merge with it and save result
-	/*var */$rootIsWildcard = !$this->fullCtx;
-	/*var */$merged = merge($existing->context, $config->context, $rootIsWildcard, $mergeCache);
+	$rootIsWildcard = !$this->fullCtx;
+	$merged = merge($existing->context, $config->context, $rootIsWildcard, $mergeCache);
 // no need to check for existing.context, config.context in cache
 // since only way to create new graphs is "call rule" and here. We
 // cache at both places.
@@ -136,7 +136,7 @@ function ATNConfigSet($fullCtx)
 
 /* ATNConfigSet */function getStates() 
 {
-	/*var */$states = new Set();
+	$states = new Set();
 	for ($i = 0; $i < $this->configs->length; $i++) 
 	{
 		$states->add($this->configs[$i].$state);
@@ -146,10 +146,10 @@ function ATNConfigSet($fullCtx)
 
 /* ATNConfigSet */function getPredicates() 
 {
-	/*var */$preds = [];
+	$preds = [];
 	for ($i = 0; $i < $this->configs->length; $i++) 
 	{
-		/*var */$c = $this->configs[$i].$semanticContext;
+		$c = $this->configs[$i].$semanticContext;
 		if ($c !== SemanticContext::NONE) 
 		{
 			array_push($preds, $c->semanticContext);
@@ -177,7 +177,7 @@ Object->defineProperty(ATNConfigSet::prototype, "items", {
 	}
 	for ($i = 0; $i < $this->configs->length; $i++) 
 	{
-		/*var */$config = $this->configs[$i];
+		$config = $this->configs[$i];
 		$config->context = $interpreter->getCachedContext($config->context);
 	}
 };
@@ -205,7 +205,7 @@ Object->defineProperty(ATNConfigSet::prototype, "items", {
 
 /* ATNConfigSet */function hashCode() 
 {
-    /*var */$hash = new Hash();
+    $hash = new Hash();
     $this->updateHashCode($hash);
     return $hash->finish();
 };
@@ -217,7 +217,7 @@ Object->defineProperty(ATNConfigSet::prototype, "items", {
 	{
 		if ($this->cachedHashCode === -1) 
 		{
-            /*var */$hash = new Hash();
+            $hash = new Hash();
             $hash->update($this->configs);
 			$this->cachedHashCode = $hash->finish();
 		}

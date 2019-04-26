@@ -16,7 +16,7 @@ namespace Antlr4\Atn;
 // efficiently, ensuring that actions appearing only at the end of the rule do
 // not cause bloating of the {@link DFA} created for the lexer.</p>
 
-/*var */$hashStuff = require("../Utils").$hashStuff;
+$hashStuff = require("../Utils").$hashStuff;
 use Antlr4\LexerIndexedCustomAction; //('./LexerAction').LexerIndexedCustomAction;
 
 function LexerActionExecutor($lexerActions) 
@@ -49,7 +49,7 @@ static function /*
 	{
 		return new LexerActionExecutor([ $lexerAction ]);
 	}
-	/*var */$lexerActions = $lexerActionExecutor->lexerActions->concat([ $lexerAction ]);
+	$lexerActions = $lexerActionExecutor->lexerActions->concat([ $lexerAction ]);
 	return new LexerActionExecutor($lexerActions);
 };
 
@@ -83,7 +83,7 @@ static function /*
 // /
 /* LexerActionExecutor */function fixOffsetBeforeMatch($offset) 
 {
-	/*var */$updatedLexerActions = null;
+	$updatedLexerActions = null;
 	for ($i = 0; $i < $this->lexerActions->length; $i++) 
 	{
 		if ($this->lexerActions[$i].$isPositionDependent &&
@@ -127,16 +127,16 @@ static function /*
 // /
 /* LexerActionExecutor */function execute($lexer, $input, $startIndex) 
 {
-	/*var */$requiresSeek = false;
-	/*var */$stopIndex = $input->index;
+	$requiresSeek = false;
+	$stopIndex = $input->index;
 	try 
 	{
 		for ($i = 0; $i < $this->lexerActions->length; $i++) 
 		{
-			/*var */$lexerAction = $this->lexerActions[$i];
+			$lexerAction = $this->lexerActions[$i];
 			if ($lexerAction instanceof LexerIndexedCustomAction) 
 			{
-				/*var */$offset = $lexerAction->offset;
+				$offset = $lexerAction->offset;
 				$input->seek($startIndex + $offset);
 				$lexerAction = $lexerAction->action;
 				$requiresSeek = ($startIndex + $offset) !== $stopIndex;
@@ -189,7 +189,7 @@ static function /*
 	}
 	else 
 	{
-		/*var */$numActions = $this->lexerActions->length
+		$numActions = $this->lexerActions->length
 		for ($idx = 0; $idx < $numActions; ++$idx) 
 		{
 			if (!$this->lexerActions[$idx].equals($other->lexerActions[$idx])) 

@@ -94,7 +94,7 @@ AtomTransition::prototype->constructor = AtomTransition;
 
 /* AtomTransition */function makeLabel() 
 {
-	/*var */$s = new IntervalSet();
+	$s = new IntervalSet();
     $s->addOne($this->label_);
     return $s;
 };
@@ -166,7 +166,7 @@ RangeTransition::prototype->constructor = RangeTransition;
 
 /* RangeTransition */function makeLabel() 
 {
-    /*var */$s = new IntervalSet();
+    $s = new IntervalSet();
     $s->addRange($this->start, $this->stop);
     return $s;
 };

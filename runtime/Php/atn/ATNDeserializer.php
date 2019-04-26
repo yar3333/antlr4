@@ -11,69 +11,69 @@ use Antlr4\Token; //('./../Token').Token;
 use Antlr4\ATN; //('./ATN').ATN;
 use Antlr4\ATNType; //('./ATNType').ATNType;
 use Antlr4\ATNStates; //('./ATNState');
-/*var */ATNState = ATNStates::ATNState;
-/*var */BasicState = ATNStates::BasicState;
-/*var */DecisionState = ATNStates::DecisionState;
-/*var */BlockStartState = ATNStates::BlockStartState;
-/*var */BlockEndState = ATNStates::BlockEndState;
-/*var */LoopEndState = ATNStates::LoopEndState;
-/*var */RuleStartState = ATNStates::RuleStartState;
-/*var */RuleStopState = ATNStates::RuleStopState;
-/*var */TokensStartState = ATNStates::TokensStartState;
-/*var */PlusLoopbackState = ATNStates::PlusLoopbackState;
-/*var */StarLoopbackState = ATNStates::StarLoopbackState;
-/*var */StarLoopEntryState = ATNStates::StarLoopEntryState;
-/*var */PlusBlockStartState = ATNStates::PlusBlockStartState;
-/*var */StarBlockStartState = ATNStates::StarBlockStartState;
-/*var */BasicBlockStartState = ATNStates::BasicBlockStartState;
+ATNState = ATNStates::ATNState;
+BasicState = ATNStates::BasicState;
+DecisionState = ATNStates::DecisionState;
+BlockStartState = ATNStates::BlockStartState;
+BlockEndState = ATNStates::BlockEndState;
+LoopEndState = ATNStates::LoopEndState;
+RuleStartState = ATNStates::RuleStartState;
+RuleStopState = ATNStates::RuleStopState;
+TokensStartState = ATNStates::TokensStartState;
+PlusLoopbackState = ATNStates::PlusLoopbackState;
+StarLoopbackState = ATNStates::StarLoopbackState;
+StarLoopEntryState = ATNStates::StarLoopEntryState;
+PlusBlockStartState = ATNStates::PlusBlockStartState;
+StarBlockStartState = ATNStates::StarBlockStartState;
+BasicBlockStartState = ATNStates::BasicBlockStartState;
 use Antlr4\Transitions; //('./Transition');
-/*var */Transition = Transitions::Transition;
-/*var */AtomTransition = Transitions::AtomTransition;
-/*var */SetTransition = Transitions::SetTransition;
-/*var */NotSetTransition = Transitions::NotSetTransition;
-/*var */RuleTransition = Transitions::RuleTransition;
-/*var */RangeTransition = Transitions::RangeTransition;
-/*var */ActionTransition = Transitions::ActionTransition;
-/*var */EpsilonTransition = Transitions::EpsilonTransition;
-/*var */WildcardTransition = Transitions::WildcardTransition;
-/*var */PredicateTransition = Transitions::PredicateTransition;
-/*var */PrecedencePredicateTransition = Transitions::PrecedencePredicateTransition;
+Transition = Transitions::Transition;
+AtomTransition = Transitions::AtomTransition;
+SetTransition = Transitions::SetTransition;
+NotSetTransition = Transitions::NotSetTransition;
+RuleTransition = Transitions::RuleTransition;
+RangeTransition = Transitions::RangeTransition;
+ActionTransition = Transitions::ActionTransition;
+EpsilonTransition = Transitions::EpsilonTransition;
+WildcardTransition = Transitions::WildcardTransition;
+PredicateTransition = Transitions::PredicateTransition;
+PrecedencePredicateTransition = Transitions::PrecedencePredicateTransition;
 use Antlr4\IntervalSet; //('./../IntervalSet').IntervalSet;
 use Antlr4\Interval; //('./../IntervalSet').Interval;
 use Antlr4\ATNDeserializationOptions; //('./ATNDeserializationOptions').ATNDeserializationOptions;
 use Antlr4\LexerActions; //('./LexerAction');
-/*var */LexerActionType = LexerActions::LexerActionType;
-/*var */LexerSkipAction = LexerActions::LexerSkipAction;
-/*var */LexerChannelAction = LexerActions::LexerChannelAction;
-/*var */LexerCustomAction = LexerActions::LexerCustomAction;
-/*var */LexerMoreAction = LexerActions::LexerMoreAction;
-/*var */LexerTypeAction = LexerActions::LexerTypeAction;
-/*var */LexerPushModeAction = LexerActions::LexerPushModeAction;
-/*var */LexerPopModeAction = LexerActions::LexerPopModeAction;
-/*var */LexerModeAction = LexerActions::LexerModeAction;
+LexerActionType = LexerActions::LexerActionType;
+LexerSkipAction = LexerActions::LexerSkipAction;
+LexerChannelAction = LexerActions::LexerChannelAction;
+LexerCustomAction = LexerActions::LexerCustomAction;
+LexerMoreAction = LexerActions::LexerMoreAction;
+LexerTypeAction = LexerActions::LexerTypeAction;
+LexerPushModeAction = LexerActions::LexerPushModeAction;
+LexerPopModeAction = LexerActions::LexerPopModeAction;
+LexerModeAction = LexerActions::LexerModeAction;
 // This is the earliest supported serialized UUID.
 // stick to serialized version for now, we don't need a UUID instance
-/*var */BASE_SERIALIZED_UUID = "AADB8D7E-AEEF-4415-AD2B-8204D6CF042E";
+BASE_SERIALIZED_UUID = "AADB8D7E-AEEF-4415-AD2B-8204D6CF042E";
 
 //
 // This UUID indicates the serialized ATN contains two sets of
 // IntervalSets, where the second set's values are encoded as
 // 32-bit integers to support the full Unicode SMP range up to U+10FFFF.
 //
-/*var */ADDED_UNICODE_SMP = "59627784-3BE5-417A-B9EB-8131A7286089";
+ADDED_UNICODE_SMP = "59627784-3BE5-417A-B9EB-8131A7286089";
 
 // This list contains all of the currently supported UUIDs, ordered by when
 // the feature first appeared in this branch.
-/*var */SUPPORTED_UUIDS = [ BASE_SERIALIZED_UUID, ADDED_UNICODE_SMP ];
+SUPPORTED_UUIDS = [ BASE_SERIALIZED_UUID, ADDED_UNICODE_SMP ];
 
-/*var */SERIALIZED_VERSION = 3;
+SERIALIZED_VERSION = 3;
 
 // This is the current serialized UUID.
-/*var */SERIALIZED_UUID = ADDED_UNICODE_SMP;
+SERIALIZED_UUID = ADDED_UNICODE_SMP;
 
 function initArray( $length, $value) 
 {
-	/*var */$tmp = [];
+	$tmp = [];
 	$tmp[$length-1] = $value;
 	return $tmp->map(function($i) {return $value;});
 }
@@ -105,12 +105,12 @@ function ATNDeserializer ($options)
 
 /* ATNDeserializer */function isFeatureSupported($feature, $actualUuid) 
 {
-    /*var */$idx1 = SUPPORTED_UUIDS->indexOf($feature);
+    $idx1 = SUPPORTED_UUIDS->indexOf($feature);
     if ($idx1<0) 
     {
         return false;
     }
-    /*var */$idx2 = SUPPORTED_UUIDS->indexOf($actualUuid);
+    $idx2 = SUPPORTED_UUIDS->indexOf($actualUuid);
     return $idx2 >= $idx1;
 };
 
@@ -119,11 +119,11 @@ function ATNDeserializer ($options)
     $this->reset($data);
     $this->checkVersion();
     $this->checkUUID();
-    /*var */$atn = $this->readATN();
+    $atn = $this->readATN();
     $this->readStates($atn);
     $this->readRules($atn);
     $this->readModes($atn);
-    /*var */$sets = [];
+    $sets = [];
 // First, deserialize sets with 16-bit arguments <= U+FFFF.
     $this->readSets($atn, $sets, $this->readInt->bind($this));
 // Next, if the ATN was serialized with the Unicode SMP feature,
@@ -148,12 +148,12 @@ function ATNDeserializer ($options)
 
 /* ATNDeserializer */function reset($data) 
 {
-	/*var */$adjust = function($c) 
+	$adjust = function($c) 
 	{
-        /*var */$v = $c->charCodeAt(0);
+        $v = $c->charCodeAt(0);
         return $v>1  ? $v-2 : $v + 65533;
 	};
-    /*var */$temp = $data->split("").map($adjust);
+    $temp = $data->split("").map($adjust);
 // don't adjust the first value since that's the version number
     $temp[0] = $data->charCodeAt(0);
     $this->data = $temp;
@@ -162,7 +162,7 @@ function ATNDeserializer ($options)
 
 /* ATNDeserializer */function checkVersion() 
 {
-    /*var */$version = $this->readInt();
+    $version = $this->readInt();
     if ( $version !== SERIALIZED_VERSION ) 
     {
         throw ("Could not deserialize ATN with version " + version + " (expected " + SERIALIZED_VERSION + ").");
@@ -171,7 +171,7 @@ function ATNDeserializer ($options)
 
 /* ATNDeserializer */function checkUUID() 
 {
-    /*var */$uuid = $this->readUUID();
+    $uuid = $this->readUUID();
     if (SUPPORTED_UUIDS->indexOf($uuid)<0) 
     {
         throw ("Could not deserialize ATN with UUID: " . $uuid .
@@ -182,40 +182,40 @@ function ATNDeserializer ($options)
 
 /* ATNDeserializer */function readATN() 
 {
-    /*var */$grammarType = $this->readInt();
-    /*var */$maxTokenType = $this->readInt();
+    $grammarType = $this->readInt();
+    $maxTokenType = $this->readInt();
     return new ATN($grammarType, $maxTokenType);
 };
 
 /* ATNDeserializer */function readStates($atn) 
 {
-	/*var */$j, $pair, $stateNumber;
-    /*var */$loopBackStateNumbers = [];
-    /*var */$endStateNumbers = [];
-    /*var */$nstates = $this->readInt();
+	$j, $pair, $stateNumber;
+    $loopBackStateNumbers = [];
+    $endStateNumbers = [];
+    $nstates = $this->readInt();
     for($i=0; $i<$nstates; $i++) 
     {
-        /*var */$stype = $this->readInt();
+        $stype = $this->readInt();
 // ignore bad type of states
         if ($stype===ATNState::INVALID_TYPE) 
         {
             $atn->addState(null);
             continue;
         }
-        /*var */$ruleIndex = $this->readInt();
+        $ruleIndex = $this->readInt();
         if ($ruleIndex === 0xFFFF) 
         {
             $ruleIndex = -1;
         }
-        /*var */$s = $this->stateFactory($stype, $ruleIndex);
+        $s = $this->stateFactory($stype, $ruleIndex);
         if ($stype === ATNState::LOOP_END) 
         {// special case
-            /*var */$loopBackStateNumber = $this->readInt();
+            $loopBackStateNumber = $this->readInt();
             array_push($loopBackStateNumbers, [$s, $loopBackStateNumber]);
         }
         else if($s instanceof BlockStartState) 
         {
-            /*var */$endStateNumber = $this->readInt();
+            $endStateNumber = $this->readInt();
             array_push($endStateNumbers, [$s, $endStateNumber]);
         }
         $atn->addState($s);
@@ -234,14 +234,14 @@ function ATNDeserializer ($options)
         $pair[0].$endState = $atn->states[$pair[1]];
     }
 
-    /*var */$numNonGreedyStates = $this->readInt();
+    $numNonGreedyStates = $this->readInt();
     for ($j=0; $j<$numNonGreedyStates; $j++) 
     {
         $stateNumber = $this->readInt();
         $atn->states[$stateNumber].$nonGreedy = true;
     }
 
-    /*var */$numPrecedenceStates = $this->readInt();
+    $numPrecedenceStates = $this->readInt();
     for ($j=0; $j<$numPrecedenceStates; $j++) 
     {
         $stateNumber = $this->readInt();
@@ -251,8 +251,8 @@ function ATNDeserializer ($options)
 
 /* ATNDeserializer */function readRules($atn) 
 {
-    /*var */$i;
-    /*var */$nrules = $this->readInt();
+    $i;
+    $nrules = $this->readInt();
     if ($atn->grammarType === ATNType::LEXER ) 
     {
         $atn->ruleToTokenType = initArray($nrules, 0);
@@ -260,12 +260,12 @@ function ATNDeserializer ($options)
     $atn->ruleToStartState = initArray($nrules, 0);
     for ($i=0; $i<$nrules; $i++) 
     {
-        /*var */$s = $this->readInt();
-        /*var */$startState = $atn->states[$s];
+        $s = $this->readInt();
+        $startState = $atn->states[$s];
         $atn->ruleToStartState[$i] = $startState;
         if ( $atn->grammarType === ATNType::LEXER ) 
         {
-            /*var */$tokenType = $this->readInt();
+            $tokenType = $this->readInt();
             if ($tokenType === 0xFFFF) 
             {
                 $tokenType = Token::EOF;
@@ -276,7 +276,7 @@ function ATNDeserializer ($options)
     $atn->ruleToStopState = initArray($nrules, 0);
     for ($i=0; $i<$atn->states->length; $i++) 
     {
-        /*var */$state = $atn->states[$i];
+        $state = $atn->states[$i];
         if (!($state instanceof RuleStopState)) 
         {
             continue;
@@ -288,31 +288,31 @@ function ATNDeserializer ($options)
 
 /* ATNDeserializer */function readModes($atn) 
 {
-    /*var */$nmodes = $this->readInt();
+    $nmodes = $this->readInt();
     for ($i=0; $i<$nmodes; $i++) 
     {
-        /*var */$s = $this->readInt();
+        $s = $this->readInt();
         array_push($atn->modeToStartState, $atn->states[$s]);
     }
 };
 
 /* ATNDeserializer */function readSets($atn, $sets, $readUnicode) 
 {
-    /*var */$m = $this->readInt();
+    $m = $this->readInt();
     for ($i=0; $i<$m; $i++) 
     {
-        /*var */$iset = new IntervalSet();
+        $iset = new IntervalSet();
         array_push($sets, $iset);
-        /*var */$n = $this->readInt();
-        /*var */$containsEof = $this->readInt();
+        $n = $this->readInt();
+        $containsEof = $this->readInt();
         if ($containsEof!==0) 
         {
             $iset->addOne(-1);
         }
         for ($j=0; $j<$n; $j++) 
         {
-            /*var */$i1 = readUnicode();
-            /*var */$i2 = readUnicode();
+            $i1 = readUnicode();
+            $i2 = readUnicode();
             $iset->addRange($i1, $i2);
         }
     }
@@ -320,18 +320,18 @@ function ATNDeserializer ($options)
 
 /* ATNDeserializer */function readEdges($atn, $sets) 
 {
-	/*var */$i, $j, $state, $trans, $target;
-    /*var */$nedges = $this->readInt();
+	$i, $j, $state, $trans, $target;
+    $nedges = $this->readInt();
     for ($i=0; $i<$nedges; $i++) 
     {
-        /*var */$src = $this->readInt();
-        /*var */$trg = $this->readInt();
-        /*var */$ttype = $this->readInt();
-        /*var */$arg1 = $this->readInt();
-        /*var */$arg2 = $this->readInt();
-        /*var */$arg3 = $this->readInt();
+        $src = $this->readInt();
+        $trg = $this->readInt();
+        $ttype = $this->readInt();
+        $arg1 = $this->readInt();
+        $arg2 = $this->readInt();
+        $arg3 = $this->readInt();
         $trans = $this->edgeFactory($atn, $ttype, $src, $trg, $arg1, $arg2, $arg3, $sets);
-        /*var */$srcState = $atn->states[$src];
+        $srcState = $atn->states[$src];
         $srcState->addTransition($trans);
     }
 // edges for rule stop states can be derived, so they aren't serialized
@@ -340,12 +340,12 @@ function ATNDeserializer ($options)
         $state = $atn->states[$i];
         for ($j=0; $j<$state->transitions->length; $j++) 
         {
-            /*var */$t = $state->transitions[$j];
+            $t = $state->transitions[$j];
             if (!($t instanceof RuleTransition)) 
             {
                 continue;
             }
-			/*var */$outermostPrecedenceReturn = -1;
+			$outermostPrecedenceReturn = -1;
 			if ($atn->ruleToStartState[$t->target->ruleIndex].$isPrecedenceRule) 
 			{
 				if ($t->precedence === 0) 
@@ -403,11 +403,11 @@ function ATNDeserializer ($options)
 
 /* ATNDeserializer */function readDecisions($atn) 
 {
-    /*var */$ndecisions = $this->readInt();
+    $ndecisions = $this->readInt();
     for ($i=0; $i<$ndecisions; $i++) 
     {
-        /*var */$s = $this->readInt();
-        /*var */$decState = $atn->states[$s];
+        $s = $this->readInt();
+        $decState = $atn->states[$s];
         array_push($atn->decisionToState, $decState);
         $decState->decision = $i;
     }
@@ -417,22 +417,22 @@ function ATNDeserializer ($options)
 {
     if ($atn->grammarType === ATNType::LEXER) 
     {
-        /*var */$count = $this->readInt();
+        $count = $this->readInt();
         $atn->lexerActions = initArray($count, null);
         for ($i=0; $i<$count; $i++) 
         {
-            /*var */$actionType = $this->readInt();
-            /*var */$data1 = $this->readInt();
+            $actionType = $this->readInt();
+            $data1 = $this->readInt();
             if ($data1 === 0xFFFF) 
             {
                 $data1 = -1;
             }
-            /*var */$data2 = $this->readInt();
+            $data2 = $this->readInt();
             if ($data2 === 0xFFFF) 
             {
                 $data2 = -1;
             }
-            /*var */$lexerAction = $this->lexerActionFactory($actionType, $data1, $data2);
+            $lexerAction = $this->lexerActionFactory($actionType, $data1, $data2);
             $atn->lexerActions[$i] = $lexerAction;
         }
     }
@@ -440,8 +440,8 @@ function ATNDeserializer ($options)
 
 /* ATNDeserializer */function generateRuleBypassTransitions($atn) 
 {
-	/*var */$i;
-    /*var */$count = $atn->ruleToStartState->length;
+	$i;
+    $count = $atn->ruleToStartState->length;
     for($i=0; $i<$count; $i++) 
     {
         $atn->ruleToTokenType[$i] = $atn->maxTokenType + $i + 1;
@@ -454,12 +454,12 @@ function ATNDeserializer ($options)
 
 /* ATNDeserializer */function generateRuleBypassTransition($atn, $idx) 
 {
-	/*var */$i, $state;
-    /*var */$bypassStart = new BasicBlockStartState();
+	$i, $state;
+    $bypassStart = new BasicBlockStartState();
     $bypassStart->ruleIndex = $idx;
     $atn->addState($bypassStart);
 
-    /*var */$bypassStop = new BlockEndState();
+    $bypassStop = new BlockEndState();
     $bypassStop->ruleIndex = $idx;
     $atn->addState($bypassStop);
 
@@ -468,8 +468,8 @@ function ATNDeserializer ($options)
 
     $bypassStop->startState = $bypassStart;
 
-    /*var */$excludeTransition = null;
-    /*var */$endState = null;
+    $excludeTransition = null;
+    $endState = null;
 
     if ($atn->ruleToStartState[$idx].$isPrecedenceRule) 
     {// wrap from the beginning of the rule to the StarLoopEntryState
@@ -501,7 +501,7 @@ function ATNDeserializer ($options)
         $state = $atn->states[$i];
         for($j=0; $j<$state->transitions->length; $j++) 
         {
-            /*var */$transition = $state->transitions[$j];
+            $transition = $state->transitions[$j];
             if ($transition === $excludeTransition) 
             {
                 continue;
@@ -515,8 +515,8 @@ function ATNDeserializer ($options)
 
 // all transitions leaving the rule start state need to leave blockStart
 // instead
-    /*var */$ruleToStartState = $atn->ruleToStartState[$idx];
-    /*var */$count = $ruleToStartState->transitions->length;
+    $ruleToStartState = $atn->ruleToStartState[$idx];
+    $count = $ruleToStartState->transitions->length;
     while ( $count > 0) 
     {
         $bypassStart->addTransition($ruleToStartState->transitions[$count-1]);
@@ -526,7 +526,7 @@ function ATNDeserializer ($options)
     $atn->ruleToStartState[$idx].addTransition(new EpsilonTransition($bypassStart));
     $bypassStop->addTransition(new EpsilonTransition($endState));
 
-    /*var */$matchState = new BasicState();
+    $matchState = new BasicState();
     $atn->addState($matchState);
     $matchState->addTransition(new AtomTransition($bypassStop, $atn->ruleToTokenType[$idx]));
     $bypassStart->addTransition(new EpsilonTransition($matchState));
@@ -542,7 +542,7 @@ function ATNDeserializer ($options)
     {
         return null;
     }
-    /*var */$maybeLoopEndState = $state->transitions[$state->transitions->length - 1].$target;
+    $maybeLoopEndState = $state->transitions[$state->transitions->length - 1].$target;
     if (!( $maybeLoopEndState instanceof LoopEndState)) 
     {
         return null;
@@ -569,7 +569,7 @@ function ATNDeserializer ($options)
 {
 	for($i=0; $i<$atn->states->length; $i++) 
 	{
-		/*var */$state = $atn->states[$i];
+		$state = $atn->states[$i];
 		if (!( $state instanceof StarLoopEntryState)) 
 		{
             continue;
@@ -580,7 +580,7 @@ function ATNDeserializer ($options)
 //
         if ( $atn->ruleToStartState[$state->ruleIndex].$isPrecedenceRule) 
         {
-            /*var */$maybeLoopEndState = $state->transitions[$state->transitions->length - 1].$target;
+            $maybeLoopEndState = $state->transitions[$state->transitions->length - 1].$target;
             if ($maybeLoopEndState instanceof LoopEndState) 
             {
                 if ( $maybeLoopEndState->epsilonOnlyTransitions &&
@@ -602,7 +602,7 @@ function ATNDeserializer ($options)
 // verify assumptions
 	for($i=0; $i<$atn->states->length; $i++) 
 	{
-        /*var */$state = $atn->states[$i];
+        $state = $atn->states[$i];
         if ($state === null) 
         {
             continue;
@@ -682,21 +682,21 @@ function ATNDeserializer ($options)
 
 /* ATNDeserializer */function readInt32() 
 {
-    /*var */$low = $this->readInt();
-    /*var */$high = $this->readInt();
+    $low = $this->readInt();
+    $high = $this->readInt();
     return $low | ($high << 16);
 };
 
 /* ATNDeserializer */function readLong() 
 {
-    /*var */$low = $this->readInt32();
-    /*var */$high = $this->readInt32();
+    $low = $this->readInt32();
+    $high = $this->readInt32();
     return ($low & 0x00000000FFFFFFFF) | ($high << 32);
 };
 
 function createByteToHex() 
 {
-	/*var */$bth = [];
+	$bth = [];
 	for ($i = 0; $i < 256; $i++) 
 	{
 		$bth[$i] = ($i + 0x100).toString(16).substr(1).toUpperCase();
@@ -704,14 +704,14 @@ function createByteToHex()
 	return $bth;
 }
 
-/*var */$byteToHex = createByteToHex();
+$byteToHex = createByteToHex();
 
 /* ATNDeserializer */function readUUID() 
 {
-	/*var */$bb = [];
+	$bb = [];
 	for($i=7;$i>=0;$i--) 
 	{
-		/*var */$int = $this->readInt();
+		$int = $this->readInt();
 /* jshint bitwise: false */
 		$bb[(2*$i)+1] = $int & 0xFF;
 		$bb[2*$i] = ($int >> 8) & 0xFF;
@@ -728,7 +728,7 @@ function createByteToHex()
 
 /* ATNDeserializer */function edgeFactory($atn, $type, $src, $trg, $arg1, $arg2, $arg3, $sets) 
 {
-    /*var */$target = $atn->states[$trg];
+    $target = $atn->states[$trg];
     switch($type) 
     {
     case Transition::EPSILON:
@@ -760,7 +760,7 @@ function createByteToHex()
 {
     if ($this->stateFactories === null) 
     {
-        /*var */$sf = [];
+        $sf = [];
         $sf[ATNState::INVALID_TYPE] = null;
         $sf[ATNState::BASIC] = function() { return new BasicState(); };
         $sf[ATNState::RULE_START] = function() { return new RuleStartState(); };
@@ -782,7 +782,7 @@ function createByteToHex()
     }
     else 
     {
-        /*var */$s = $this->stateFactories[$type]();
+        $s = $this->stateFactories[$type]();
         if ($s!==null) 
         {
             $s->ruleIndex = $ruleIndex;
@@ -795,7 +795,7 @@ function createByteToHex()
 {
     if ($this->actionFactories === null) 
     {
-        /*var */$af = [];
+        $af = [];
         $af[LexerActionType::CHANNEL] = function($data1, $data2) { return new LexerChannelAction($data1); };
         $af[LexerActionType::CUSTOM] = function($data1, $data2) { return new LexerCustomAction($data1, $data2); };
         $af[LexerActionType::MODE] = function($data1, $data2) { return new LexerModeAction($data1); };

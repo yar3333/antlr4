@@ -105,12 +105,12 @@ LexerATNSimulator::match_calls = 0;
 {
 	$this->match_calls += 1;
 	$this->mode = $mode;
-	/*var */$mark = $input->mark();
+	$mark = $input->mark();
 	try 
 	{
 		$this->startIndex = $input->index;
 		$this->prevAccept->reset();
-		/*var */$dfa = $this->decisionToDFA[$mode];
+		$dfa = $this->decisionToDFA[$mode];
 		if ($dfa->s0 === null) 
 		{
 			return $this->matchATN($input);
@@ -137,24 +137,24 @@ LexerATNSimulator::match_calls = 0;
 
 /* LexerATNSimulator */function matchATN($input) 
 {
-	/*var */$startState = $this->atn->modeToStartState[$this->mode];
+	$startState = $this->atn->modeToStartState[$this->mode];
 
 	if (LexerATNSimulator::debug) 
 	{
 		$console->log("matchATN mode " + this.mode + " start: " . $startState);
 	}
-	/*var */$old_mode = $this->mode;
-	/*var */$s0_closure = $this->computeStartState($input, $startState);
-	/*var */$suppressEdge = $s0_closure->hasSemanticContext;
+	$old_mode = $this->mode;
+	$s0_closure = $this->computeStartState($input, $startState);
+	$suppressEdge = $s0_closure->hasSemanticContext;
 	$s0_closure->hasSemanticContext = false;
 
-	/*var */$next = $this->addDFAState($s0_closure);
+	$next = $this->addDFAState($s0_closure);
 	if (!$suppressEdge) 
 	{
 		$this->decisionToDFA[$this->mode].$s0 = $next;
 	}
 
-	/*var */$predict = $this->execATN($input, $next);
+	$predict = $this->execATN($input, $next);
 
 	if (LexerATNSimulator::debug) 
 	{
@@ -173,8 +173,8 @@ LexerATNSimulator::match_calls = 0;
 	{// allow zero-length tokens
 		$this->captureSimState($this->prevAccept, $input, $ds0);
 	}
-	/*var */$t = $input->LA(1);
-	/*var */$s = $ds0;// s is current/from DFA state
+	$t = $input->LA(1);
+	$s = $ds0;// s is current/from DFA state
 
 	while (true) 
 	{// while more work
@@ -201,7 +201,7 @@ LexerATNSimulator::match_calls = 0;
 // A character will take us back to an existing DFA state
 // that already has lots of edges out of it. e.g., .* in comments.
 // print("Target for:" + str(s) + " and:" + str(t))
-		/*var */$target = $this->getExistingTargetState($s, $t);
+		$target = $this->getExistingTargetState($s, $t);
 // print("Existing:" + str(target))
 		if ($target === null) 
 		{
@@ -250,7 +250,7 @@ LexerATNSimulator::match_calls = 0;
 		return null;
 	}
 
-	/*var */$target = $s->edges[$t - LexerATNSimulator::MIN_DFA_EDGE];
+	$target = $s->edges[$t - LexerATNSimulator::MIN_DFA_EDGE];
 	if(!isset($target)) 
 	{
 		$target = null;
@@ -274,7 +274,7 @@ LexerATNSimulator::match_calls = 0;
 // returns {@link //ERROR}.
 /* LexerATNSimulator */function computeTargetState($input, $s, $t) 
 {
-	/*var */$reach = new OrderedATNConfigSet();
+	$reach = new OrderedATNConfigSet();
 // if we don't find an existing DFA state
 // Fill reach starting from closure, following t transitions
 	$this->getReachableConfigSet($input, $s->configs, $reach, $t);
@@ -297,7 +297,7 @@ LexerATNSimulator::match_calls = 0;
 {
 	if ($this->prevAccept->dfaState !== null) 
 	{
-		/*var */$lexerActionExecutor = $prevAccept->dfaState->lexerActionExecutor;
+		$lexerActionExecutor = $prevAccept->dfaState->lexerActionExecutor;
 		$this->accept($input, $lexerActionExecutor, $this->startIndex,
 				$prevAccept->index, $prevAccept->line, $prevAccept->column);
 		return $prevAccept->dfaState->prediction;
@@ -319,11 +319,11 @@ LexerATNSimulator::match_calls = 0;
 		$reach, $t) 
 		{// this is used to skip processing for configs which have a lower priority
 // than a config that already reached an accept state for the same rule
-	/*var */$skipAlt = ATN::INVALID_ALT_NUMBER;
+	$skipAlt = ATN::INVALID_ALT_NUMBER;
 	for ($i = 0; $i < $closure->items->length; $i++) 
 	{
-		/*var */$cfg = $closure->items[$i];
-		/*var */$currentAltReachedAcceptState = ($cfg->alt === $skipAlt);
+		$cfg = $closure->items[$i];
+		$currentAltReachedAcceptState = ($cfg->alt === $skipAlt);
 		if ($currentAltReachedAcceptState && $cfg->passedThroughNonGreedyDecision) 
 		{
 			continue;
@@ -335,17 +335,17 @@ LexerATNSimulator::match_calls = 0;
 		}
 		for ($j = 0; $j < $cfg->state->transitions->length; $j++) 
 		{
-			/*var */$trans = $cfg->state->transitions[$j];// for each transition
-			/*var */$target = $this->getReachableTarget($trans, $t);
+			$trans = $cfg->state->transitions[$j];// for each transition
+			$target = $this->getReachableTarget($trans, $t);
 			if ($target !== null) 
 			{
-				/*var */$lexerActionExecutor = $cfg->lexerActionExecutor;
+				$lexerActionExecutor = $cfg->lexerActionExecutor;
 				if ($lexerActionExecutor !== null) 
 				{
 					$lexerActionExecutor = $lexerActionExecutor->fixOffsetBeforeMatch($input->index - $this->startIndex);
 				}
-				/*var */$treatEofAsEpsilon = ($t === Token::EOF);
-				/*var */$config = new LexerATNConfig({$state:$target, $lexerActionExecutor:$lexerActionExecutor}, $cfg);
+				$treatEofAsEpsilon = ($t === Token::EOF);
+				$config = new LexerATNConfig({$state:$target, $lexerActionExecutor:$lexerActionExecutor}, $cfg);
 				if ($this->closure($input, $config, $reach,
 						$currentAltReachedAcceptState, true, $treatEofAsEpsilon)) 
 						{// any remaining configs for this alt have a lower priority
@@ -388,12 +388,12 @@ LexerATNSimulator::match_calls = 0;
 
 /* LexerATNSimulator */function computeStartState($input, $p) 
 {
-	/*var */$initialContext = PredictionContext::EMPTY;
-	/*var */$configs = new OrderedATNConfigSet();
+	$initialContext = PredictionContext::EMPTY;
+	$configs = new OrderedATNConfigSet();
 	for ($i = 0; $i < $p->transitions->length; $i++) 
 	{
-		/*var */$target = $p->transitions[$i].$target;
-        /*var */$cfg = new LexerATNConfig({$state:$target, $alt:$i+1, $context:$initialContext}, null);
+		$target = $p->transitions[$i].$target;
+        $cfg = new LexerATNConfig({$state:$target, $alt:$i+1, $context:$initialContext}, null);
 		$this->closure($input, $cfg, $configs, false, false, false);
 	}
 	return $configs;
@@ -410,7 +410,7 @@ LexerATNSimulator::match_calls = 0;
 /* LexerATNSimulator */function closure($input, $config, $configs,
 		$currentAltReachedAcceptState, $speculative, $treatEofAsEpsilon) 
 		{
-	/*var */$cfg = null;
+	$cfg = null;
 	if (LexerATNSimulator::debug) 
 	{
 		$console->log("closure(" + config.toString(this.recog, true) + ")");
@@ -447,8 +447,8 @@ LexerATNSimulator::match_calls = 0;
 			{
 				if ($config->context->getReturnState($i) !== PredictionContext::EMPTY_RETURN_STATE) 
 				{
-					/*var */$newContext = $config->context->getParent($i);// "pop" return state
-					/*var */$returnState = $this->atn->states[$config->context->getReturnState($i)];
+					$newContext = $config->context->getParent($i);// "pop" return state
+					$returnState = $this->atn->states[$config->context->getReturnState($i)];
 					$cfg = new LexerATNConfig({ $state:$returnState, $context:$newContext }, $config);
 					$currentAltReachedAcceptState = $this->closure($input, $cfg,
 							$configs, $currentAltReachedAcceptState, $speculative,
@@ -468,7 +468,7 @@ LexerATNSimulator::match_calls = 0;
 	}
 	for ($j = 0; $j < $config->state->transitions->length; $j++) 
 	{
-		/*var */$trans = $config->state->transitions[$j];
+		$trans = $config->state->transitions[$j];
 		$cfg = $this->getEpsilonTarget($input, $config, $trans, $configs, $speculative, $treatEofAsEpsilon);
 		if ($cfg !== null) 
 		{
@@ -483,10 +483,10 @@ LexerATNSimulator::match_calls = 0;
 /* LexerATNSimulator */function getEpsilonTarget($input, $config, $trans,
 		$configs, $speculative, $treatEofAsEpsilon) 
 		{
-	/*var */$cfg = null;
+	$cfg = null;
 	if ($trans->serializationType === Transition::RULE) 
 	{
-		/*var */$newContext = SingletonPredictionContext->create($config->context, $trans->followState->stateNumber);
+		$newContext = SingletonPredictionContext->create($config->context, $trans->followState->stateNumber);
 		$cfg = new LexerATNConfig( { $state:$trans->target, $context:$newContext}, $config);
 	}
 	else if ($trans->serializationType === Transition::PRECEDENCE) 
@@ -537,7 +537,7 @@ LexerATNSimulator::match_calls = 0;
 // getEpsilonTarget to return two configurations, so
 // additional modifications are needed before we can support
 // the split operation.
-			/*var */$lexerActionExecutor = LexerActionExecutor->append($config->lexerActionExecutor,
+			$lexerActionExecutor = LexerActionExecutor->append($config->lexerActionExecutor,
 					$this->atn->lexerActions[$trans->actionIndex]);
 			$cfg = new LexerATNConfig({ $state:$trans->target, $lexerActionExecutor:$lexerActionExecutor }, $config);
 		}
@@ -596,10 +596,10 @@ LexerATNSimulator::match_calls = 0;
 	{
 		return $this->recog->sempred(null, $ruleIndex, $predIndex);
 	}
-	/*var */$savedcolumn = $this->column;
-	/*var */$savedLine = $this->line;
-	/*var */$index = $input->index;
-	/*var */$marker = $input->mark();
+	$savedcolumn = $this->column;
+	$savedLine = $this->line;
+	$index = $input->index;
+	$marker = $input->mark();
 	try 
 	{
 		$this->consume($input);
@@ -644,7 +644,7 @@ LexerATNSimulator::match_calls = 0;
 // If that gets us to a previously created (but dangling) DFA
 // state, we can continue in pure DFA mode from there.
 // /
-		/*var */$suppressEdge = $cfgs->hasSemanticContext;
+		$suppressEdge = $cfgs->hasSemanticContext;
 		$cfgs->hasSemanticContext = false;
 
 		$to = $this->addDFAState($cfgs);
@@ -678,11 +678,11 @@ LexerATNSimulator::match_calls = 0;
 // traversing the DFA, we will know which rule to accept.
 /* LexerATNSimulator */function addDFAState($configs) 
 {
-	/*var */$proposed = new DFAState(null, $configs);
-	/*var */$firstConfigWithRuleStopState = null;
+	$proposed = new DFAState(null, $configs);
+	$firstConfigWithRuleStopState = null;
 	for ($i = 0; $i < $configs->items->length; $i++) 
 	{
-		/*var */$cfg = $configs->items[$i];
+		$cfg = $configs->items[$i];
 		if ($cfg->state instanceof RuleStopState) 
 		{
 			$firstConfigWithRuleStopState = $cfg;
@@ -695,13 +695,13 @@ LexerATNSimulator::match_calls = 0;
 		$proposed->lexerActionExecutor = $firstConfigWithRuleStopState->lexerActionExecutor;
 		$proposed->prediction = $this->atn->ruleToTokenType[$firstConfigWithRuleStopState->state->ruleIndex];
 	}
-	/*var */$dfa = $this->decisionToDFA[$this->mode];
-	/*var */$existing = $dfa->states->get($proposed);
+	$dfa = $this->decisionToDFA[$this->mode];
+	$existing = $dfa->states->get($proposed);
 	if ($existing!==null) 
 	{
 		return $existing;
 	}
-	/*var */$newState = $proposed;
+	$newState = $proposed;
 	$newState->stateNumber = $dfa->states->length;
 	$configs->setReadonly(true);
 	$newState->configs = $configs;
@@ -722,7 +722,7 @@ LexerATNSimulator::match_calls = 0;
 
 /* LexerATNSimulator */function consume($input) 
 {
-	/*var */$curChar = $input->LA(1);
+	$curChar = $input->LA(1);
 	if ($curChar === "\n".charCodeAt(0)) {
 		$this->line += 1;
 		$this->column = 0;

@@ -14,7 +14,7 @@ namespace Antlr4\Tree;
 
 use Antlr4\Token; //('./../Token').Token;
 use Antlr4\Interval; //('./../IntervalSet').Interval;
-/*var */INVALID_INTERVAL = new Interval(-1, -2);
+INVALID_INTERVAL = new Interval(-1, -2);
 use Antlr4\Utils; //('../Utils.js');
 
 
@@ -167,7 +167,7 @@ TerminalNodeImpl::prototype->constructor = TerminalNodeImpl;
 	{
 		return INVALID_INTERVAL;
 	}
-	/*var */$tokenIndex = $this->symbol->tokenIndex;
+	$tokenIndex = $this->symbol->tokenIndex;
 	return new Interval($tokenIndex, $tokenIndex);
 };
 
@@ -230,7 +230,7 @@ function ParseTreeWalker()
 
 /* ParseTreeWalker */function walk($listener, $t) 
 {
-	/*var */$errorNode = $t instanceof ErrorNode ||
+	$errorNode = $t instanceof ErrorNode ||
 			($t->isErrorNode !== undefined && $t->isErrorNode());
 	if ($errorNode) 
 	{
@@ -245,7 +245,7 @@ function ParseTreeWalker()
 		$this->enterRule($listener, $t);
 		for ($i = 0; $i < $t->getChildCount(); $i++) 
 		{
-			/*var */$child = $t->getChild($i);
+			$child = $t->getChild($i);
 			$this->walk($listener, $child);
 		}
 		$this->exitRule($listener, $t);
@@ -259,14 +259,14 @@ function ParseTreeWalker()
 //
 /* ParseTreeWalker */function enterRule($listener, $r) 
 {
-	/*var */$ctx = $r->getRuleContext();
+	$ctx = $r->getRuleContext();
 	$listener->enterEveryRule($ctx);
 	$ctx->enterRule($listener);
 };
 
 /* ParseTreeWalker */function exitRule($listener, $r) 
 {
-	/*var */$ctx = $r->getRuleContext();
+	$ctx = $r->getRuleContext();
 	$ctx->exitRule($listener);
 	$listener->exitEveryRule($ctx);
 };

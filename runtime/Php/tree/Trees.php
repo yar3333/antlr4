@@ -34,14 +34,14 @@ static function /*
     {
        $ruleNames = $recog->ruleNames;
     }
-    /*var */$s = Trees->getNodeText($tree, $ruleNames);
+    $s = Trees->getNodeText($tree, $ruleNames);
     $s = Utils->escapeWhitespace($s, false);
-    /*var */$c = $tree->getChildCount();
+    $c = $tree->getChildCount();
     if($c===0) 
     {
         return $s;
     }
-    /*var */$res = "(" . $s . ' ';
+    $res = "(" . $s . ' ';
     if($c>0) 
     {
         $s = Trees->toStringTree($tree->getChild(0), $ruleNames);
@@ -68,7 +68,7 @@ Trees::getNodeText = function($t, $ruleNames, $recog)
     {
        if ($t instanceof RuleContext) 
        {
-           /*var */$altNumber = $t->getAltNumber();
+           $altNumber = $t->getAltNumber();
            if ( $altNumber!=INVALID_ALT_NUMBER ) 
            {
                return $ruleNames[$t->ruleIndex]+":".$altNumber;
@@ -88,7 +88,7 @@ Trees::getNodeText = function($t, $ruleNames, $recog)
        }
     }
 // no recog for rule names
-    /*var */$payload = $t->getPayload();
+    $payload = $t->getPayload();
     if ($payload instanceof Token ) 
     {
        return $payload->text;
@@ -101,7 +101,7 @@ Trees::getNodeText = function($t, $ruleNames, $recog)
 static function /* 
  */Trees($t) 
 {
-	/*var */$list = [];
+	$list = [];
 	for($i=0;$i<$t->getChildCount();$i++) 
 	{
 		array_push($list, $t->getChild($i));
@@ -115,7 +115,7 @@ static function /*
 static function /* 
  */Trees($t) 
 {
-    /*var */$ancestors = [];
+    $ancestors = [];
     $t = $t->getParent();
     while($t!==null) 
     {
@@ -137,14 +137,14 @@ Trees::findAllRuleNodes = function($t, $ruleIndex)
 
 Trees::findAllNodes = function($t, $index, $findTokens) 
 {
-	/*var */$nodes = [];
+	$nodes = [];
 	Trees->_findAllNodes($t, $index, $findTokens, $nodes);
 	return $nodes;
 };
 
 Trees::_findAllNodes = function($t, $index, $findTokens, $nodes) 
 {// check this node (the root) first
-	if($findTokens && ($t instanceof TerminalNode)) 
+	if ($findTokens && ($t instanceof TerminalNode)) 
 	{
 		if($t->symbol->type===$index) 
 		{
@@ -167,7 +167,7 @@ Trees::_findAllNodes = function($t, $index, $findTokens, $nodes)
 
 Trees::descendants = function($t) 
 {
-	/*var */$nodes = [$t];
+	$nodes = [$t];
     for($i=0;$i<$t->getChildCount();$i++) 
     {
         $nodes = $nodes->concat(Trees->descendants($t->getChild($i)));

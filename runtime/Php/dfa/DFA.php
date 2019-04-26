@@ -39,7 +39,7 @@ function DFA($atnStartState, $decision)
         if ($atnStartState->isPrecedenceDecision) 
         {
             $this->precedenceDfa = true;
-            /*var */$precedenceState = new DFAState(null, new ATNConfigSet());
+            $precedenceState = new DFAState(null, new ATNConfigSet());
             $precedenceState->edges = [];
             $precedenceState->isAcceptState = false;
             $precedenceState->requiresFullContext = false;
@@ -122,7 +122,7 @@ function DFA($atnStartState, $decision)
 		$this->_states = new DFAStatesSet();
 		if ($precedenceDfa) 
 		{
-			/*var */$precedenceState = new DFAState(null, new ATNConfigSet());
+			$precedenceState = new DFAState(null, new ATNConfigSet());
 			$precedenceState->edges = [];
 			$precedenceState->isAcceptState = false;
 			$precedenceState->requiresFullContext = false;
@@ -146,7 +146,7 @@ Object->defineProperty(DFA::prototype, "states", {
 // Return a list of all states in this DFA, ordered by state number.
 /* DFA */function sortedStates() 
 {
-	/*var */$list = $this->_states->values();
+	$list = $this->_states->values();
 	return $list->sort(function($a, $b) 
 	{
 		return $a->stateNumber - $b->stateNumber;
@@ -161,7 +161,7 @@ Object->defineProperty(DFA::prototype, "states", {
 	{
 		return "";
 	}
-	/*var */$serializer = new DFASerializer($this, $literalNames, $symbolicNames);
+	$serializer = new DFASerializer($this, $literalNames, $symbolicNames);
 	return $serializer->toString();
 };
 
@@ -171,7 +171,7 @@ Object->defineProperty(DFA::prototype, "states", {
 	{
 		return "";
 	}
-	/*var */$serializer = new LexerDFASerializer($this);
+	$serializer = new LexerDFASerializer($this);
 	return $serializer->toString();
 };
 

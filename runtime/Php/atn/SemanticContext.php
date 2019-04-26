@@ -27,7 +27,7 @@ function SemanticContext()
 
 /* SemanticContext */function hashCode() 
 {
-    /*var */$hash = new Hash();
+    $hash = new Hash();
     $this->updateHashCode($hash);
     return $hash->finish();
 };
@@ -81,7 +81,7 @@ SemanticContext::andContext = function($a, $b)
 	{
 		return $a;
 	}
-	/*var */$result = new AND($a, $b);
+	$result = new AND($a, $b);
 	if ($result->opnds->length === 1) 
 	{
 		return $result->opnds[0];
@@ -106,7 +106,7 @@ SemanticContext::orContext = function($a, $b)
 	{
 		return SemanticContext::NONE;
 	}
-	/*var */$result = new OR($a, $b);
+	$result = new OR($a, $b);
 	if ($result->opnds->length === 1) 
 	{
 		return $result->opnds[0];
@@ -137,7 +137,7 @@ Predicate::prototype->constructor = Predicate;
 
 /* Predicate */function evaluate($parser, $outerContext) 
 {
-	/*var */$localctx = $this->isCtxDependent ? $outerContext : null;
+	$localctx = $this->isCtxDependent ? $outerContext : null;
 	return $parser->sempred($localctx, $this->ruleIndex, $this->predIndex);
 };
 
@@ -230,7 +230,7 @@ PrecedencePredicate::prototype->constructor = PrecedencePredicate;
 
 PrecedencePredicate::filterPrecedencePredicates = function($set) 
 {
-	/*var */$result = [];
+	$result = [];
 	$set->values().map( function($context) 
 	{
 		if ($context instanceof PrecedencePredicate) 
@@ -248,7 +248,7 @@ PrecedencePredicate::filterPrecedencePredicates = function($set)
 function AND($a, $b) 
 {
 	SemanticContext->call($this);
-	/*var */$operands = new Set();
+	$operands = new Set();
 	if ($a instanceof AND) 
 	{
 		$a->opnds->map(function($o) 
@@ -271,10 +271,10 @@ function AND($a, $b)
 	{
 		$operands->add($b);
 	}
-	/*var */$precedencePredicates = PrecedencePredicate->filterPrecedencePredicates($operands);
+	$precedencePredicates = PrecedencePredicate->filterPrecedencePredicates($operands);
 	if ($precedencePredicates->length > 0) 
 	{// interested in the transition with the lowest precedence
-		/*var */$reduced = null;
+		$reduced = null;
 		$precedencePredicates->map( function($p) 
 		{
 			if($reduced===null || $p->precedence<$reduced->precedence) 
@@ -332,12 +332,12 @@ AND::prototype->constructor = AND;
 
 /* AND */function evalPrecedence($parser, $outerContext) 
 {
-	/*var */$differs = false;
-	/*var */$operands = [];
+	$differs = false;
+	$operands = [];
 	for ($i = 0; $i < $this->opnds->length; $i++) 
 	{
-		/*var */$context = $this->opnds[$i];
-		/*var */$evaluated = $context->evalPrecedence($parser, $outerContext);
+		$context = $this->opnds[$i];
+		$evaluated = $context->evalPrecedence($parser, $outerContext);
 		$differs |= ($evaluated !== $context);
 		if ($evaluated === null) 
 		{// The AND context is false if any element is false
@@ -356,7 +356,7 @@ AND::prototype->constructor = AND;
 	{// all elements were true, so the AND context is true
 		return SemanticContext::NONE;
 	}
-	/*var */$result = null;
+	$result = null;
 	$operands->map(function($o) 
 	{
 		$result = $result === null ? $o : SemanticContext->andContext($result, $o);
@@ -366,7 +366,7 @@ AND::prototype->constructor = AND;
 
 /* AND */function __toString() 
 {
-	/*var */$s = "";
+	$s = "";
 	$this->opnds->map(function($o) 
 	{
 		$s += "&& " . $o->toString();
@@ -381,7 +381,7 @@ AND::prototype->constructor = AND;
 function OR($a, $b) 
 {
 	SemanticContext->call($this);
-	/*var */$operands = new Set();
+	$operands = new Set();
 	if ($a instanceof OR) 
 	{
 		$a->opnds->map(function($o) 
@@ -405,14 +405,14 @@ function OR($a, $b)
 		$operands->add($b);
 	}
 
-	/*var */$precedencePredicates = PrecedencePredicate->filterPrecedencePredicates($operands);
+	$precedencePredicates = PrecedencePredicate->filterPrecedencePredicates($operands);
 	if ($precedencePredicates->length > 0) 
 	{// interested in the transition with the highest precedence
-		/*var */$s = $precedencePredicates->sort(function($a, $b) 
+		$s = $precedencePredicates->sort(function($a, $b) 
 		{
 			return $a->compareTo($b);
 		});
-		/*var */$reduced = $s[$s->length-1];
+		$reduced = $s[$s->length-1];
 		$operands->add($reduced);
 	}
 	$this->opnds = $operands->values();
@@ -461,12 +461,12 @@ OR::prototype->constructor = OR;
 
 /* OR */function evalPrecedence($parser, $outerContext) 
 {
-	/*var */$differs = false;
-	/*var */$operands = [];
+	$differs = false;
+	$operands = [];
 	for ($i = 0; $i < $this->opnds->length; $i++) 
 	{
-		/*var */$context = $this->opnds[$i];
-		/*var */$evaluated = $context->evalPrecedence($parser, $outerContext);
+		$context = $this->opnds[$i];
+		$evaluated = $context->evalPrecedence($parser, $outerContext);
 		$differs |= ($evaluated !== $context);
 		if ($evaluated === SemanticContext::NONE) 
 		{// The OR context is true if any element is true
@@ -485,7 +485,7 @@ OR::prototype->constructor = OR;
 	{// all elements were false, so the OR context is false
 		return null;
 	}
-	/*var */$result = null;
+	$result = null;
 	$operands->map(function($o) 
 	{
 		return $result === null ? $o : SemanticContext->orContext($result, $o);
@@ -495,7 +495,7 @@ OR::prototype->constructor = OR;
 
 /* OR */function __toString() 
 {
-	/*var */$s = "";
+	$s = "";
 	$this->opnds->map(function($o) 
 	{
 		$s += "|| " . $o->toString();

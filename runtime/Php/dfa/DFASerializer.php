@@ -24,17 +24,17 @@ function DFASerializer($dfa, $literalNames, $symbolicNames)
    {
        return null;
    }
-   /*var */$buf = "";
-   /*var */$states = $this->dfa->sortedStates();
+   $buf = "";
+   $states = $this->dfa->sortedStates();
    for($i=0;$i<$states->length;$i++) 
    {
-       /*var */$s = $states[$i];
+       $s = $states[$i];
        if($s->edges!==null) 
        {
-            /*var */$n = $s->edges->length;
+            $n = $s->edges->length;
             for($j=0;$j<$n;$j++) 
             {
-                /*var */$t = $s->edges[$j] || null;
+                $t = $s->edges[$j] || null;
                 if($t!==null && $t->stateNumber !== 0x7FFFFFFF) 
                 {
                     $buf = $buf->concat($this->getStateString($s));
@@ -68,7 +68,7 @@ function DFASerializer($dfa, $literalNames, $symbolicNames)
 
 /* DFASerializer */function getStateString($s) 
 {
-    /*var */$baseStateStr = ( $s->isAcceptState ? ":" : "") + "s" + s.stateNumber + ( s.requiresFullContext ? "^" : "");
+    $baseStateStr = ( $s->isAcceptState ? ":" : "") + "s" + s.stateNumber + ( s.requiresFullContext ? "^" : "");
     if($s->isAcceptState) 
     {
         if ($s->predicates !== null) 

@@ -11,8 +11,8 @@ namespace Antlr4\Dfa;
 
 use Antlr4\ATNConfigSet; //('./../atn/ATNConfigSet').ATNConfigSet;
 use Antlr4\Utils; //('./../Utils');
-/*var */Hash = Utils::Hash;
-/*var */Set = Utils::Set;
+Hash = Utils::Hash;
+Set = Utils::Set;
 
 // Map a predicate to a predicted alternative.///
 
@@ -102,12 +102,12 @@ function DFAState($stateNumber, $configs)
 // DFA state.
 /* DFAState */function getAltSet() 
 {
-	/*var */$alts = new Set();
+	$alts = new Set();
 	if ($this->configs !== null) 
 	{
 		for ($i = 0; $i < $this->configs->length; $i++) 
 		{
-			/*var */$c = $this->configs[$i];
+			$c = $this->configs[$i];
 			$alts->add($c->alt);
 		}
 	}
@@ -141,7 +141,7 @@ function DFAState($stateNumber, $configs)
 
 /* DFAState */function __toString() 
 {
-	/*var */$s = "" + this.stateNumber + ":" . $this->configs;
+	$s = "" + this.stateNumber + ":" . $this->configs;
 	if($this->isAcceptState) 
 	{
         $s = $s . "=>";
@@ -155,7 +155,7 @@ function DFAState($stateNumber, $configs)
 
 /* DFAState */function hashCode() 
 {
-	/*var */$hash = new Hash();
+	$hash = new Hash();
 	$hash->update($this->configs);
 	if($this->isAcceptState) 
 	{

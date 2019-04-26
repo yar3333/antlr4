@@ -11,7 +11,7 @@ namespace Antlr4\Atn;
 
 use Antlr4\DFAState; //('./../dfa/DFAState').DFAState;
 use Antlr4\ATNConfigSet; //('./ATNConfigSet').ATNConfigSet;
-/*var */$getCachedPredictionContext = require('./../PredictionContext').$getCachedPredictionContext;
+$getCachedPredictionContext = require('./../PredictionContext').$getCachedPredictionContext;
 
 function ATNSimulator($atn, $sharedContextCache) 
 {// The context cache maps all PredictionContext objects that are ==
@@ -49,7 +49,7 @@ function ATNSimulator($atn, $sharedContextCache)
     {
         return $context;
     }
-    /*var */$visited = {};
+    $visited = {};
     return getCachedPredictionContext($context, $this->sharedContextCache, $visited);
 };
 

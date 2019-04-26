@@ -51,7 +51,7 @@ DiagnosticErrorListener::prototype->constructor = DiagnosticErrorListener;
 	{
 		return;
 	}
-	/*var */$msg = "reportAmbiguity d=" .
+	$msg = "reportAmbiguity d=" .
 			$this->getDecisionDescription($recognizer, $dfa) +
 			": ambigAlts=" .
 			$this->getConflictingAlts($ambigAlts, $configs) +
@@ -63,7 +63,7 @@ DiagnosticErrorListener::prototype->constructor = DiagnosticErrorListener;
 /* DiagnosticErrorListener */function reportAttemptingFullContext(
 		$recognizer, $dfa, $startIndex, $stopIndex, $conflictingAlts, $configs) 
 		{
-	/*var */$msg = "reportAttemptingFullContext d=" .
+	$msg = "reportAttemptingFullContext d=" .
 			$this->getDecisionDescription($recognizer, $dfa) +
 			", input='" .
 			$recognizer->getTokenStream().getText(new Interval($startIndex, $stopIndex)) + "'";
@@ -73,7 +73,7 @@ DiagnosticErrorListener::prototype->constructor = DiagnosticErrorListener;
 /* DiagnosticErrorListener */function reportContextSensitivity(
 		$recognizer, $dfa, $startIndex, $stopIndex, $prediction, $configs) 
 		{
-	/*var */$msg = "reportContextSensitivity d=" .
+	$msg = "reportContextSensitivity d=" .
 			$this->getDecisionDescription($recognizer, $dfa) +
 			", input='" .
 			$recognizer->getTokenStream().getText(new Interval($startIndex, $stopIndex)) + "'";
@@ -82,15 +82,15 @@ DiagnosticErrorListener::prototype->constructor = DiagnosticErrorListener;
 
 /* DiagnosticErrorListener */function getDecisionDescription($recognizer, $dfa) 
 {
-	/*var */$decision = $dfa->decision;
-	/*var */$ruleIndex = $dfa->atnStartState->ruleIndex;
+	$decision = $dfa->decision;
+	$ruleIndex = $dfa->atnStartState->ruleIndex;
 
-	/*var */$ruleNames = $recognizer->ruleNames;
+	$ruleNames = $recognizer->ruleNames;
 	if ($ruleIndex < 0 || $ruleIndex >= $ruleNames->length) 
 	{
 		return "" . $decision;
 	}
-	/*var */$ruleName = $ruleNames[$ruleIndex] || null;
+	$ruleName = $ruleNames[$ruleIndex] || null;
 	if ($ruleName === null || $ruleName->length === 0) 
 	{
 		return "" . $decision;
@@ -115,7 +115,7 @@ DiagnosticErrorListener::prototype->constructor = DiagnosticErrorListener;
 	{
 		return $reportedAlts;
 	}
-	/*var */$result = new BitSet();
+	$result = new BitSet();
 	for ($i = 0; $i < $configs->items->length; $i++) 
 	{
 		$result->add($configs->items[$i].$alt);

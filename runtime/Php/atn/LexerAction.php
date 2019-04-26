@@ -31,7 +31,7 @@ function LexerAction($action)
 
 /* LexerAction */function hashCode() 
 {
-    /*var */$hash = new Hash();
+    $hash = new Hash();
     $this->updateHashCode($hash);
     return $hash->finish()
 };

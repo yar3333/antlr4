@@ -69,7 +69,7 @@ namespace Antlr4\Atn;
 // <embed src="images/OptionalNonGreedy.svg" type="image/svg+xml"/>
 //
 
-/*var */INITIAL_NUM_TRANSITIONS = 4;
+INITIAL_NUM_TRANSITIONS = 4;
 
 function ATNState() 
 {// Which ATN are we in?
