@@ -140,7 +140,7 @@ class RuleContext extends RuleNode
         return Trees::toStringTree($this, $ruleNames, $recog);
     }
 
-    function toString($ruleNames, $stop)
+    function __toString($ruleNames, $stop)
     {
         $ruleNames = $ruleNames || null;
         $stop = $stop || null;

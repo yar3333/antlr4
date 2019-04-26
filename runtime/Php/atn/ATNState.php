@@ -117,7 +117,7 @@ ATNState::serializationNames = [
 
 ATNState::INVALID_STATE_NUMBER = -1;
 
-/* ATNState */function toString() 
+/* ATNState */function __toString() 
 {
 	return $this->stateNumber;
 };
@@ -142,7 +142,7 @@ ATNState::INVALID_STATE_NUMBER = -1;
 
 /* ATNState */function addTransition($trans, $index) 
 {
-	if($index===undefined) 
+	if(!isset($index)) 
 	{
 		$index = -1;
 	}

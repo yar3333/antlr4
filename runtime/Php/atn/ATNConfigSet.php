@@ -95,7 +95,7 @@ function ATNConfigSet($fullCtx)
 // /
 /* ATNConfigSet */function add($config, $mergeCache) 
 {
-	if ($mergeCache === undefined) 
+	if (!isset($mergeCache)) 
 	{
 		$mergeCache = null;
 	}
@@ -280,7 +280,7 @@ Object->defineProperty(ATNConfigSet::prototype, "length", {
 	}
 };
 
-/* ATNConfigSet */function toString() 
+/* ATNConfigSet */function __toString() 
 {
 	return Utils->arrayToString($this->configs) +
 		($this->hasSemanticContext ? ",hasSemanticContext=" + this.hasSemanticContext : "") +

@@ -70,7 +70,7 @@ LexerSkipAction::prototype->constructor = LexerSkipAction;
     $lexer->skip();
 };
 
-/* LexerSkipAction */function toString() 
+/* LexerSkipAction */function __toString() 
 {
 	return "skip";
 };
@@ -114,7 +114,7 @@ LexerTypeAction::prototype->constructor = LexerTypeAction;
     }
 };
 
-/* LexerTypeAction */function toString() 
+/* LexerTypeAction */function __toString() 
 {
     return "type(" + this.type + ")";
 };
@@ -159,7 +159,7 @@ LexerPushModeAction::prototype->constructor = LexerPushModeAction;
     }
 };
 
-/* LexerPushModeAction */function toString() 
+/* LexerPushModeAction */function __toString() 
 {
 	return "pushMode(" + this.mode + ")";
 };
@@ -186,7 +186,7 @@ LexerPopModeAction::prototype->constructor = LexerPopModeAction;
     $lexer->popMode();
 };
 
-/* LexerPopModeAction */function toString() 
+/* LexerPopModeAction */function __toString() 
 {
 	return "popMode";
 };
@@ -212,7 +212,7 @@ LexerMoreAction::prototype->constructor = LexerMoreAction;
     $lexer->more();
 };
 
-/* LexerMoreAction */function toString() 
+/* LexerMoreAction */function __toString() 
 {
     return "more";
 };
@@ -258,7 +258,7 @@ LexerModeAction::prototype->constructor = LexerModeAction;
     }
 };
 
-/* LexerModeAction */function toString() 
+/* LexerModeAction */function __toString() 
 {
     return "mode(" + this.mode + ")";
 };
@@ -363,7 +363,7 @@ LexerChannelAction::prototype->constructor = LexerChannelAction;
     }
 };
 
-/* LexerChannelAction */function toString() 
+/* LexerChannelAction */function __toString() 
 {
     return "channel(" + this.channel + ")";
 };

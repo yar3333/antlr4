@@ -74,7 +74,7 @@ RecognitionException::prototype->constructor = RecognitionException;
     }
 };
 
-/* RecognitionException */function toString() 
+/* RecognitionException */function __toString() 
 {
     return $this->message;
 };
@@ -90,7 +90,7 @@ function LexerNoViableAltException($lexer, $input, $startIndex, $deadEndConfigs)
 LexerNoViableAltException::prototype = Object->create(RecognitionException::prototype);
 LexerNoViableAltException::prototype->constructor = LexerNoViableAltException;
 
-/* LexerNoViableAltException */function toString() 
+/* LexerNoViableAltException */function __toString() 
 {
     /*var */$symbol = "";
     if ($this->startIndex >= 0 && $this->startIndex < $this->input->size) 

@@ -164,7 +164,7 @@ Predicate::prototype->constructor = Predicate;
 	}
 };
 
-/* Predicate */function toString() 
+/* Predicate */function __toString() 
 {
 	return "{" + this.ruleIndex + ":" + this.predIndex + "}?";
 };
@@ -221,7 +221,7 @@ PrecedencePredicate::prototype->constructor = PrecedencePredicate;
 	}
 };
 
-/* PrecedencePredicate */function toString() 
+/* PrecedencePredicate */function __toString() 
 {
 	return "{"+this.precedence+">=prec}?";
 };
@@ -364,7 +364,7 @@ AND::prototype->constructor = AND;
 	return $result;
 };
 
-/* AND */function toString() 
+/* AND */function __toString() 
 {
 	/*var */$s = "";
 	$this->opnds->map(function($o) 
@@ -493,7 +493,7 @@ OR::prototype->constructor = OR;
 	return $result;
 };
 
-/* OR */function toString() 
+/* OR */function __toString() 
 {
 	/*var */$s = "";
 	$this->opnds->map(function($o) 

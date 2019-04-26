@@ -1,19 +1,21 @@
 <?php
-
-namespace Antlr4;
-
 /* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
-/*jslint smarttabs:true */
+namespace Antlr4;
 
-use Antlr4\Token; //('./Token').Token;
-
-class TokenIntervalSet
+class IntervalSet
 {
+    /**
+     * @var Interval[]
+     */
     public $intervals;
+
+    /**
+     * @var bool
+     */
     public $readOnly;
 
     function __construct()
@@ -22,9 +24,9 @@ class TokenIntervalSet
         $this->readOnly = false;
     }
 
-    function first($v)
+    function first() : int
     {
-        if ($this->intervals === null || $this->intervals->length===0)
+        if ($this->intervals === null || count($this->intervals)===0)
         {
             return Token::INVALID_TYPE;
         }
@@ -34,17 +36,17 @@ class TokenIntervalSet
         }
     }
 
-    function addOne($v)
+    function addOne(int $v) : void
     {
         $this->addInterval(new Interval($v, $v + 1));
     }
 
-    function addRange($l, $h)
+    function addRange(int $l, int $h) : void
     {
         $this->addInterval(new Interval($l, $h + 1));
     }
 
-    function addInterval($v)
+    function addInterval(Interval $v) : void
     {
         if ($this->intervals === null)
         {
@@ -54,13 +56,13 @@ class TokenIntervalSet
         else
         {
             // find insert pos
-            for ($k = 0; $k < $this->intervals->length; $k++)
+            for ($k = 0; $k < count($this->intervals); $k++)
             {
-                /*var */$i = $this->intervals[$k];
+                $i = $this->intervals[$k];
                 // distinct range -> insert
                 if ($v->stop < $i->start)
                 {
-                    $this->intervals->splice($k, 0, $v);
+                    array_splice($this->intervals, $k, 0, $v);
                     return;
                 }
                 // contiguous range -> adjust
@@ -82,13 +84,12 @@ class TokenIntervalSet
         }
     }
 
-    function addSet($other)
+    function addSet(IntervalSet $other)
     {
         if ($other->intervals !== null)
         {
-            for ($k = 0; $k < $other->intervals->length; $k++)
+            foreach ($other->intervals as $i)
             {
-                /*var */$i = $other->intervals[$k];
                 $this->addInterval(new Interval($i->start, $i->stop));
             }
         }
@@ -100,8 +101,8 @@ class TokenIntervalSet
         // only need to reduce if k is not the last
         if ($k < $this->intervalslength - 1)
         {
-            /*var */$l = $this->intervals[$k];
-            /*var */$r = $this->intervals[$k + 1];
+            $l = $this->intervals[$k];
+            $r = $this->intervals[$k + 1];
             // if r contained in l
             if ($l->stop >= $r->stop)
             {
@@ -118,9 +119,9 @@ class TokenIntervalSet
 
     function complement($start, $stop)
     {
-        /*var */$result = new IntervalSet();
+        $result = new IntervalSet();
         $result->addInterval(new Interval($start,$stop+1));
-        for($i=0; $i<$this->intervals->length; $i++)
+        for ($i=0; $i<count($this->intervals); $i++)
         {
             $result->removeRange($this->intervals[$i]);
         }
@@ -135,9 +136,9 @@ class TokenIntervalSet
         }
         else
         {
-            for ($k = 0; $k < $this->intervals->length; $k++)
+            for ($k = 0; $k < count($this->intervals); $k++)
             {
-                if($this->intervals[$k].contains($item))
+                if ($this->intervals[$k]->contains($item))
                 {
                     return true;
                 }
@@ -161,10 +162,10 @@ class TokenIntervalSet
         }
         else if ($this->intervals!==null)
         {
-            /*var */$k = 0;
-            for($n=0; $n<$this->intervals->length; $n++)
+            $k = 0;
+            for($n=0; $n<count($this->intervals); $n++)
             {
-                /*var */$i = $this->intervals[$k];
+                $i = $this->intervals[$k];
                 // intervals are ordered
                 if ($v->stop<=$i->start)
                 {
@@ -174,14 +175,14 @@ class TokenIntervalSet
                 else if($v->start>$i->start && $v->stop<$i->stop)
                 {
                     $this->intervals[$k] = new Interval($i->start, $v->start);
-                    /*var */$x = new Interval($v->stop, $i->stop);
-                    $this->intervals->splice($k, 0, $x);
+                    $x = new Interval($v->stop, $i->stop);
+                    array_splice($this->intervals, $k, 0, $x);
                     return;
                 }
                 // check for included range, remove it
                 else if($v->start<=$i->start && $v->stop>=$i->stop)
                 {
-                    $this->intervals->splice($k, 1);
+                    array_splice($this->intervals, $k, 1);
                     $k = $k - 1;// need another pass
                 }
                 // check for lower boundary
@@ -203,9 +204,9 @@ class TokenIntervalSet
     {
         if ($this->intervals !== null)
         {
-            for ($k = 0; $k < $this->intervals->length; $k++)
+            for ($k = 0; $k < count($this->intervals); $k++)
             {
-                /*var */$i = $this->intervals[$k];
+                $i = $this->intervals[$k];
                 // intervals is ordered
                 if ($v < $i->start)
                 {
@@ -214,7 +215,7 @@ class TokenIntervalSet
                 // check for single value range
                 else if ($v === $i->start && $v === $i->stop - 1)
                 {
-                    $this->intervals->splice($k, 1);
+                    array_splice($this->intervals, $k, 1);
                     return;
                 }
                 // check for lower boundary
@@ -232,16 +233,16 @@ class TokenIntervalSet
                 // split existing range
                 else if ($v < $i->stop - 1)
                 {
-                    /*var */$x = new Interval($i->start, $v);
+                    $x = new Interval($i->start, $v);
                     $i->start = $v + 1;
-                    $this->intervals->splice($k, 0, $x);
+                    array_splice($this->intervals, $k, 0, $x);
                     return;
                 }
             }
         }
     }
 
-    function toString($literalNames, $symbolicNames, $elemsAreChar)
+    function __toString($literalNames, $symbolicNames, $elemsAreChar)
     {
         $literalNames = $literalNames || null;
         $symbolicNames = $symbolicNames || null;
@@ -266,10 +267,10 @@ class TokenIntervalSet
 
     function toCharString()
     {
-        /*var */$names = [];
-        for ($i = 0; $i < $this->intervals->length; $i++)
+        $names = [];
+        for ($i = 0; $i < count($this->intervals); $i++)
         {
-            /*var */$v = $this->intervals[$i];
+            $v = $this->intervals[$i];
             if($v->stop===$v->start+1)
             {
                 if ( $v->start===Token::EOF )
@@ -278,12 +279,12 @@ class TokenIntervalSet
                 }
                 else
                 {
-                    array_push($names, "'" . String.fromCharCode(v.start) . "'");
+                    array_push($names, "'" . Utils::fromCharCode($v->start) . "'");
                 }
             }
             else
             {
-                array_push($names, "'" . String.fromCharCode(v.start) . "'..'" . String.fromCharCode(v.stop-1) + "'");
+                array_push($names, "'" . Utils::fromCharCode($v->start) . "'..'" . Utils::fromCharCode($v->stop-1) + "'");
             }
         }
         if ($names->length > 1)
@@ -299,10 +300,10 @@ class TokenIntervalSet
 
     function toIndexString()
     {
-        /*var */$names = [];
-        for ($i = 0; $i < $this->intervals->length; $i++)
+        $names = [];
+        for ($i = 0; $i < count($this->intervals); $i++)
         {
-            /*var */$v = $this->intervals[$i];
+            $v = $this->intervals[$i];
             if($v->stop===$v->start+1)
             {
                 if ( $v->start===Token::EOF )
@@ -331,10 +332,10 @@ class TokenIntervalSet
 
     function toTokenString($literalNames, $symbolicNames)
     {
-        /*var */$names = [];
-        for ($i = 0; $i < $this->intervals->length; $i++)
+        $names = [];
+        for ($i = 0; $i < count($this->intervals); $i++)
         {
-            /*var */$v = $this->intervals[$i];
+            $v = $this->intervals[$i];
             for ($j = $v->start; $j < $v->stop; $j++)
             {
                 array_push($names, $this->elementName($literalNames, $symbolicNames, $j));

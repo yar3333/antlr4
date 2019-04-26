@@ -23,7 +23,7 @@ function PredPrediction($pred, $alt)
 	return $this;
 }
 
-/* PredPrediction */function toString() 
+/* PredPrediction */function __toString() 
 {
 	return "(" + this.pred + ", " + this.alt + ")";
 };
@@ -139,7 +139,7 @@ function DFAState($stateNumber, $configs)
 				$this->configs->equals($other->configs));
 };
 
-/* DFAState */function toString() 
+/* DFAState */function __toString() 
 {
 	/*var */$s = "" + this.stateNumber + ":" . $this->configs;
 	if($this->isAcceptState) 

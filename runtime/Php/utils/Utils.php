@@ -1,11 +1,10 @@
 <?php
-
-namespace Antlr4;
-
 /* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
+
+namespace Antlr4\Utils;
 
 class Utils
 {
@@ -237,7 +236,7 @@ class Set
         return $l;
     }
 
-    function toString()
+    function __toString()
     {
         return Utils::arrayToString($this->values());
     }
@@ -301,7 +300,7 @@ class BitSet
 
     function getLength() { return count($this->values()); }
 
-    function toString()
+    function __toString()
     {
         return "{" . implode(", ", $this->values()) . "}";
     }

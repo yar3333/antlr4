@@ -70,7 +70,7 @@ class CommonToken extends Token
         $this->_text = $text;
     }
 
-    function toString()
+    function __toString()
     {
         $txt = $this->getText();
         if ($txt !== null) {

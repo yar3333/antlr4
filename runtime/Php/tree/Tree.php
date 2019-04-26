@@ -186,7 +186,7 @@ TerminalNodeImpl::prototype->constructor = TerminalNodeImpl;
 	return $this->symbol->text;
 };
 
-/* TerminalNodeImpl */function toString() 
+/* TerminalNodeImpl */function __toString() 
 {
 	if ($this->symbol->type === Token::EOF) 
 	{

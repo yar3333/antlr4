@@ -6,9 +6,9 @@
 
 namespace Antlr4\Atn;
 
-use Antlr4\DecisionState; //('./ATNState').DecisionState;
-use Antlr4\SemanticContext; //('./SemanticContext').SemanticContext;
-use Antlr4\Hash; //("../Utils").Hash;
+use \Antlr4\Atn\DecisionState;
+use \Antlr4\Atn\SemanticContext;
+use \Antlr4\Hash;
 
 
 class ATNConfigParams
@@ -167,7 +167,7 @@ class ATNConfig extends ATNConfigConfig
         }
     }
 
-    function toString()
+    function __toString()
     {
         return "(" . $this->state . "," . $this->alt .
             ($this->context!==null ? ",[" . $this->context.toString() . "]" : "") .

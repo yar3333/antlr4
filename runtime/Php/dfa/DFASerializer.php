@@ -18,7 +18,7 @@ function DFASerializer($dfa, $literalNames, $symbolicNames)
 	return $this;
 }
 
-/* DFASerializer */function toString() 
+/* DFASerializer */function __toString() 
 {
    if($this->dfa->s0 === null) 
    {

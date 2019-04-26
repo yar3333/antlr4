@@ -189,7 +189,7 @@ class BufferedTokenStream extends TokenStream
     // Get all tokens from start..stop inclusively///
     function getTokens($start, $stop, $types)
     {
-        if ($types === undefined)
+        if (!isset($types))
         {
             $types = null;
         }
@@ -338,7 +338,7 @@ class BufferedTokenStream extends TokenStream
     // EOF. If channel is -1, find any non default channel token.
     function getHiddenTokensToRight($tokenIndex, $channel)
     {
-        if ($channel === undefined)
+        if (!isset($channel))
         {
             $channel = -1;
         }
@@ -359,7 +359,7 @@ class BufferedTokenStream extends TokenStream
     // If channel is -1, find any non default channel token.
     function getHiddenTokensToLeft($tokenIndex, $channel)
     {
-        if ($channel === undefined)
+        if (!isset($channel))
         {
             $channel = -1;
         }

@@ -104,7 +104,7 @@ AtomTransition::prototype->constructor = AtomTransition;
     return $this->label_ === $symbol;
 };
 
-/* AtomTransition */function toString() 
+/* AtomTransition */function __toString() 
 {
 	return $this->label_;
 };
@@ -146,7 +146,7 @@ EpsilonTransition::prototype->constructor = EpsilonTransition;
 	return false;
 };
 
-/* EpsilonTransition */function toString() 
+/* EpsilonTransition */function __toString() 
 {
 	return "epsilon";
 };
@@ -176,7 +176,7 @@ RangeTransition::prototype->constructor = RangeTransition;
 	return $symbol >= $this->start && $symbol <= $this->stop;
 };
 
-/* RangeTransition */function toString() 
+/* RangeTransition */function __toString() 
 {
 	return "'" + String.fromCharCode(this.start) + "'..'" + String.fromCharCode(this.stop) + "'";
 };
@@ -214,7 +214,7 @@ PredicateTransition::prototype->constructor = PredicateTransition;
 	return new Predicate($this->ruleIndex, $this->predIndex, $this->isCtxDependent);
 };
 
-/* PredicateTransition */function toString() 
+/* PredicateTransition */function __toString() 
 {
 	return "pred_" + this.ruleIndex + ":" . $this->predIndex;
 };
@@ -239,7 +239,7 @@ ActionTransition::prototype->constructor = ActionTransition;
 	return false;
 };
 
-/* ActionTransition */function toString() 
+/* ActionTransition */function __toString() 
 {
 	return "action_" + this.ruleIndex + ":" . $this->actionIndex;
 };
@@ -271,7 +271,7 @@ SetTransition::prototype->constructor = SetTransition;
 };
 
 
-/* SetTransition */function toString() 
+/* SetTransition */function __toString() 
 {
 	return $this->label->toString();
 };
@@ -292,7 +292,7 @@ NotSetTransition::prototype->constructor = NotSetTransition;
 			!SetTransition::prototype->matches->call($this, $symbol, $minVocabSymbol, $maxVocabSymbol);
 };
 
-/* NotSetTransition */function toString() 
+/* NotSetTransition */function __toString() 
 {
 	return '~' + SetTransition::prototype->toString->call($this);
 };
@@ -313,7 +313,7 @@ WildcardTransition::prototype->constructor = WildcardTransition;
 	return $symbol >= $minVocabSymbol && $symbol <= $maxVocabSymbol;
 };
 
-/* WildcardTransition */function toString() 
+/* WildcardTransition */function __toString() 
 {
 	return ".";
 };
@@ -340,7 +340,7 @@ PrecedencePredicateTransition::prototype->constructor = PrecedencePredicateTrans
 	return new PrecedencePredicate($this->precedence);
 };
 
-/* PrecedencePredicateTransition */function toString() 
+/* PrecedencePredicateTransition */function __toString() 
 {
 	return $this->precedence + " >= _p";
 };

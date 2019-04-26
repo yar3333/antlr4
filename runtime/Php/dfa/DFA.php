@@ -19,7 +19,7 @@ use Antlr4\LexerDFASerializer; //('./DFASerializer').LexerDFASerializer;
 
 function DFA($atnStartState, $decision) 
 {
-	if ($decision === undefined) 
+	if (!isset($decision)) 
 	{
 		$decision = 0;
 	}
@@ -153,7 +153,7 @@ Object->defineProperty(DFA::prototype, "states", {
 	});
 };
 
-/* DFA */function toString($literalNames, $symbolicNames) 
+/* DFA */function __toString($literalNames, $symbolicNames) 
 {
 	$literalNames = $literalNames || null;
 	$symbolicNames = $symbolicNames || null;

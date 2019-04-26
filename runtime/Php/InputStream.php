@@ -173,7 +173,7 @@ class InputStream
         }
     }
 
-    function toString() : string
+    function __toString() : string
     {
         return $this->strdata;
     }

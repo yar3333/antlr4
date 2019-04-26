@@ -196,7 +196,7 @@ Object->defineProperty(SingletonPredictionContext::prototype, "length", {
 	}
 };
 
-/* SingletonPredictionContext */function toString() 
+/* SingletonPredictionContext */function __toString() 
 {
 	/*var */$up = $this->parentCtx === null ? "" : $this->parentCtx->toString();
 	if ($up->length === 0) 
@@ -245,7 +245,7 @@ EmptyPredictionContext::prototype->constructor = EmptyPredictionContext;
 	return $this === $other;
 };
 
-/* EmptyPredictionContext */function toString() 
+/* EmptyPredictionContext */function __toString() 
 {
 	return "$";
 };
@@ -314,7 +314,7 @@ Object->defineProperty(ArrayPredictionContext::prototype, "length", {
 	}
 };
 
-/* ArrayPredictionContext */function toString() 
+/* ArrayPredictionContext */function __toString() 
 {
 	if ($this->isEmpty()) 
 	{

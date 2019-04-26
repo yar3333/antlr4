@@ -53,7 +53,7 @@ class Recognizer
             throw new \Exception("The current recognizer does not provide a list of token names.");
         }
         $result = $this->tokenTypeMapCache[$tokenNames];
-        if($result===undefined)
+        if(!isset($result))
         {
             $result = $tokenNames->reduce(function($o, $k, $i) { $o[$k] = $i; });
             $result->EOF = Token::EOF;
@@ -74,7 +74,7 @@ class Recognizer
             throw new \Exception("The current recognizer does not provide a list of rule names.");
         }
         $result = $this->ruleIndexMapCache[$ruleNames];
-        if($result===undefined)
+        if(!isset($result))
         {
             $result = $ruleNames->reduce(function($o, $k, $i) { $o[$k] = $i; });
             $this->ruleIndexMapCache[$ruleNames] = $result;

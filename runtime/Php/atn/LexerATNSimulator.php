@@ -251,7 +251,7 @@ LexerATNSimulator::match_calls = 0;
 	}
 
 	/*var */$target = $s->edges[$t - LexerATNSimulator::MIN_DFA_EDGE];
-	if($target===undefined) 
+	if(!isset($target)) 
 	{
 		$target = null;
 	}
@@ -624,11 +624,11 @@ LexerATNSimulator::match_calls = 0;
 
 /* LexerATNSimulator */function addDFAEdge($from_, $tk, $to, $cfgs) 
 {
-	if ($to === undefined) 
+	if (!isset($to)) 
 	{
 		$to = null;
 	}
-	if ($cfgs === undefined) 
+	if (!isset($cfgs)) 
 	{
 		$cfgs = null;
 	}

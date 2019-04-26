@@ -12,7 +12,7 @@ namespace Antlr4;
 use Antlr4\Set; //('./Utils').Set;
 use Antlr4\BitSet; //('./Utils').BitSet;
 use Antlr4\Token; //('./Token').Token;
-use Antlr4\ATNConfig; //('./atn/ATNConfig').ATNConfig;
+use \Antlr4\ATNConfig; //('./atn/ATNConfig').ATNConfig;
 use Antlr4\Interval; //('./IntervalSet').Interval;
 use Antlr4\IntervalSet; //('./IntervalSet').IntervalSet;
 use Antlr4\RuleStopState; //('./atn/ATNState').RuleStopState;
@@ -128,7 +128,8 @@ class LL1Analyzer
     // outermost context is reached. This parameter has no effect if {@code ctx} is {@code null}.
     function _LOOK($s, $stopState , $ctx, $look, $lookBusy, $calledRuleStack, $seeThruPreds, $addEOF)
     {
-        $c = new ATNConfig({$state:$s, $alt:0, $context: $ctx}, null);
+        //$c = new ATNConfig({$state:$s, $alt:0, $context: $ctx}, null);
+        $c = new ATNConfig();
         $c->s
 
         if ($lookBusy->contains($c))
