@@ -1,4 +1,5 @@
 <?php
+<?php
 /* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
@@ -15,8 +16,19 @@ class Recognizer
     static $tokenTypeMapCache = [];
     static $ruleIndexMapCache = [];
 
+    /**
+     * @var ErrorListener[]
+     */
     public $_listeners;
+
+    /**
+     * @var ATN
+     */
     public $_interp;
+
+    /**
+     * @var int
+     */
     public $_stateNumber;
 
     function Recognizer()
@@ -45,19 +57,19 @@ class Recognizer
         $this->_listeners = [];
     }
 
-    function getTokenTypeMap()
+    function getTokenTypeMap() : array
     {
         $tokenNames = $this->getTokenNames();
         if ($tokenNames===null)
         {
             throw new \Exception("The current recognizer does not provide a list of token names.");
         }
-        $result = $this->tokenTypeMapCache[$tokenNames];
+        $result = self::$tokenTypeMapCache[$tokenNames];
         if(!isset($result))
         {
             $result = $tokenNames->reduce(function($o, $k, $i) { $o[$k] = $i; });
             $result->EOF = Token::EOF;
-            $this->tokenTypeMapCache[$tokenNames] = $result;
+            self::$tokenTypeMapCache[$tokenNames] = $result;
         }
         return $result;
     }
@@ -73,30 +85,24 @@ class Recognizer
         {
             throw new \Exception("The current recognizer does not provide a list of rule names.");
         }
-        $result = $this->ruleIndexMapCache[$ruleNames];
+        $result = self::$ruleIndexMapCache[$ruleNames];
         if(!isset($result))
         {
-            $result = $ruleNames->reduce(function($o, $k, $i) { $o[$k] = $i; });
-            $this->ruleIndexMapCache[$ruleNames] = $result;
+            //$result = $ruleNames->reduce(function($o, $k, $i) { $o[$k] = $i; });
+            $result = []; foreach ($ruleNames as $i => $k) $result[$k] = $i;
+            self::$ruleIndexMapCache[$ruleNames] = $result;
         }
         return $result;
     }
 
-    function getTokenType($tokenName)
+    function getTokenType($tokenName) : int
     {
         $ttype = $this->getTokenTypeMap()[$tokenName];
-        if ($ttype!==undefined)
-        {
-            return $ttype;
-        }
-        else
-        {
-            return Token::INVALID_TYPE;
-        }
+        return isset($ttype) ? $ttype : Token::INVALID_TYPE;
     }
 
     // What is the error header, normally line/character position information?//
-    function getErrorHeader($e)
+    function getErrorHeader($e) : string
     {
         $line = $e->getOffendingToken()->line;
         $column = $e->getOffendingToken()->column;
@@ -143,7 +149,7 @@ class Recognizer
         return "'" . s . "'";
     }
 
-    function getErrorListenerDispatch()
+    function getErrorListenerDispatch() : ErrorListener
     {
         return new ProxyErrorListener($this->_listeners);
     }
@@ -166,7 +172,6 @@ class Recognizer
     //context objects form a stack that lets us see the stack of
     //invoking rules. Combine this and we have complete ATN
     //configuration information.
-
     function getState() { return $this->_stateNumber; }
     function setState($state) { $this->_stateNumber = $state; }
 }

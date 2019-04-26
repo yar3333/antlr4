@@ -243,7 +243,7 @@ class Lexer extends Recognizer
         {
             //$console->log("popMode back to " . $this->_modeStack->slice(0, -1));
         }
-        $this->mode(array_pop($this->_modeStack, ));
+        $this->mode(array_pop($this->_modeStack));
         return $this->_mode;
     }
 
