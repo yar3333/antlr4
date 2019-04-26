@@ -1,3 +1,7 @@
+<?php
+
+namespace Antlr4\Atn;
+
 //
 /* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
@@ -9,21 +13,22 @@
 // utility methods for analyzing configuration sets for conflicts and/or
 // ambiguities.
 
-var Set = require('./../Utils').Set;
-var Map = require('./../Utils').Map;
-var BitSet = require('./../Utils').BitSet;
-var AltDict = require('./../Utils').AltDict;
-var ATN = require('./ATN').ATN;
-var RuleStopState = require('./ATNState').RuleStopState;
-var ATNConfigSet = require('./ATNConfigSet').ATNConfigSet;
-var ATNConfig = require('./ATNConfig').ATNConfig;
-var SemanticContext = require('./SemanticContext').SemanticContext;
-var Hash = require("../Utils").Hash;
-var hashStuff = require('./../Utils').hashStuff;
-var equalArrays = require('./../Utils').equalArrays;
+use Antlr4\Set; //('./../Utils').Set;
+use Antlr4\Map; //('./../Utils').Map;
+use Antlr4\BitSet; //('./../Utils').BitSet;
+use Antlr4\AltDict; //('./../Utils').AltDict;
+use Antlr4\ATN; //('./ATN').ATN;
+use Antlr4\RuleStopState; //('./ATNState').RuleStopState;
+use Antlr4\ATNConfigSet; //('./ATNConfigSet').ATNConfigSet;
+use Antlr4\ATNConfig; //('./ATNConfig').ATNConfig;
+use Antlr4\SemanticContext; //('./SemanticContext').SemanticContext;
+use Antlr4\Hash; //("../Utils").Hash;
+/*var */$hashStuff = require('./../Utils').$hashStuff;
+/*var */$equalArrays = require('./../Utils').$equalArrays;
 
-function PredictionMode() {
-	return this;
+function PredictionMode() 
+{
+	return $this;
 }
 
 //
@@ -47,7 +52,7 @@ function PredictionMode() {
 // This prediction mode does not provide any guarantees for prediction
 // behavior for syntactically-incorrect inputs.</p>
 //
-PredictionMode.SLL = 0;
+/* PredictionMode */const SLL =/ 0;
 //
 // The LL(*) prediction mode. This prediction mode allows the current parser
 // context to be used for resolving SLL conflicts that occur during
@@ -66,7 +71,7 @@ PredictionMode.SLL = 0;
 // This prediction mode does not provide any guarantees for prediction
 // behavior for syntactically-incorrect inputs.</p>
 //
-PredictionMode.LL = 1;
+/* PredictionMode */const LL =/ 1;
 //
 // The LL(*) prediction mode with exact ambiguity detection. In addition to
 // the correctness guarantees provided by the {@link //LL} prediction mode,
@@ -84,7 +89,7 @@ PredictionMode.LL = 1;
 // This prediction mode does not provide any guarantees for prediction
 // behavior for syntactically-incorrect inputs.</p>
 //
-PredictionMode.LL_EXACT_AMBIG_DETECTION = 2;
+/* PredictionMode */const LL_EXACT_AMBIG_DETECTION =/ 2;
 
 
 //
@@ -179,35 +184,38 @@ PredictionMode.LL_EXACT_AMBIG_DETECTION = 2;
 // the configurations to strip out all of the predicates so that a standard
 // {@link ATNConfigSet} will merge everything ignoring predicates.</p>
 //
-PredictionMode.hasSLLConflictTerminatingPrediction = function( mode, configs) {
-    // Configs in rule stop states indicate reaching the end of the decision
-    // rule (local context) or end of start rule (full context). If all
-    // configs meet this condition, then none of the configurations is able
-    // to match additional input so we terminate prediction.
-    //
-    if (PredictionMode.allConfigsInRuleStopStates(configs)) {
+static function /* 
+ */PredictionMode( $mode, $configs) 
+{// Configs in rule stop states indicate reaching the end of the decision
+// rule (local context) or end of start rule (full context). If all
+// configs meet this condition, then none of the configurations is able
+// to match additional input so we terminate prediction.
+//
+    if (PredictionMode->allConfigsInRuleStopStates($configs)) 
+    {
         return true;
     }
-    // pure SLL mode parsing
-    if (mode === PredictionMode.SLL) {
-        // Don't bother with combining configs from different semantic
-        // contexts if we can fail over to full LL; costs more time
-        // since we'll often fail over anyway.
-        if (configs.hasSemanticContext) {
-            // dup configs, tossing out semantic predicates
-            var dup = new ATNConfigSet();
-            for(var i=0;i<configs.items.length;i++) {
-            	var c = configs.items[i];
-                c = new ATNConfig({semanticContext:SemanticContext.NONE}, c);
-                dup.add(c);
+// pure SLL mode parsing
+    if ($mode === PredictionMode::SLL) 
+    {// Don't bother with combining configs from different semantic
+// contexts if we can fail over to full LL; costs more time
+// since we'll often fail over anyway.
+        if ($configs->hasSemanticContext) 
+        {// dup configs, tossing out semantic predicates
+            /*var */$dup = new ATNConfigSet();
+            for($i=0;$i<$configs->items->length;$i++) 
+            {
+            	/*var */$c = $configs->items[$i];
+                $c = new ATNConfig({$semanticContext:SemanticContext::NONE}, $c);
+                $dup->add($c);
             }
-            configs = dup;
+            $configs = $dup;
         }
-        // now we have combined contexts for configs with dissimilar preds
+// now we have combined contexts for configs with dissimilar preds
     }
-    // pure SLL or combined SLL+LL mode parsing
-    var altsets = PredictionMode.getConflictingAltSubsets(configs);
-    return PredictionMode.hasConflictingAltSet(altsets) && !PredictionMode.hasStateAssociatedWithOneAlt(configs);
+// pure SLL or combined SLL+LL mode parsing
+    /*var */$altsets = PredictionMode->getConflictingAltSubsets($configs);
+    return PredictionMode->hasConflictingAltSet($altsets) && !PredictionMode->hasStateAssociatedWithOneAlt($configs);
 };
 
 // Checks if any configuration in {@code configs} is in a
@@ -218,10 +226,14 @@ PredictionMode.hasSLLConflictTerminatingPrediction = function( mode, configs) {
 // @param configs the configuration set to test
 // @return {@code true} if any configuration in {@code configs} is in a
 // {@link RuleStopState}, otherwise {@code false}
-PredictionMode.hasConfigInRuleStopState = function(configs) {
-	for(var i=0;i<configs.items.length;i++) {
-		var c = configs.items[i];
-        if (c.state instanceof RuleStopState) {
+static function /* 
+ */PredictionMode($configs) 
+{
+	for($i=0;$i<$configs->items->length;$i++) 
+	{
+		/*var */$c = $configs->items[$i];
+        if ($c->state instanceof RuleStopState) 
+        {
             return true;
         }
 	}
@@ -236,10 +248,14 @@ PredictionMode.hasConfigInRuleStopState = function(configs) {
 // @param configs the configuration set to test
 // @return {@code true} if all configurations in {@code configs} are in a
 // {@link RuleStopState}, otherwise {@code false}
-PredictionMode.allConfigsInRuleStopStates = function(configs) {
-	for(var i=0;i<configs.items.length;i++) {
-		var c = configs.items[i];
-        if (!(c.state instanceof RuleStopState)) {
+static function /* 
+ */PredictionMode($configs) 
+{
+	for($i=0;$i<$configs->items->length;$i++) 
+	{
+		/*var */$c = $configs->items[$i];
+        if (!($c->state instanceof RuleStopState)) 
+        {
             return false;
         }
 	}
@@ -387,8 +403,10 @@ PredictionMode.allConfigsInRuleStopStates = function(configs) {
 // we need exact ambiguity detection when the sets look like
 // {@code A={{1,2}}} or {@code {{1,2},{1,2}}}, etc...</p>
 //
-PredictionMode.resolvesToJustOneViableAlt = function(altsets) {
-    return PredictionMode.getSingleViableAlt(altsets);
+static function /* 
+ */PredictionMode($altsets) 
+{
+    return PredictionMode->getSingleViableAlt($altsets);
 };
 
 //
@@ -399,8 +417,10 @@ PredictionMode.resolvesToJustOneViableAlt = function(altsets) {
 // @return {@code true} if every {@link BitSet} in {@code altsets} has
 // {@link BitSet//cardinality cardinality} &gt; 1, otherwise {@code false}
 //
-PredictionMode.allSubsetsConflict = function(altsets) {
-    return ! PredictionMode.hasNonConflictingAltSet(altsets);
+static function /* 
+ */PredictionMode($altsets) 
+{
+    return ! PredictionMode->hasNonConflictingAltSet($altsets);
 };
 //
 // Determines if any single alternative subset in {@code altsets} contains
@@ -410,10 +430,14 @@ PredictionMode.allSubsetsConflict = function(altsets) {
 // @return {@code true} if {@code altsets} contains a {@link BitSet} with
 // {@link BitSet//cardinality cardinality} 1, otherwise {@code false}
 //
-PredictionMode.hasNonConflictingAltSet = function(altsets) {
-	for(var i=0;i<altsets.length;i++) {
-		var alts = altsets[i];
-        if (alts.length===1) {
+static function /* 
+ */PredictionMode($altsets) 
+{
+	for($i=0;$i<$altsets->length;$i++) 
+	{
+		/*var */$alts = $altsets[$i];
+        if ($alts->length===1) 
+        {
             return true;
         }
 	}
@@ -428,10 +452,14 @@ PredictionMode.hasNonConflictingAltSet = function(altsets) {
 // @return {@code true} if {@code altsets} contains a {@link BitSet} with
 // {@link BitSet//cardinality cardinality} &gt; 1, otherwise {@code false}
 //
-PredictionMode.hasConflictingAltSet = function(altsets) {
-	for(var i=0;i<altsets.length;i++) {
-		var alts = altsets[i];
-        if (alts.length>1) {
+static function /* 
+ */PredictionMode($altsets) 
+{
+	for($i=0;$i<$altsets->length;$i++) 
+	{
+		/*var */$alts = $altsets[$i];
+        if ($alts->length>1) 
+        {
             return true;
         }
 	}
@@ -445,13 +473,19 @@ PredictionMode.hasConflictingAltSet = function(altsets) {
 // @return {@code true} if every member of {@code altsets} is equal to the
 // others, otherwise {@code false}
 //
-PredictionMode.allSubsetsEqual = function(altsets) {
-    var first = null;
-	for(var i=0;i<altsets.length;i++) {
-		var alts = altsets[i];
-        if (first === null) {
-            first = alts;
-        } else if (alts!==first) {
+static function /* 
+ */PredictionMode($altsets) 
+{
+    /*var */$first = null;
+	for($i=0;$i<$altsets->length;$i++) 
+	{
+		/*var */$alts = $altsets[$i];
+        if ($first === null) 
+        {
+            $first = $alts;
+        }
+        else if ($alts!==$first) 
+        {
             return false;
         }
 	}
@@ -465,12 +499,17 @@ PredictionMode.allSubsetsEqual = function(altsets) {
 //
 // @param altsets a collection of alternative subsets
 //
-PredictionMode.getUniqueAlt = function(altsets) {
-    var all = PredictionMode.getAlts(altsets);
-    if (all.length===1) {
-        return all.minValue();
-    } else {
-        return ATN.INVALID_ALT_NUMBER;
+static function /* 
+ */PredictionMode($altsets) 
+{
+    /*var */$all = PredictionMode->getAlts($altsets);
+    if ($all->length===1) 
+    {
+        return $all->minValue();
+    }
+    else 
+    {
+        return ATN::INVALID_ALT_NUMBER;
     }
 };
 
@@ -481,10 +520,12 @@ PredictionMode.getUniqueAlt = function(altsets) {
 // @param altsets a collection of alternative subsets
 // @return the set of represented alternatives in {@code altsets}
 //
-PredictionMode.getAlts = function(altsets) {
-    var all = new BitSet();
-    altsets.map( function(alts) { all.or(alts); });
-    return all;
+static function /* 
+ */PredictionMode($altsets) 
+{
+    /*var */$all = new BitSet();
+    $altsets->map( function($alts) { $all->or($alts); });
+    return $all;
 };
 
 //
@@ -496,19 +537,24 @@ PredictionMode.getAlts = function(altsets) {
 // alt and not pred
 // </pre>
 
-PredictionMode.getConflictingAltSubsets = function(configs) {
-    var configToAlts = new Map();
-    configToAlts.hashFunction = function(cfg) { hashStuff(cfg.state.stateNumber, cfg.context); };
-    configToAlts.equalsFunction = function(c1, c2) { return c1.state.stateNumber==c2.state.stateNumber && c1.context.equals(c2.context);}
-    configs.items.map(function(cfg) {
-        var alts = configToAlts.get(cfg);
-        if (alts === null) {
-            alts = new BitSet();
-            configToAlts.put(cfg, alts);
+static function /* 
+
+ */PredictionMode($configs) 
+{
+    /*var */$configToAlts = new Map();
+    $configToAlts->hashFunction = function($cfg) { hashStuff($cfg->state->stateNumber, $cfg->context); };
+    $configToAlts->equalsFunction = function($c1, $c2) { return $c1->state->stateNumber==$c2->state->stateNumber && $c1->context->equals($c2->context);}
+    $configs->items->map(function($cfg) 
+    {
+        /*var */$alts = $configToAlts->get($cfg);
+        if ($alts === null) 
+        {
+            $alts = new BitSet();
+            $configToAlts->put($cfg, $alts);
         }
-        alts.add(cfg.alt);
+        $alts->add($cfg->alt);
 	});
-    return configToAlts.getValues();
+    return $configToAlts->getValues();
 };
 
 //
@@ -519,41 +565,53 @@ PredictionMode.getConflictingAltSubsets = function(configs) {
 // map[c.{@link ATNConfig//state state}] U= c.{@link ATNConfig//alt alt}
 // </pre>
 //
-PredictionMode.getStateToAltMap = function(configs) {
-    var m = new AltDict();
-    configs.items.map(function(c) {
-        var alts = m.get(c.state);
-        if (alts === null) {
-            alts = new BitSet();
-            m.put(c.state, alts);
+static function /* 
+ */PredictionMode($configs) 
+{
+    /*var */$m = new AltDict();
+    $configs->items->map(function($c) 
+    {
+        /*var */$alts = $m->get($c->state);
+        if ($alts === null) 
+        {
+            $alts = new BitSet();
+            $m->put($c->state, $alts);
         }
-        alts.add(c.alt);
+        $alts->add($c->alt);
     });
-    return m;
+    return $m;
 };
 
-PredictionMode.hasStateAssociatedWithOneAlt = function(configs) {
-    var values = PredictionMode.getStateToAltMap(configs).values();
-    for(var i=0;i<values.length;i++) {
-        if (values[i].length===1) {
+PredictionMode::hasStateAssociatedWithOneAlt = function($configs) 
+{
+    /*var */$values = PredictionMode->getStateToAltMap($configs).values();
+    for($i=0;$i<$values->length;$i++) 
+    {
+        if ($values[$i].$length===1) 
+        {
             return true;
         }
     }
     return false;
 };
 
-PredictionMode.getSingleViableAlt = function(altsets) {
-    var result = null;
-	for(var i=0;i<altsets.length;i++) {
-		var alts = altsets[i];
-        var minAlt = alts.minValue();
-        if(result===null) {
-            result = minAlt;
-        } else if(result!==minAlt) { // more than 1 viable alt
-            return ATN.INVALID_ALT_NUMBER;
+PredictionMode::getSingleViableAlt = function($altsets) 
+{
+    /*var */$result = null;
+	for($i=0;$i<$altsets->length;$i++) 
+	{
+		/*var */$alts = $altsets[$i];
+        /*var */$minAlt = $alts->minValue();
+        if($result===null) 
+        {
+            $result = $minAlt;
+        }
+        else if($result!==$minAlt) 
+        {// more than 1 viable alt
+            return ATN::INVALID_ALT_NUMBER;
         }
 	}
-    return result;
+    return $result;
 };
 
-exports.PredictionMode = PredictionMode;
+$exports->PredictionMode = PredictionMode;

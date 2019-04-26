@@ -1,3 +1,7 @@
+<?php
+
+namespace Antlr4\Error;
+
 //
 /* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
@@ -5,36 +9,42 @@
  */
 //
 
-var Token = require('./../Token').Token;
-var Errors = require('./Errors');
-var NoViableAltException = Errors.NoViableAltException;
-var InputMismatchException = Errors.InputMismatchException;
-var FailedPredicateException = Errors.FailedPredicateException;
-var ParseCancellationException = Errors.ParseCancellationException;
-var ATNState = require('./../atn/ATNState').ATNState;
-var Interval = require('./../IntervalSet').Interval;
-var IntervalSet = require('./../IntervalSet').IntervalSet;
+use Antlr4\Token; //('./../Token').Token;
+use Antlr4\Errors; //('./Errors');
+/*var */NoViableAltException = Errors::NoViableAltException;
+/*var */InputMismatchException = Errors::InputMismatchException;
+/*var */FailedPredicateException = Errors::FailedPredicateException;
+/*var */ParseCancellationException = Errors::ParseCancellationException;
+use Antlr4\ATNState; //('./../atn/ATNState').ATNState;
+use Antlr4\Interval; //('./../IntervalSet').Interval;
+use Antlr4\IntervalSet; //('./../IntervalSet').IntervalSet;
 
-function ErrorStrategy() {
-
+function ErrorStrategy() 
+{
 }
 
-ErrorStrategy.prototype.reset = function(recognizer){
+/* ErrorStrategy */function reset($recognizer)
+{
 };
 
-ErrorStrategy.prototype.recoverInline = function(recognizer){
+/* ErrorStrategy */function recoverInline($recognizer)
+{
 };
 
-ErrorStrategy.prototype.recover = function(recognizer, e){
+/* ErrorStrategy */function recover($recognizer, $e)
+{
 };
 
-ErrorStrategy.prototype.sync = function(recognizer){
+/* ErrorStrategy */function sync($recognizer)
+{
 };
 
-ErrorStrategy.prototype.inErrorRecoveryMode = function(recognizer){
+/* ErrorStrategy */function inErrorRecoveryMode($recognizer)
+{
 };
 
-ErrorStrategy.prototype.reportError = function(recognizer){
+/* ErrorStrategy */function reportError($recognizer)
+{
 };
 
 
@@ -42,34 +52,36 @@ ErrorStrategy.prototype.reportError = function(recognizer){
 // This is the default implementation of {@link ANTLRErrorStrategy} used for
 // error reporting and recovery in ANTLR parsers.
 //
-function DefaultErrorStrategy() {
-	ErrorStrategy.call(this);
-    // Indicates whether the error strategy is currently "recovering from an
-    // error". This is used to suppress reporting multiple error messages while
-    // attempting to recover from a detected syntax error.
-    //
-    // @see //inErrorRecoveryMode
-    //
-    this.errorRecoveryMode = false;
+function DefaultErrorStrategy() 
+{
+	ErrorStrategy->call($this);
+// Indicates whether the error strategy is currently "recovering from an
+// error". This is used to suppress reporting multiple error messages while
+// attempting to recover from a detected syntax error.
+//
+// @see //inErrorRecoveryMode
+//
+    $this->errorRecoveryMode = false;
 
-    // The index into the input stream where the last error occurred.
-    // This is used to prevent infinite loops where an error is found
-    // but no token is consumed during recovery...another error is found,
-    // ad nauseum. This is a failsafe mechanism to guarantee that at least
-    // one token/tree node is consumed for two errors.
-    //
-    this.lastErrorIndex = -1;
-    this.lastErrorStates = null;
-    return this;
+// The index into the input stream where the last error occurred.
+// This is used to prevent infinite loops where an error is found
+// but no token is consumed during recovery...another error is found,
+// ad nauseum. This is a failsafe mechanism to guarantee that at least
+// one token/tree node is consumed for two errors.
+//
+    $this->lastErrorIndex = -1;
+    $this->lastErrorStates = null;
+    return $this;
 }
 
-DefaultErrorStrategy.prototype = Object.create(ErrorStrategy.prototype);
-DefaultErrorStrategy.prototype.constructor = DefaultErrorStrategy;
+DefaultErrorStrategy::prototype = Object->create(ErrorStrategy::prototype);
+DefaultErrorStrategy::prototype->constructor = DefaultErrorStrategy;
 
 // <p>The default implementation simply calls {@link //endErrorCondition} to
 // ensure that the handler is not in error recovery mode.</p>
-DefaultErrorStrategy.prototype.reset = function(recognizer) {
-    this.endErrorCondition(recognizer);
+/* DefaultErrorStrategy */function reset($recognizer) 
+{
+    $this->endErrorCondition($recognizer);
 };
 
 //
@@ -78,12 +90,14 @@ DefaultErrorStrategy.prototype.reset = function(recognizer) {
 //
 // @param recognizer the parser instance
 //
-DefaultErrorStrategy.prototype.beginErrorCondition = function(recognizer) {
-    this.errorRecoveryMode = true;
+/* DefaultErrorStrategy */function beginErrorCondition($recognizer) 
+{
+    $this->errorRecoveryMode = true;
 };
 
-DefaultErrorStrategy.prototype.inErrorRecoveryMode = function(recognizer) {
-    return this.errorRecoveryMode;
+/* DefaultErrorStrategy */function inErrorRecoveryMode($recognizer) 
+{
+    return $this->errorRecoveryMode;
 };
 
 //
@@ -92,10 +106,11 @@ DefaultErrorStrategy.prototype.inErrorRecoveryMode = function(recognizer) {
 //
 // @param recognizer
 //
-DefaultErrorStrategy.prototype.endErrorCondition = function(recognizer) {
-    this.errorRecoveryMode = false;
-    this.lastErrorStates = null;
-    this.lastErrorIndex = -1;
+/* DefaultErrorStrategy */function endErrorCondition($recognizer) 
+{
+    $this->errorRecoveryMode = false;
+    $this->lastErrorStates = null;
+    $this->lastErrorIndex = -1;
 };
 
 //
@@ -103,8 +118,9 @@ DefaultErrorStrategy.prototype.endErrorCondition = function(recognizer) {
 //
 // <p>The default implementation simply calls {@link //endErrorCondition}.</p>
 //
-DefaultErrorStrategy.prototype.reportMatch = function(recognizer) {
-    this.endErrorCondition(recognizer);
+/* DefaultErrorStrategy */function reportMatch($recognizer) 
+{
+    $this->endErrorCondition($recognizer);
 };
 
 //
@@ -126,23 +142,31 @@ DefaultErrorStrategy.prototype.reportMatch = function(recognizer) {
 // the exception</li>
 // </ul>
 //
-DefaultErrorStrategy.prototype.reportError = function(recognizer, e) {
-   // if we've already reported an error and have not matched a token
-   // yet successfully, don't report any errors.
-    if(this.inErrorRecoveryMode(recognizer)) {
-        return; // don't report spurious errors
+/* DefaultErrorStrategy */function reportError($recognizer, $e) 
+{// if we've already reported an error and have not matched a token
+// yet successfully, don't report any errors.
+    if($this->inErrorRecoveryMode($recognizer)) 
+    {
+        return;// don't report spurious errors
     }
-    this.beginErrorCondition(recognizer);
-    if ( e instanceof NoViableAltException ) {
-        this.reportNoViableAlternative(recognizer, e);
-    } else if ( e instanceof InputMismatchException ) {
-        this.reportInputMismatch(recognizer, e);
-    } else if ( e instanceof FailedPredicateException ) {
-        this.reportFailedPredicate(recognizer, e);
-    } else {
-        console.log("unknown recognition error type: " + e.constructor.name);
-        console.log(e.stack);
-        recognizer.notifyErrorListeners(e.getOffendingToken(), e.getMessage(), e);
+    $this->beginErrorCondition($recognizer);
+    if ( $e instanceof NoViableAltException ) 
+    {
+        $this->reportNoViableAlternative($recognizer, $e);
+    }
+    else if ( $e instanceof InputMismatchException ) 
+    {
+        $this->reportInputMismatch($recognizer, $e);
+    }
+    else if ( $e instanceof FailedPredicateException ) 
+    {
+        $this->reportFailedPredicate($recognizer, $e);
+    }
+    else 
+    {
+        $console->log("unknown recognition error type: " . $e->constructor->name);
+        $console->log($e->stack);
+        $recognizer->notifyErrorListeners($e->getOffendingToken(), $e->getMessage(), $e);
     }
 };
 //
@@ -152,22 +176,24 @@ DefaultErrorStrategy.prototype.reportError = function(recognizer, e) {
 // until we find one in the resynchronization set--loosely the set of tokens
 // that can follow the current rule.</p>
 //
-DefaultErrorStrategy.prototype.recover = function(recognizer, e) {
-    if (this.lastErrorIndex===recognizer.getInputStream().index &&
-        this.lastErrorStates !== null && this.lastErrorStates.indexOf(recognizer.state)>=0) {
-		// uh oh, another error at same token index and previously-visited
-		// state in ATN; must be a case where LT(1) is in the recovery
-		// token set so nothing got consumed. Consume a single token
-		// at least to prevent an infinite loop; this is a failsafe.
-		recognizer.consume();
+/* DefaultErrorStrategy */function recover($recognizer, $e) 
+{
+    if ($this->lastErrorIndex===$recognizer->getInputStream().$index &&
+        $this->lastErrorStates !== null && $this->lastErrorStates->indexOf($recognizer->state)>=0) 
+        {// uh oh, another error at same token index and previously-visited
+// state in ATN; must be a case where LT(1) is in the recovery
+// token set so nothing got consumed. Consume a single token
+// at least to prevent an infinite loop; this is a failsafe.
+		$recognizer->consume();
     }
-    this.lastErrorIndex = recognizer._input.index;
-    if (this.lastErrorStates === null) {
-        this.lastErrorStates = [];
+    $this->lastErrorIndex = $recognizer->_input->index;
+    if ($this->lastErrorStates === null) 
+    {
+        $this->lastErrorStates = [];
     }
-    this.lastErrorStates.push(recognizer.state);
-    var followSet = this.getErrorRecoverySet(recognizer);
-    this.consumeUntil(recognizer, followSet);
+    $this->lastErrorStates->push($recognizer->state);
+    /*var */$followSet = $this->getErrorRecoverySet($recognizer);
+    $this->consumeUntil($recognizer, $followSet);
 };
 
 // The default implementation of {@link ANTLRErrorStrategy//sync} makes sure
@@ -215,40 +241,46 @@ DefaultErrorStrategy.prototype.recover = function(recognizer, e) {
 // some reason speed is suffering for you, you can turn off this
 // functionality by simply overriding this method as a blank { }.</p>
 //
-DefaultErrorStrategy.prototype.sync = function(recognizer) {
-    // If already recovering, don't try to sync
-    if (this.inErrorRecoveryMode(recognizer)) {
+/* DefaultErrorStrategy */function sync($recognizer) 
+{// If already recovering, don't try to sync
+    if ($this->inErrorRecoveryMode($recognizer)) 
+    {
         return;
     }
-    var s = recognizer._interp.atn.states[recognizer.state];
-    var la = recognizer.getTokenStream().LA(1);
-    // try cheaper subset first; might get lucky. seems to shave a wee bit off
-    var nextTokens = recognizer.atn.nextTokens(s);
-    if (nextTokens.contains(Token.EPSILON) || nextTokens.contains(la)) {
+    /*var */$s = $recognizer->_interp->atn->states[$recognizer->state];
+    /*var */$la = $recognizer->getTokenStream().LA(1);
+// try cheaper subset first; might get lucky. seems to shave a wee bit off
+    /*var */$nextTokens = $recognizer->atn->nextTokens($s);
+    if ($nextTokens->contains(Token::EPSILON) || $nextTokens->contains($la)) 
+    {
         return;
     }
-    switch (s.stateType) {
-    case ATNState.BLOCK_START:
-    case ATNState.STAR_BLOCK_START:
-    case ATNState.PLUS_BLOCK_START:
-    case ATNState.STAR_LOOP_ENTRY:
-       // report error and recover if possible
-        if( this.singleTokenDeletion(recognizer) !== null) {
+    switch ($s->stateType) 
+    {
+    case ATNState::BLOCK_START:
+    case ATNState::STAR_BLOCK_START:
+    case ATNState::PLUS_BLOCK_START:
+    case ATNState::STAR_LOOP_ENTRY:
+// report error and recover if possible
+        if( $this->singleTokenDeletion($recognizer) !== null) 
+        {
             return;
-        } else {
-            throw new InputMismatchException(recognizer);
+        }
+        else 
+        {
+            throw new InputMismatchException($recognizer);
         }
         break;
-    case ATNState.PLUS_LOOP_BACK:
-    case ATNState.STAR_LOOP_BACK:
-        this.reportUnwantedToken(recognizer);
-        var expecting = new IntervalSet();
-        expecting.addSet(recognizer.getExpectedTokens());
-        var whatFollowsLoopIterationOrRule = expecting.addSet(this.getErrorRecoverySet(recognizer));
-        this.consumeUntil(recognizer, whatFollowsLoopIterationOrRule);
+    case ATNState::PLUS_LOOP_BACK:
+    case ATNState::STAR_LOOP_BACK:
+        $this->reportUnwantedToken($recognizer);
+        /*var */$expecting = new IntervalSet();
+        $expecting->addSet($recognizer->getExpectedTokens());
+        /*var */$whatFollowsLoopIterationOrRule = $expecting->addSet($this->getErrorRecoverySet($recognizer));
+        $this->consumeUntil($recognizer, $whatFollowsLoopIterationOrRule);
         break;
-    default:
-        // do nothing if we can't identify the exact kind of ATN state
+    $default:
+// do nothing if we can't identify the exact kind of ATN state
     }
 };
 
@@ -260,20 +292,27 @@ DefaultErrorStrategy.prototype.sync = function(recognizer) {
 // @param recognizer the parser instance
 // @param e the recognition exception
 //
-DefaultErrorStrategy.prototype.reportNoViableAlternative = function(recognizer, e) {
-    var tokens = recognizer.getTokenStream();
-    var input;
-    if(tokens !== null) {
-        if (e.startToken.type===Token.EOF) {
-            input = "<EOF>";
-        } else {
-            input = tokens.getText(new Interval(e.startToken.tokenIndex, e.offendingToken.tokenIndex));
+/* DefaultErrorStrategy */function reportNoViableAlternative($recognizer, $e) 
+{
+    /*var */$tokens = $recognizer->getTokenStream();
+    /*var */$input;
+    if($tokens !== null) 
+    {
+        if ($e->startToken->type===Token::EOF) 
+        {
+            $input = "<EOF>";
         }
-    } else {
-        input = "<unknown input>";
+        else 
+        {
+            $input = $tokens->getText(new Interval($e->startToken->tokenIndex, $e->offendingToken->tokenIndex));
+        }
     }
-    var msg = "no viable alternative at input " + this.escapeWSAndQuote(input);
-    recognizer.notifyErrorListeners(msg, e.offendingToken, e);
+    else 
+    {
+        $input = "<unknown input>";
+    }
+    /*var */$msg = "no viable alternative at input " . $this->escapeWSAndQuote($input);
+    $recognizer->notifyErrorListeners($msg, $e->offendingToken, $e);
 };
 
 //
@@ -285,10 +324,11 @@ DefaultErrorStrategy.prototype.reportNoViableAlternative = function(recognizer, 
 // @param recognizer the parser instance
 // @param e the recognition exception
 //
-DefaultErrorStrategy.prototype.reportInputMismatch = function(recognizer, e) {
-    var msg = "mismatched input " + this.getTokenErrorDisplay(e.offendingToken) +
-          " expecting " + e.getExpectedTokens().toString(recognizer.literalNames, recognizer.symbolicNames);
-    recognizer.notifyErrorListeners(msg, e.offendingToken, e);
+/* DefaultErrorStrategy */function reportInputMismatch($recognizer, $e) 
+{
+    /*var */$msg = "mismatched input " . $this->getTokenErrorDisplay($e->offendingToken) +
+          " expecting " . $e->getExpectedTokens().toString($recognizer->literalNames, $recognizer->symbolicNames);
+    $recognizer->notifyErrorListeners($msg, $e->offendingToken, $e);
 };
 
 //
@@ -300,10 +340,11 @@ DefaultErrorStrategy.prototype.reportInputMismatch = function(recognizer, e) {
 // @param recognizer the parser instance
 // @param e the recognition exception
 //
-DefaultErrorStrategy.prototype.reportFailedPredicate = function(recognizer, e) {
-    var ruleName = recognizer.ruleNames[recognizer._ctx.ruleIndex];
-    var msg = "rule " + ruleName + " " + e.message;
-    recognizer.notifyErrorListeners(msg, e.offendingToken, e);
+/* DefaultErrorStrategy */function reportFailedPredicate($recognizer, $e) 
+{
+    /*var */$ruleName = $recognizer->ruleNames[$recognizer->_ctx->ruleIndex];
+    /*var */$msg = "rule " + ruleName + " " . $e->message;
+    $recognizer->notifyErrorListeners($msg, $e->offendingToken, $e);
 };
 
 // This method is called to report a syntax error which requires the removal
@@ -323,17 +364,19 @@ DefaultErrorStrategy.prototype.reportFailedPredicate = function(recognizer, e) {
 //
 // @param recognizer the parser instance
 //
-DefaultErrorStrategy.prototype.reportUnwantedToken = function(recognizer) {
-    if (this.inErrorRecoveryMode(recognizer)) {
+/* DefaultErrorStrategy */function reportUnwantedToken($recognizer) 
+{
+    if ($this->inErrorRecoveryMode($recognizer)) 
+    {
         return;
     }
-    this.beginErrorCondition(recognizer);
-    var t = recognizer.getCurrentToken();
-    var tokenName = this.getTokenErrorDisplay(t);
-    var expecting = this.getExpectedTokens(recognizer);
-    var msg = "extraneous input " + tokenName + " expecting " +
-        expecting.toString(recognizer.literalNames, recognizer.symbolicNames);
-    recognizer.notifyErrorListeners(msg, t, null);
+    $this->beginErrorCondition($recognizer);
+    /*var */$t = $recognizer->getCurrentToken();
+    /*var */$tokenName = $this->getTokenErrorDisplay($t);
+    /*var */$expecting = $this->getExpectedTokens($recognizer);
+    /*var */$msg = "extraneous input " + tokenName + " expecting " .
+        $expecting->toString($recognizer->literalNames, $recognizer->symbolicNames);
+    $recognizer->notifyErrorListeners($msg, $t, null);
 };
 // This method is called to report a syntax error which requires the
 // insertion of a missing token into the input stream. At the time this
@@ -351,16 +394,18 @@ DefaultErrorStrategy.prototype.reportUnwantedToken = function(recognizer) {
 //
 // @param recognizer the parser instance
 //
-DefaultErrorStrategy.prototype.reportMissingToken = function(recognizer) {
-    if ( this.inErrorRecoveryMode(recognizer)) {
+/* DefaultErrorStrategy */function reportMissingToken($recognizer) 
+{
+    if ( $this->inErrorRecoveryMode($recognizer)) 
+    {
         return;
     }
-    this.beginErrorCondition(recognizer);
-    var t = recognizer.getCurrentToken();
-    var expecting = this.getExpectedTokens(recognizer);
-    var msg = "missing " + expecting.toString(recognizer.literalNames, recognizer.symbolicNames) +
-          " at " + this.getTokenErrorDisplay(t);
-    recognizer.notifyErrorListeners(msg, t, null);
+    $this->beginErrorCondition($recognizer);
+    /*var */$t = $recognizer->getCurrentToken();
+    /*var */$expecting = $this->getExpectedTokens($recognizer);
+    /*var */$msg = "missing " . $expecting->toString($recognizer->literalNames, $recognizer->symbolicNames) +
+          " at " . $this->getTokenErrorDisplay($t);
+    $recognizer->notifyErrorListeners($msg, $t, null);
 };
 
 // <p>The default implementation attempts to recover from the mismatched input
@@ -412,21 +457,22 @@ DefaultErrorStrategy.prototype.reportMissingToken = function(recognizer) {
 // is in the set of tokens that can follow the {@code ')'} token reference
 // in rule {@code atom}. It can assume that you forgot the {@code ')'}.
 //
-DefaultErrorStrategy.prototype.recoverInline = function(recognizer) {
-    // SINGLE TOKEN DELETION
-    var matchedSymbol = this.singleTokenDeletion(recognizer);
-    if (matchedSymbol !== null) {
-        // we have deleted the extra token.
-        // now, move past ttype token as if all were ok
-        recognizer.consume();
-        return matchedSymbol;
+/* DefaultErrorStrategy */function recoverInline($recognizer) 
+{// SINGLE TOKEN DELETION
+    /*var */$matchedSymbol = $this->singleTokenDeletion($recognizer);
+    if ($matchedSymbol !== null) 
+    {// we have deleted the extra token.
+// now, move past ttype token as if all were ok
+        $recognizer->consume();
+        return $matchedSymbol;
     }
-    // SINGLE TOKEN INSERTION
-    if (this.singleTokenInsertion(recognizer)) {
-        return this.getMissingSymbol(recognizer);
+// SINGLE TOKEN INSERTION
+    if ($this->singleTokenInsertion($recognizer)) 
+    {
+        return $this->getMissingSymbol($recognizer);
     }
-    // even that didn't work; must throw the exception
-    throw new InputMismatchException(recognizer);
+// even that didn't work; must throw the exception
+    throw new InputMismatchException($recognizer);
 };
 
 //
@@ -446,19 +492,23 @@ DefaultErrorStrategy.prototype.recoverInline = function(recognizer) {
 // @return {@code true} if single-token insertion is a viable recovery
 // strategy for the current mismatched input, otherwise {@code false}
 //
-DefaultErrorStrategy.prototype.singleTokenInsertion = function(recognizer) {
-    var currentSymbolType = recognizer.getTokenStream().LA(1);
-    // if current token is consistent with what could come after current
-    // ATN state, then we know we're missing a token; error recovery
-    // is free to conjure up and insert the missing token
-    var atn = recognizer._interp.atn;
-    var currentState = atn.states[recognizer.state];
-    var next = currentState.transitions[0].target;
-    var expectingAtLL2 = atn.nextTokens(next, recognizer._ctx);
-    if (expectingAtLL2.contains(currentSymbolType) ){
-        this.reportMissingToken(recognizer);
+/* DefaultErrorStrategy */function singleTokenInsertion($recognizer) 
+{
+    /*var */$currentSymbolType = $recognizer->getTokenStream().LA(1);
+// if current token is consistent with what could come after current
+// ATN state, then we know we're missing a token; error recovery
+// is free to conjure up and insert the missing token
+    /*var */$atn = $recognizer->_interp->atn;
+    /*var */$currentState = $atn->states[$recognizer->state];
+    /*var */$next = $currentState->transitions[0].$target;
+    /*var */$expectingAtLL2 = $atn->nextTokens($next, $recognizer->_ctx);
+    if ($expectingAtLL2->contains($currentSymbolType) )
+    {
+        $this->reportMissingToken($recognizer);
         return true;
-    } else {
+    }
+    else 
+    {
         return false;
     }
 };
@@ -481,21 +531,25 @@ DefaultErrorStrategy.prototype.singleTokenInsertion = function(recognizer) {
 // deletion successfully recovers from the mismatched input, otherwise
 // {@code null}
 //
-DefaultErrorStrategy.prototype.singleTokenDeletion = function(recognizer) {
-    var nextTokenType = recognizer.getTokenStream().LA(2);
-    var expecting = this.getExpectedTokens(recognizer);
-    if (expecting.contains(nextTokenType)) {
-        this.reportUnwantedToken(recognizer);
-        // print("recoverFromMismatchedToken deleting " \
-        // + str(recognizer.getTokenStream().LT(1)) \
-        // + " since " + str(recognizer.getTokenStream().LT(2)) \
-        // + " is what we want", file=sys.stderr)
-        recognizer.consume(); // simply delete extra token
-        // we want to return the token we're actually matching
-        var matchedSymbol = recognizer.getCurrentToken();
-        this.reportMatch(recognizer); // we know current token is correct
-        return matchedSymbol;
-    } else {
+/* DefaultErrorStrategy */function singleTokenDeletion($recognizer) 
+{
+    /*var */$nextTokenType = $recognizer->getTokenStream().LA(2);
+    /*var */$expecting = $this->getExpectedTokens($recognizer);
+    if ($expecting->contains($nextTokenType)) 
+    {
+        $this->reportUnwantedToken($recognizer);
+// print("recoverFromMismatchedToken deleting " \
+// + str(recognizer.getTokenStream().LT(1)) \
+// + " since " + str(recognizer.getTokenStream().LT(2)) \
+// + " is what we want", file=sys.stderr)
+        $recognizer->consume();// simply delete extra token
+// we want to return the token we're actually matching
+        /*var */$matchedSymbol = $recognizer->getCurrentToken();
+        $this->reportMatch($recognizer);// we know current token is correct
+        return $matchedSymbol;
+    }
+    else 
+    {
         return null;
     }
 };
@@ -519,28 +573,34 @@ DefaultErrorStrategy.prototype.singleTokenDeletion = function(recognizer) {
 // If you change what tokens must be created by the lexer,
 // override this method to create the appropriate tokens.
 //
-DefaultErrorStrategy.prototype.getMissingSymbol = function(recognizer) {
-    var currentSymbol = recognizer.getCurrentToken();
-    var expecting = this.getExpectedTokens(recognizer);
-    var expectedTokenType = expecting.first(); // get any element
-    var tokenText;
-    if (expectedTokenType===Token.EOF) {
-        tokenText = "<missing EOF>";
-    } else {
-        tokenText = "<missing " + recognizer.literalNames[expectedTokenType] + ">";
+/* DefaultErrorStrategy */function getMissingSymbol($recognizer) 
+{
+    /*var */$currentSymbol = $recognizer->getCurrentToken();
+    /*var */$expecting = $this->getExpectedTokens($recognizer);
+    /*var */$expectedTokenType = $expecting->first();// get any element
+    /*var */$tokenText;
+    if ($expectedTokenType===Token::EOF) 
+    {
+        $tokenText = "<missing EOF>";
     }
-    var current = currentSymbol;
-    var lookback = recognizer.getTokenStream().LT(-1);
-    if (current.type===Token.EOF && lookback !== null) {
-        current = lookback;
+    else 
+    {
+        $tokenText = "<missing " + recognizer.literalNames[expectedTokenType] + ">";
     }
-    return recognizer.getTokenFactory().create(current.source,
-        expectedTokenType, tokenText, Token.DEFAULT_CHANNEL,
-        -1, -1, current.line, current.column);
+    /*var */$current = $currentSymbol;
+    /*var */$lookback = $recognizer->getTokenStream().LT(-1);
+    if ($current->type===Token::EOF && $lookback !== null) 
+    {
+        $current = $lookback;
+    }
+    return $recognizer->getTokenFactory().create($current->source,
+        $expectedTokenType, $tokenText, Token::DEFAULT_CHANNEL,
+        -1, -1, $current->line, $current->column);
 };
 
-DefaultErrorStrategy.prototype.getExpectedTokens = function(recognizer) {
-    return recognizer.getExpectedTokens();
+/* DefaultErrorStrategy */function getExpectedTokens($recognizer) 
+{
+    return $recognizer->getExpectedTokens();
 };
 
 // How should a token be displayed in an error message? The default
@@ -551,25 +611,32 @@ DefaultErrorStrategy.prototype.getExpectedTokens = function(recognizer) {
 // your token objects because you don't have to go modify your lexer
 // so that it creates a new Java type.
 //
-DefaultErrorStrategy.prototype.getTokenErrorDisplay = function(t) {
-    if (t === null) {
+/* DefaultErrorStrategy */function getTokenErrorDisplay($t) 
+{
+    if ($t === null) 
+    {
         return "<no token>";
     }
-    var s = t.text;
-    if (s === null) {
-        if (t.type===Token.EOF) {
-            s = "<EOF>";
-        } else {
-            s = "<" + t.type + ">";
+    /*var */$s = $t->text;
+    if ($s === null) 
+    {
+        if ($t->type===Token::EOF) 
+        {
+            $s = "<EOF>";
+        }
+        else 
+        {
+            $s = "<" + t.type + ">";
         }
     }
-    return this.escapeWSAndQuote(s);
+    return $this->escapeWSAndQuote($s);
 };
 
-DefaultErrorStrategy.prototype.escapeWSAndQuote = function(s) {
-    s = s.replace(/\n/g,"\\n");
-    s = s.replace(/\r/g,"\\r");
-    s = s.replace(/\t/g,"\\t");
+/* DefaultErrorStrategy */function escapeWSAndQuote($s) 
+{
+    $s = $s->replace(/\$n/$g,"\\n");
+    $s = $s->replace(/\$r/$g,"\\r");
+    $s = $s->replace(/\$t/$g,"\\t");
     return "'" + s + "'";
 };
 
@@ -665,28 +732,31 @@ DefaultErrorStrategy.prototype.escapeWSAndQuote = function(s) {
 // Like Grosch I implement context-sensitive FOLLOW sets that are combined
 // at run-time upon error to avoid overhead during parsing.
 //
-DefaultErrorStrategy.prototype.getErrorRecoverySet = function(recognizer) {
-    var atn = recognizer._interp.atn;
-    var ctx = recognizer._ctx;
-    var recoverSet = new IntervalSet();
-    while (ctx !== null && ctx.invokingState>=0) {
-        // compute what follows who invoked us
-        var invokingState = atn.states[ctx.invokingState];
-        var rt = invokingState.transitions[0];
-        var follow = atn.nextTokens(rt.followState);
-        recoverSet.addSet(follow);
-        ctx = ctx.parentCtx;
+/* DefaultErrorStrategy */function getErrorRecoverySet($recognizer) 
+{
+    /*var */$atn = $recognizer->_interp->atn;
+    /*var */$ctx = $recognizer->_ctx;
+    /*var */$recoverSet = new IntervalSet();
+    while ($ctx !== null && $ctx->invokingState>=0) 
+    {// compute what follows who invoked us
+        /*var */$invokingState = $atn->states[$ctx->invokingState];
+        /*var */$rt = $invokingState->transitions[0];
+        /*var */$follow = $atn->nextTokens($rt->followState);
+        $recoverSet->addSet($follow);
+        $ctx = $ctx->parentCtx;
     }
-    recoverSet.removeOne(Token.EPSILON);
-    return recoverSet;
+    $recoverSet->removeOne(Token::EPSILON);
+    return $recoverSet;
 };
 
 // Consume tokens until one matches the given token set.//
-DefaultErrorStrategy.prototype.consumeUntil = function(recognizer, set) {
-    var ttype = recognizer.getTokenStream().LA(1);
-    while( ttype !== Token.EOF && !set.contains(ttype)) {
-        recognizer.consume();
-        ttype = recognizer.getTokenStream().LA(1);
+/* DefaultErrorStrategy */function consumeUntil($recognizer, $set) 
+{
+    /*var */$ttype = $recognizer->getTokenStream().LA(1);
+    while( $ttype !== Token::EOF && !$set->contains($ttype)) 
+    {
+        $recognizer->consume();
+        $ttype = $recognizer->getTokenStream().LA(1);
     }
 };
 
@@ -718,39 +788,43 @@ DefaultErrorStrategy.prototype.consumeUntil = function(recognizer, set) {
 //
 // @see Parser//setErrorHandler(ANTLRErrorStrategy)
 //
-function BailErrorStrategy() {
-	DefaultErrorStrategy.call(this);
-	return this;
+function BailErrorStrategy() 
+{
+	DefaultErrorStrategy->call($this);
+	return $this;
 }
 
-BailErrorStrategy.prototype = Object.create(DefaultErrorStrategy.prototype);
-BailErrorStrategy.prototype.constructor = BailErrorStrategy;
+BailErrorStrategy::prototype = Object->create(DefaultErrorStrategy::prototype);
+BailErrorStrategy::prototype->constructor = BailErrorStrategy;
 
 // Instead of recovering from exception {@code e}, re-throw it wrapped
 // in a {@link ParseCancellationException} so it is not caught by the
 // rule function catches. Use {@link Exception//getCause()} to get the
 // original {@link RecognitionException}.
 //
-BailErrorStrategy.prototype.recover = function(recognizer, e) {
-    var context = recognizer._ctx;
-    while (context !== null) {
-        context.exception = e;
-        context = context.parentCtx;
+/* BailErrorStrategy */function recover($recognizer, $e) 
+{
+    /*var */$context = $recognizer->_ctx;
+    while ($context !== null) 
+    {
+        $context->exception = $e;
+        $context = $context->parentCtx;
     }
-    throw new ParseCancellationException(e);
+    throw new ParseCancellationException($e);
 };
 
 // Make sure we don't attempt to recover inline; if the parser
 // successfully recovers, it won't throw an exception.
 //
-BailErrorStrategy.prototype.recoverInline = function(recognizer) {
-    this.recover(recognizer, new InputMismatchException(recognizer));
+/* BailErrorStrategy */function recoverInline($recognizer) 
+{
+    $this->recover($recognizer, new InputMismatchException($recognizer));
 };
 
 // Make sure we don't attempt to recover from problems in subrules.//
-BailErrorStrategy.prototype.sync = function(recognizer) {
-    // pass
+/* BailErrorStrategy */function sync($recognizer) 
+{// pass
 };
 
-exports.BailErrorStrategy = BailErrorStrategy;
-exports.DefaultErrorStrategy = DefaultErrorStrategy;
+$exports->BailErrorStrategy = BailErrorStrategy;
+$exports->DefaultErrorStrategy = DefaultErrorStrategy;

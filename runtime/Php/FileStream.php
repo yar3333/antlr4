@@ -1,3 +1,7 @@
+<?php
+
+namespace Antlr4;
+
 //
 /* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
@@ -9,18 +13,17 @@
 //  This is an InputStream that is loaded from a file all at once
 //  when you construct the object.
 //
-var InputStream = require('./InputStream').InputStream;
-var isNodeJs = typeof window === 'undefined' && typeof importScripts === 'undefined';
-var fs = isNodeJs ? require("fs") : null;
+use Antlr4\InputStream; //('./InputStream').InputStream;
 
-function FileStream(fileName, decodeToUnicodeCodePoints) {
-	var data = fs.readFileSync(fileName, "utf8");
-	InputStream.call(this, data, decodeToUnicodeCodePoints);
-	this.fileName = fileName;
-	return this;
+class FileStream extends InputStream
+{
+    public $fileName;
+
+    function __construct($fileName, $decodeToUnicodeCodePoints)
+    {
+        $data = file_get_contents($fileName/*, "utf8"*/);
+        parent::__construct($this, $data, $decodeToUnicodeCodePoints);
+        $this->fileName = $fileName;
+        return $this;
+    }
 }
-
-FileStream.prototype = Object.create(InputStream.prototype);
-FileStream.prototype.constructor = FileStream;
-
-exports.FileStream = FileStream;

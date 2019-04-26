@@ -1,3 +1,7 @@
+<?php
+
+namespace Antlr4\Error;
+
 //
 /* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
@@ -24,64 +28,72 @@
 // this situation occurs.</li>
 // </ul>
 
-var BitSet = require('./../Utils').BitSet;
-var ErrorListener = require('./ErrorListener').ErrorListener;
-var Interval = require('./../IntervalSet').Interval;
+use Antlr4\BitSet; //('./../Utils').BitSet;
+use Antlr4\ErrorListener; //('./ErrorListener').ErrorListener;
+use Antlr4\Interval; //('./../IntervalSet').Interval;
 
-function DiagnosticErrorListener(exactOnly) {
-	ErrorListener.call(this);
-	exactOnly = exactOnly || true;
-	// whether all ambiguities or only exact ambiguities are reported.
-	this.exactOnly = exactOnly;
-	return this;
+function DiagnosticErrorListener($exactOnly) 
+{
+	ErrorListener->call($this);
+	$exactOnly = $exactOnly || true;
+// whether all ambiguities or only exact ambiguities are reported.
+	$this->exactOnly = $exactOnly;
+	return $this;
 }
 
-DiagnosticErrorListener.prototype = Object.create(ErrorListener.prototype);
-DiagnosticErrorListener.prototype.constructor = DiagnosticErrorListener;
+DiagnosticErrorListener::prototype = Object->create(ErrorListener::prototype);
+DiagnosticErrorListener::prototype->constructor = DiagnosticErrorListener;
 
-DiagnosticErrorListener.prototype.reportAmbiguity = function(recognizer, dfa,
-		startIndex, stopIndex, exact, ambigAlts, configs) {
-	if (this.exactOnly && !exact) {
+/* DiagnosticErrorListener */function reportAmbiguity($recognizer, $dfa,
+		$startIndex, $stopIndex, $exact, $ambigAlts, $configs) 
+		{
+	if ($this->exactOnly && !$exact) 
+	{
 		return;
 	}
-	var msg = "reportAmbiguity d=" +
-			this.getDecisionDescription(recognizer, dfa) +
-			": ambigAlts=" +
-			this.getConflictingAlts(ambigAlts, configs) +
-			", input='" +
-			recognizer.getTokenStream().getText(new Interval(startIndex, stopIndex)) + "'";
-	recognizer.notifyErrorListeners(msg);
+	/*var */$msg = "reportAmbiguity d=" .
+			$this->getDecisionDescription($recognizer, $dfa) +
+			": ambigAlts=" .
+			$this->getConflictingAlts($ambigAlts, $configs) +
+			", input='" .
+			$recognizer->getTokenStream().getText(new Interval($startIndex, $stopIndex)) + "'";
+	$recognizer->notifyErrorListeners($msg);
 };
 
-DiagnosticErrorListener.prototype.reportAttemptingFullContext = function(
-		recognizer, dfa, startIndex, stopIndex, conflictingAlts, configs) {
-	var msg = "reportAttemptingFullContext d=" +
-			this.getDecisionDescription(recognizer, dfa) +
-			", input='" +
-			recognizer.getTokenStream().getText(new Interval(startIndex, stopIndex)) + "'";
-	recognizer.notifyErrorListeners(msg);
+/* DiagnosticErrorListener */function reportAttemptingFullContext(
+		$recognizer, $dfa, $startIndex, $stopIndex, $conflictingAlts, $configs) 
+		{
+	/*var */$msg = "reportAttemptingFullContext d=" .
+			$this->getDecisionDescription($recognizer, $dfa) +
+			", input='" .
+			$recognizer->getTokenStream().getText(new Interval($startIndex, $stopIndex)) + "'";
+	$recognizer->notifyErrorListeners($msg);
 };
 
-DiagnosticErrorListener.prototype.reportContextSensitivity = function(
-		recognizer, dfa, startIndex, stopIndex, prediction, configs) {
-	var msg = "reportContextSensitivity d=" +
-			this.getDecisionDescription(recognizer, dfa) +
-			", input='" +
-			recognizer.getTokenStream().getText(new Interval(startIndex, stopIndex)) + "'";
-	recognizer.notifyErrorListeners(msg);
+/* DiagnosticErrorListener */function reportContextSensitivity(
+		$recognizer, $dfa, $startIndex, $stopIndex, $prediction, $configs) 
+		{
+	/*var */$msg = "reportContextSensitivity d=" .
+			$this->getDecisionDescription($recognizer, $dfa) +
+			", input='" .
+			$recognizer->getTokenStream().getText(new Interval($startIndex, $stopIndex)) + "'";
+	$recognizer->notifyErrorListeners($msg);
 };
 
-DiagnosticErrorListener.prototype.getDecisionDescription = function(recognizer, dfa) {
-	var decision = dfa.decision;
-	var ruleIndex = dfa.atnStartState.ruleIndex;
+/* DiagnosticErrorListener */function getDecisionDescription($recognizer, $dfa) 
+{
+	/*var */$decision = $dfa->decision;
+	/*var */$ruleIndex = $dfa->atnStartState->ruleIndex;
 
-	var ruleNames = recognizer.ruleNames;
-	if (ruleIndex < 0 || ruleIndex >= ruleNames.length) {
-		return "" + decision;
+	/*var */$ruleNames = $recognizer->ruleNames;
+	if ($ruleIndex < 0 || $ruleIndex >= $ruleNames->length) 
+	{
+		return "" . $decision;
 	}
-	var ruleName = ruleNames[ruleIndex] || null;
-	if (ruleName === null || ruleName.length === 0) {
-		return "" + decision;
+	/*var */$ruleName = $ruleNames[$ruleIndex] || null;
+	if ($ruleName === null || $ruleName->length === 0) 
+	{
+		return "" . $decision;
 	}
 	return "" + decision + " (" + ruleName + ")";
 };
@@ -97,15 +109,18 @@ DiagnosticErrorListener.prototype.getDecisionDescription = function(recognizer, 
 // @return Returns {@code reportedAlts} if it is not {@code null}, otherwise
 // returns the set of alternatives represented in {@code configs}.
 //
-DiagnosticErrorListener.prototype.getConflictingAlts = function(reportedAlts, configs) {
-	if (reportedAlts !== null) {
-		return reportedAlts;
+/* DiagnosticErrorListener */function getConflictingAlts($reportedAlts, $configs) 
+{
+	if ($reportedAlts !== null) 
+	{
+		return $reportedAlts;
 	}
-	var result = new BitSet();
-	for (var i = 0; i < configs.items.length; i++) {
-		result.add(configs.items[i].alt);
+	/*var */$result = new BitSet();
+	for ($i = 0; $i < $configs->items->length; $i++) 
+	{
+		$result->add($configs->items[$i].$alt);
 	}
 	return "{" + result.values().join(", ") + "}";
 };
 
-exports.DiagnosticErrorListener = DiagnosticErrorListener;
+$exports->DiagnosticErrorListener = DiagnosticErrorListener;
