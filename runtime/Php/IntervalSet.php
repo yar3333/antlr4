@@ -11,39 +11,7 @@ namespace Antlr4;
 
 use Antlr4\Token; //('./Token').Token;
 
-class Interval
-{
-    public $start;
-    public $stop;
-
-    /* stop is not included! */
-    function __construct($start, $stop)
-    {
-        $this->start = $start;
-        $this->stop = $stop;
-    }
-
-    function contains($item)
-    {
-        return $item >= $this->start && $item < $this->stop;
-    }
-
-    function toString()
-    {
-        if($this->start===$this->stop-1)
-        {
-            return $this->start->toString();
-        }
-        else
-        {
-            return $this->start->toString() . ".." . ($this->stop - 1);
-        }
-    }
-
-    function getLength() { return $this->stop - $this->start; }
-}
-
-class IntervalSet
+class TokenIntervalSet
 {
     public $intervals;
     public $readOnly;
