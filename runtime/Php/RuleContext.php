@@ -170,5 +170,4 @@ class RuleContext extends RuleNode
         $s .= "]";
         return $s;
     }
-
 }

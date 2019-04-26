@@ -69,7 +69,7 @@ class LL1Analyzer
             }
         }
         return $look;
-    };
+    }
 
     //*
     // Compute set of tokens that can follow {@code s} in the ATN in the
@@ -129,6 +129,7 @@ class LL1Analyzer
     function _LOOK($s, $stopState , $ctx, $look, $lookBusy, $calledRuleStack, $seeThruPreds, $addEOF)
     {
         $c = new ATNConfig({$state:$s, $alt:0, $context: $ctx}, null);
+        $c->s
 
         if ($lookBusy->contains($c))
         {
