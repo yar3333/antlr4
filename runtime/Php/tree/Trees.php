@@ -104,7 +104,7 @@ static function /*
 	/*var */$list = [];
 	for($i=0;$i<$t->getChildCount();$i++) 
 	{
-		$list->push($t->getChild($i));
+		array_push($list, $t->getChild($i));
 	}
 	return $list;
 };
@@ -148,14 +148,14 @@ Trees::_findAllNodes = function($t, $index, $findTokens, $nodes)
 	{
 		if($t->symbol->type===$index) 
 		{
-			$nodes->push($t);
+			array_push($nodes, $t);
 		}
 	}
 	else if(!$findTokens && ($t instanceof ParserRuleContext)) 
 	{
 		if($t->ruleIndex===$index) 
 		{
-			$nodes->push($t);
+			array_push($nodes, $t);
 		}
 	}
 // check children

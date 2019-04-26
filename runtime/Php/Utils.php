@@ -49,8 +49,10 @@ class Utils
 
         switch ($remainder)
         {
+            /** @noinspection PhpMissingBreakStatementInspection */
             case 3:
                 $k1 ^= (ord($key[$i + 2]) & 0xff) << 16;
+            /** @noinspection PhpMissingBreakStatementInspection */
             case 2:
                 $k1 ^= (ord($key[$i + 1]) & 0xff) << 8;
             case 1:
@@ -90,7 +92,7 @@ class Utils
         return $hash->finish();
     }
 
-    function escapeWhitespace($s, $escapeSpaces)
+    static function escapeWhitespace($s, $escapeSpaces)
     {
         $s = preg_replace('/\n/g', "\\n", $s);
         $s = preg_replace('/\r/g', "\\r", $s);
@@ -104,12 +106,12 @@ class Utils
         return $s;
     }
 
-    function titleCase($str)
+    static function titleCase($str)
     {
         return preg_replace_callback('/\w\S*/g', function($txt) { return mb_strtoupper($txt[0]) . substr($txt, 1); }, $str);
     }
-    
-    function equalArrays($a, $b)
+
+    static function equalArrays($a, $b)
     {
         if (!is_array($a) || !is_array($b)) return false;
         if ($a == $b) return true;
@@ -120,6 +122,23 @@ class Utils
             if (!$a[$i].equals($b[$i])) return false;
         }
         return true;
+    }
+
+    static function fromCodePoint(...$codes) : string
+    {
+        $s = '';
+        foreach ($codes as $code) $s .= mb_chr($code, 'UTF-8');
+        return $s;
+    }
+
+    static function codePointAt(string $s, int $pos) : int
+    {
+        return mb_ord(mb_substr($s, $pos, 1, 'UTF-8'), 'UTF-8');
+    }
+
+    static function charCodeAt(string $s, int $pos) : int
+    {
+        return mb_ord(mb_substr($s, $pos, 1, 'UTF-8'), 'UTF-8');
     }
 }
 
@@ -174,7 +193,7 @@ class Set
                     return $values[$i];
                 }
             }
-            $values->push($value);
+            array_push($values, $value);
             return $value;
         }
         else
@@ -341,7 +360,7 @@ class Map
                     return $oldValue;
                 }
             }
-            $entries->push(['key'=>$key, 'value'=>$value]);
+            array_push($entries, ['key'=>$key, 'value'=>$value]);
             return $value;
         }
         else

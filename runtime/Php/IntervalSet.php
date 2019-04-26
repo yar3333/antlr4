@@ -81,7 +81,7 @@ class IntervalSet
         if ($this->intervals === null)
         {
             $this->intervals = [];
-            $this->intervals->push($v);
+            array_push($this->intervals, $v);
         }
         else
         {
@@ -110,7 +110,7 @@ class IntervalSet
                 }
             }
             // greater than any existing
-            $this->intervals->push($v);
+            array_push($this->intervals, $v);
         }
     }
 
@@ -137,13 +137,13 @@ class IntervalSet
             // if r contained in l
             if ($l->stop >= $r->stop)
             {
-                $this->intervals->pop($k + 1);
+                array_pop($this->intervals, $k + 1);
                 $this->reduce($k);
             }
             else if ($l->stop >= $r->start)
             {
                 $this->intervals[$k] = new Interval($l->start, $r->stop);
-                $this->intervals->pop($k + 1);
+                array_pop($this->intervals, $k + 1);
             }
         }
     }
@@ -306,16 +306,16 @@ class IntervalSet
             {
                 if ( $v->start===Token::EOF )
                 {
-                    $names->push("<EOF>");
+                    array_push($names, "<EOF>");
                 }
                 else
                 {
-                    $names->push("'" . String.fromCharCode(v.start) . "'");
+                    array_push($names, "'" . String.fromCharCode(v.start) . "'");
                 }
             }
             else
             {
-                $names->push("'" . String.fromCharCode(v.start) . "'..'" . String.fromCharCode(v.stop-1) + "'");
+                array_push($names, "'" . String.fromCharCode(v.start) . "'..'" . String.fromCharCode(v.stop-1) + "'");
             }
         }
         if ($names->length > 1)
@@ -339,16 +339,16 @@ class IntervalSet
             {
                 if ( $v->start===Token::EOF )
                 {
-                    $names->push("<EOF>");
+                    array_push($names, "<EOF>");
                 }
                 else
                 {
-                    $names->push($v->start->toString());
+                    array_push($names, $v->start->toString());
                 }
             }
             else
             {
-                $names->push($v->start->toString() + ".." + ($v->stop-1).toString());
+                array_push($names, $v->start->toString() + ".." + ($v->stop-1).toString());
             }
         }
         if ($names->length > 1)
@@ -369,7 +369,7 @@ class IntervalSet
             /*var */$v = $this->intervals[$i];
             for ($j = $v->start; $j < $v->stop; $j++)
             {
-                $names->push($this->elementName($literalNames, $symbolicNames, $j));
+                array_push($names, $this->elementName($literalNames, $symbolicNames, $j));
             }
         }
         if ($names->length > 1)

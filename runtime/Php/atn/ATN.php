@@ -83,7 +83,7 @@ function ATN($grammarType , $maxTokenType)
         $state->atn = $this;
         $state->stateNumber = $this->states->length;
     }
-    $this->states->push($state);
+    array_push($this->states, $state);
 };
 
 /* ATN */function removeState( $state) 
@@ -93,7 +93,7 @@ function ATN($grammarType , $maxTokenType)
 
 /* ATN */function defineDecisionState( $s) 
 {
-    $this->decisionToState->push($s);
+    array_push($this->decisionToState, $s);
     $s->decision = $this->decisionToState->length-1;
     return $s->decision;
 };

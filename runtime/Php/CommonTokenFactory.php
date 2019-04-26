@@ -1,21 +1,13 @@
 <?php
-
-namespace Antlr4;
-
 //
 /* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-//
 
-//
-// This default implementation of {@link TokenFactory} creates
-// {@link CommonToken} objects.
-//
+namespace Antlr4;
 
-use Antlr4\CommonToken; //('./Token').CommonToken;
-
+// This default implementation of {@link TokenFactory} creates {@link CommonToken} objects.
 class TokenFactory
 {
     function __construct() {}
@@ -25,7 +17,7 @@ class CommonTokenFactory extends TokenFactory
 {
     public $copyText;
 
-    function __construct($copyText)
+    function __construct(string $copyText)
     {
         parent::__construct();
         // Indicates whether {@link CommonToken//setText} should be called after
@@ -42,7 +34,7 @@ class CommonTokenFactory extends TokenFactory
         // The default value is {@code false} to avoid the performance and memory
         // overhead of copying text for every token unless explicitly requested.</p>
         //
-        $this->copyText = $copyText===undefined ? false : $copyText;
+        $this->copyText = !isset($copyText) ? false : $copyText;
     }
 
     //
@@ -56,7 +48,7 @@ class CommonTokenFactory extends TokenFactory
      * @var CommonTokenFactory
      */
     private static $DEFAULT;
-    public static function DEFAULT() { return self::$DEFAULT ? self::$DEFAULT : (self::$DEFAULT = new CommonTokenFactory()); }
+    public static function DEFAULT() { return self::$DEFAULT ? self::$DEFAULT : (self::$DEFAULT = new CommonTokenFactory(null)); }
 
     function create($source, $type, $text, $channel, $start, $stop, $line, $column)
     {
@@ -69,7 +61,7 @@ class CommonTokenFactory extends TokenFactory
         }
         else if ($this->copyText && $source[1] !==null)
         {
-            $t->text = $source[1].getText($start,$stop);
+            $t->setText($source[1]->getText($start,$stop));
         }
         return $t;
     }
@@ -77,7 +69,7 @@ class CommonTokenFactory extends TokenFactory
     function createThin($type, $text)
     {
         $t = new CommonToken(null, $type);
-        $t->text = $text;
+        $t->setText($text);
         return $t;
     }
 }

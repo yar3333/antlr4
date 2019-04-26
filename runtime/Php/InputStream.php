@@ -1,33 +1,51 @@
 <?php
-
-namespace Antlr4;
-
 /* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
-use Antlr4\Token; //('./Token').Token;
-//require('./polyfills/codepointat');
-//require('./polyfills/fromcodepoint');
+namespace Antlr4;
 
 /**
  * Vacuum all input from a string and then treat it like a buffer.
  */
 class InputStream
 {
+    /**
+     * @var int
+     */
     protected $_index;
+
+    /**
+     * @var int
+     */
     protected $_size;
 
+    /**
+     * @var string
+     */
     public $name;
+
+    /**
+     * @var string
+     */
     public $strdata;
+
+    /**
+     * @var bool
+     */
     public $decodeToUnicodeCodePoints;
+
+    /**
+     * @var array
+     */
+    public $data;
 
     // If decodeToUnicodeCodePoints is true, the input is treated
     // as a series of Unicode code points.
     // Otherwise, the input is treated as a series of 16-bit UTF-16 code
     // units.
-    function __construct($data, $decodeToUnicodeCodePoints)
+    function __construct(string $data, bool $decodeToUnicodeCodePoints)
     {
         $this->name = "<empty>";
         $this->strdata = $data;
@@ -35,28 +53,28 @@ class InputStream
         self::_loadString($this);
     }
 
-    static function _loadString($stream)
+    static function _loadString(InputStream $stream)
     {
         $stream->_index = 0;
         $stream->data = [];
         if ($stream->decodeToUnicodeCodePoints)
         {
-            for ($i = 0; $i < $stream->strdata->length; )
+            for ($i = 0; $i < strlen($stream->strdata); )
             {
-                $codePoint = $stream->strdata->codePointAt($i);
-                $stream->data->push($codePoint);
+                $codePoint = Utils::codePointAt($stream->strdata, $i);
+                array_push($stream->data, $codePoint);
                 $i += $codePoint <= 0xFFFF ? 1 : 2;
             }
         }
         else
         {
-            for ($i = 0; $i < $stream->strdata->length; $i++)
+            for ($i = 0; $i < strlen($stream->strdata); $i++)
             {
-                $codeUnit = $stream->strdata->charCodeAt($i);
-                $stream->data->push($codeUnit);
+                $codeUnit = Utils::charCodeAt($stream->strdata, $i);
+                array_push($stream->data, $codeUnit);
             }
         }
-        $stream->_size = $stream->data->length;
+        $stream->_size = count($stream->data);
     }
 
     function getIndex(){ return $this->_index; }
@@ -79,7 +97,7 @@ class InputStream
         $this->_index += 1;
     }
 
-    function LA($offset)
+    function LA(int $offset)
     {
         if ($offset === 0)
         {
@@ -98,7 +116,7 @@ class InputStream
         return $this->data[$pos];
     }
 
-    function LT($offset)
+    function LT(int $offset)
     {
         return $this->LA($offset);
     }
@@ -116,7 +134,7 @@ class InputStream
     // consume() ahead until p==_index; can't just set p=_index as we must
     // update line and column. If we seek backwards, just set p
     //
-    function seek($_index)
+    function seek(int $_index)
     {
         if ($_index <= $this->_index)
         {
@@ -127,7 +145,7 @@ class InputStream
         $this->_index = min($_index, $this->_size);
     }
 
-    function getText($start, $stop)
+    function getText(int $start, int $stop) : string
     {
         if ($stop >= $this->_size)
         {
@@ -144,18 +162,18 @@ class InputStream
                 $result = "";
                 for ($i = $start; $i <= $stop; $i++)
                 {
-                    $result += String->fromCodePoint($this->data[$i]);
+                    $result .= Utils::fromCodePoint($this->data[$i]);
                 }
                 return $result;
             }
             else
             {
-                return $this->strdata->slice($start, $stop + 1);
+                return substr($this->strdata, $start, $stop - $start + 1);
             }
         }
     }
 
-    function toString()
+    function toString() : string
     {
         return $this->strdata;
     }

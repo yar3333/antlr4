@@ -156,7 +156,7 @@ ATNState::INVALID_STATE_NUMBER = -1;
     }
     if ($index===-1) 
     {
-        $this->transitions->push($trans);
+        array_push($this->transitions, $trans);
     }
     else 
     {

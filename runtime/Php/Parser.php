@@ -52,7 +52,7 @@ function Parser($input)
 // instance of {@link DefaultErrorStrategy}.
 	$this->_errHandler = new DefaultErrorStrategy();
 	$this->_precedenceStack = [];
-	$this->_precedenceStack->push(0);
+	array_push($this->_precedenceStack, 0);
 // The {@link ParserRuleContext} object for the currently executing rule.
 // this is always non-null during the parsing process.
 	$this->_ctx = null;
@@ -98,7 +98,7 @@ Parser::bypassAltsAtnCache = {};
 	$this->_syntaxErrors = 0;
 	$this->setTrace(false);
 	$this->_precedenceStack = [];
-	$this->_precedenceStack->push(0);
+	array_push($this->_precedenceStack, 0);
 	if ($this->_interp !== null) 
 	{
 		$this->_interp->reset();
@@ -222,7 +222,7 @@ Parser::bypassAltsAtnCache = {};
 	{
 		$this->_parseListeners = [];
 	}
-	$this->_parseListeners->push($listener);
+	array_push($this->_parseListeners, $listener);
 };
 
 //
@@ -537,7 +537,7 @@ use Antlr4\Lexer; //('./Lexer').Lexer;
 		$precedence) 
 		{
 	$this->state = $state;
-	$this->_precedenceStack->push($precedence);
+	array_push($this->_precedenceStack, $precedence);
 	$this->_ctx = $localctx;
 	$this->_ctx->start = $this->_input->LT(1);
 	if ($this->_parseListeners !== null) 
@@ -572,7 +572,7 @@ use Antlr4\Lexer; //('./Lexer').Lexer;
 
 /* Parser */function unrollRecursionContexts($parentCtx) 
 {
-	$this->_precedenceStack->pop();
+	array_pop($this->_precedenceStack, );
 	$this->_ctx->stop = $this->_input->LT(-1);
 	/*var */$retCtx = $this->_ctx;// save current ctx (return value)
 // unroll so _ctx is as it was before call to recursive method
@@ -721,11 +721,11 @@ use Antlr4\Lexer; //('./Lexer').Lexer;
 		/*var */$ruleIndex = $p->ruleIndex;
 		if ($ruleIndex < 0) 
 		{
-			$stack->push("n/a");
+			array_push($stack, "n/a");
 		}
 		else 
 		{
-			$stack->push($this->ruleNames[$ruleIndex]);
+			array_push($stack, $this->ruleNames[$ruleIndex]);
 		}
 		$p = $p->parentCtx;
 	}

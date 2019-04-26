@@ -30,253 +30,247 @@ namespace Antlr4;
 //  group values such as this aggregate.  The getters/setters are there to
 //  satisfy the superclass interface.
 
-use Antlr4\RuleContext; //('./RuleContext').RuleContext;
-use Antlr4\Tree; //('./tree/Tree');
-/*var */INVALID_INTERVAL = Tree::INVALID_INTERVAL;
-/*var */TerminalNode = Tree::TerminalNode;
-/*var */TerminalNodeImpl = Tree::TerminalNodeImpl;
-/*var */ErrorNodeImpl = Tree::ErrorNodeImpl;
-use Antlr4\Interval; //("./IntervalSet").Interval;
+use Antlr4\RuleContext;
+use Antlr4\Tree\Tree;
+//INVALID_INTERVAL = Tree::INVALID_INTERVAL;
+//TerminalNode = Tree::TerminalNode;
+//TerminalNodeImpl = Tree::TerminalNodeImpl;
+//ErrorNodeImpl = Tree::ErrorNodeImpl;
+use Antlr4\Interval;
 
-function ParserRuleContext($parent, $invokingStateNumber) 
+class ParserRuleContext extends RuleContext
 {
-	$parent = $parent || null;
-	$invokingStateNumber = $invokingStateNumber || null;
-	RuleContext->call($this, $parent, $invokingStateNumber);
-	$this->ruleIndex = -1;
-// * If we are debugging or building a parse tree for a visitor,
-// we need to track all of the tokens and rule invocations associated
-// with this rule's context. This is empty for parsing w/o tree constr.
-// operation because we don't the need to track the details about
-// how we parse this rule.
-// /
-    $this->children = null;
-    $this->start = null;
-    $this->stop = null;
-// The exception that forced this rule to return. If the rule successfully
-// completed, this is {@code null}.
-    $this->exception = null;
-}
+    private static $EMPTY;
+    public static function EMPTY() : ParserRuleContext { return self::$EMPTY ? self::$EMPTY : (self::$EMPTY = new ParserRuleContext()); }
 
-ParserRuleContext::prototype = Object->create(RuleContext::prototype);
-ParserRuleContext::prototype->constructor = ParserRuleContext;
+    public $ruleIndex;
+    public $children;
+    public $start;
+    public $stop;
+    public $exception;
+    public $parentCtx;
+    public $invokingState;
 
-// * COPY a ctx (I'm deliberately not using copy constructor)///
-/* ParserRuleContext */function copyFrom($ctx) 
-{// from RuleContext
-    $this->parentCtx = $ctx->parentCtx;
-    $this->invokingState = $ctx->invokingState;
-    $this->children = null;
-    $this->start = $ctx->start;
-    $this->stop = $ctx->stop;
-// copy any error nodes to alt label node
-    if($ctx->children) 
+    function __construct($parent, $invokingStateNumber)
     {
-        $this->children = [];
-// reset parent pointer for any error nodes
-    	$ctx->children->map(function($child) 
-    	{
-    		if ($child instanceof ErrorNodeImpl) 
-    		{
-                $this->children->push($child);
-                $child->parentCtx = $this;
+        parent::__construct($parent, $invokingStateNumber);
+
+        $this->ruleIndex = -1;
+
+        // If we are debugging or building a parse tree for a visitor,
+        // we need to track all of the tokens and rule invocations associated
+        // with this rule's context. This is empty for parsing w/o tree constr.
+        // operation because we don't the need to track the details about
+        // how we parse this rule.
+        $this->children = null;
+        $this->start = null;
+        $this->stop = null;
+
+        // The exception that forced this rule to return. If the rule successfully
+        // completed, this is {@code null}.
+        $this->exception = null;
+    }
+
+    // COPY a ctx (I'm deliberately not using copy constructor)
+    function copyFrom(ParserRuleContext $ctx)
+    {
+        // from RuleContext
+        $this->parentCtx = $ctx->parentCtx;
+        $this->invokingState = $ctx->invokingState;
+        $this->children = null;
+        $this->start = $ctx->start;
+        $this->stop = $ctx->stop;
+        // copy any error nodes to alt label node
+        if ($ctx->children)
+        {
+            $this->children = [];
+            // reset parent pointer for any error nodes
+            foreach ($ctx->children as $child)
+            {
+                if ($child instanceof ErrorNodeImpl)
+                {
+                    array_push($this->children, $child);
+                    $child->parentCtx = $this;
+                }
             }
-		}, $this);
-	}
-};
-
-// Double dispatch methods for listeners
-/* ParserRuleContext */function enterRule($listener) 
-{
-};
-
-/* ParserRuleContext */function exitRule($listener) 
-{
-};
-
-// * Does not set parent link; other add methods do that///
-/* ParserRuleContext */function addChild($child) 
-{
-    if ($this->children === null) 
-    {
-        $this->children = [];
-    }
-    $this->children->push($child);
-    return $child;
-};
-
-// * Used by enterOuterAlt to toss out a RuleContext previously added as
-// we entered a rule. If we have // label, we will need to remove
-// generic ruleContext object.
-// /
-/* ParserRuleContext */function removeLastChild() 
-{
-    if ($this->children !== null) 
-    {
-        $this->children->pop();
-    }
-};
-
-/* ParserRuleContext */function addTokenNode($token) 
-{
-    /*var */$node = new TerminalNodeImpl($token);
-    $this->addChild($node);
-    $node->parentCtx = $this;
-    return $node;
-};
-
-/* ParserRuleContext */function addErrorNode($badToken) 
-{
-    /*var */$node = new ErrorNodeImpl($badToken);
-    $this->addChild($node);
-    $node->parentCtx = $this;
-    return $node;
-};
-
-/* ParserRuleContext */function getChild($i, $type) 
-{
-	$type = $type || null;
-	if ($this->children === null || $i < 0 || $i >= $this->children->length) 
-	{
-		return null;
-	}
-	if ($type === null) 
-	{
-		return $this->children[$i];
-	}
-	else 
-	{
-		for($j=0; $j<$this->children->length; $j++) 
-		{
-			/*var */$child = $this->children[$j];
-			if($child instanceof $type) 
-			{
-				if($i===0) 
-				{
-					return $child;
-				}
-				else 
-				{
-					$i -= 1;
-				}
-			}
-		}
-		return null;
-    }
-};
-
-
-/* ParserRuleContext */function getToken($ttype, $i) 
-{
-	if ($this->children === null || $i < 0 || $i >= $this->children->length) 
-	{
-		return null;
-	}
-	for($j=0; $j<$this->children->length; $j++) 
-	{
-		/*var */$child = $this->children[$j];
-		if ($child instanceof TerminalNode) 
-		{
-			if ($child->symbol->type === $ttype) 
-			{
-				if($i===0) 
-				{
-					return $child;
-				}
-				else 
-				{
-					$i -= 1;
-				}
-			}
         }
-	}
-    return null;
-};
-
-/* ParserRuleContext */function getTokens($ttype ) 
-{
-    if ($this->children=== null) 
-    {
-        return [];
     }
-    else 
+
+    function enterRule($listener)
     {
-		/*var */$tokens = [];
-		for($j=0; $j<$this->children->length; $j++) 
-		{
-			/*var */$child = $this->children[$j];
-			if ($child instanceof TerminalNode) 
-			{
-				if ($child->symbol->type === $ttype) 
-				{
-					$tokens->push($child);
-				}
-			}
-		}
-		return $tokens;
     }
-};
 
-/* ParserRuleContext */function getTypedRuleContext($ctxType, $i) 
-{
-    return $this->getChild($i, $ctxType);
-};
-
-/* ParserRuleContext */function getTypedRuleContexts($ctxType) 
-{
-    if ($this->children=== null) 
+    function exitRule($listener)
     {
-        return [];
     }
-    else 
-    {
-		/*var */$contexts = [];
-		for($j=0; $j<$this->children->length; $j++) 
-		{
-			/*var */$child = $this->children[$j];
-			if ($child instanceof $ctxType) 
-			{
-				$contexts->push($child);
-			}
-		}
-		return $contexts;
-	}
-};
 
-/* ParserRuleContext */function getChildCount() 
-{
-	if ($this->children=== null) 
-	{
-		return 0;
-	}
-	else 
-	{
-		return $this->children->length;
-	}
-};
-
-/* ParserRuleContext */function getSourceInterval() 
-{
-    if( $this->start === null || $this->stop === null) 
+    // Does not set parent link; other add methods do that
+    function addChild($child)
     {
-        return INVALID_INTERVAL;
+        if (!isset($this->children))
+        {
+            $this->children = [];
+        }
+        array_push($this->children, $child);
+        return $child;
     }
-    else 
+
+    // Used by enterOuterAlt to toss out a RuleContext previously added as
+    // we entered a rule. If we have // label, we will need to remove
+    // generic ruleContext object.
+    function removeLastChild()
     {
-        return new Interval($this->start->tokenIndex, $this->stop->tokenIndex);
+        if (!isset($this->children))
+        {
+            array_pop($this->children);
+        }
     }
-};
 
-/* RuleContext */public $EMPTY = new/ ParserRuleContext();
+    function addTokenNode($token)
+    {
+        $node = new TerminalNodeImpl($token);
+        $this->addChild($node);
+        $node->parentCtx = $this;
+        return $node;
+    }
 
-function InterpreterRuleContext($parent, $invokingStateNumber, $ruleIndex) 
-{
-	ParserRuleContext->call($parent, $invokingStateNumber);
-    $this->ruleIndex = $ruleIndex;
-    return $this;
+    function addErrorNode($badToken)
+    {
+        $node = new ErrorNodeImpl($badToken);
+        $this->addChild($node);
+        $node->parentCtx = $this;
+        return $node;
+    }
+
+    function getChild($i, $type)
+    {
+        $type = $type || null;
+        if ($this->children === null || $i < 0 || $i >= count($this->children))
+        {
+            return null;
+        }
+        if ($type === null)
+        {
+            return $this->children[$i];
+        }
+        else
+        {
+            foreach ($this->children as $child)
+            {
+                if($child instanceof $type)
+                {
+                    if($i===0)
+                    {
+                        return $child;
+                    }
+                    else
+                    {
+                        $i -= 1;
+                    }
+                }
+            }
+            return null;
+        }
+    }
+
+    function getToken($ttype, $i)
+    {
+        if ($this->children === null || $i < 0 || $i >= count($this->children))
+        {
+            return null;
+        }
+        foreach ($this->children as $child)
+        {
+            if ($child instanceof TerminalNode)
+            {
+                if ($child->symbol->type === $ttype)
+                {
+                    if($i===0)
+                    {
+                        return $child;
+                    }
+                    else
+                    {
+                        $i -= 1;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    function getTokens($ttype )
+    {
+        if ($this->children === null)
+        {
+            return [];
+        }
+        else
+        {
+            $tokens = [];
+            foreach ($this->children as $child)
+            {
+                if ($child instanceof TerminalNode)
+                {
+                    if ($child->symbol->type === $ttype)
+                    {
+                        array_push($tokens, $child);
+                    }
+                }
+            }
+            return $tokens;
+        }
+    }
+
+    function getTypedRuleContext($ctxType, $i)
+    {
+        return $this->getChild($i, $ctxType);
+    }
+
+    function getTypedRuleContexts($ctxType)
+    {
+        if ($this->children=== null)
+        {
+            return [];
+        }
+        else
+        {
+            $contexts = [];
+            foreach ($this->children as $child)
+            {
+                if ($child instanceof $ctxType)
+                {
+                    array_push($contexts, $child);
+                }
+            }
+            return $contexts;
+        }
+    }
+
+    function getChildCount()
+    {
+        return !isset($this->children) ? 0 : count($this->children);
+    }
+
+    function getSourceInterval()
+    {
+        if ($this->start === null || $this->stop === null)
+        {
+            return Tree::INVALID_INTERVAL;
+        }
+        else
+        {
+            return new Interval($this->start->tokenIndex, $this->stop->tokenIndex);
+        }
+    }
 }
 
-InterpreterRuleContext::prototype = Object->create(ParserRuleContext::prototype);
-InterpreterRuleContext::prototype->constructor = InterpreterRuleContext;
-
-$exports->ParserRuleContext = ParserRuleContext;
+class InterpreterRuleContext extends  ParserRuleContext
+{
+    function __construct($parent, $invokingStateNumber, $ruleIndex)
+    {
+        parent::__construct($parent, $invokingStateNumber);
+        $this->ruleIndex = $ruleIndex;
+        return $this;
+    }
+}

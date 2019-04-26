@@ -807,7 +807,7 @@ ParserATNSimulator::prototype->retry_debug = false;
                 {
                     $skippedStopStates = [];
                 }
-                $skippedStopStates->push($c);
+                array_push($skippedStopStates, $c);
                 if($this->debug_add) 
                 {
                     $console->log("added " + c + " to skippedStopStates");
@@ -1152,7 +1152,7 @@ ParserATNSimulator::prototype->retry_debug = false;
 // unpredicated is indicated by SemanticContext.NONE
         if( $ambigAlts!==null && $ambigAlts->contains( $i )) 
         {
-            $pairs->push(new PredPrediction($pred, $i));
+            array_push($pairs, new PredPrediction($pred, $i));
         }
         if ($pred !== SemanticContext::NONE) 
         {
@@ -1244,7 +1244,7 @@ ParserATNSimulator::prototype->retry_debug = false;
         {
             if($alts->indexOf($c->alt)<0) 
             {
-                $alts->push($c->alt);
+                array_push($alts, $c->alt);
             }
         }
     }

@@ -235,7 +235,7 @@ PrecedencePredicate::filterPrecedencePredicates = function($set)
 	{
 		if ($context instanceof PrecedencePredicate) 
 		{
-			$result->push($context);
+			array_push($result, $context);
 		}
 	});
 	return $result;
@@ -345,7 +345,7 @@ AND::prototype->constructor = AND;
 		}
 		else if ($evaluated !== SemanticContext::NONE) 
 		{// Reduce the result by skipping true elements
-			$operands->push($evaluated);
+			array_push($operands, $evaluated);
 		}
 	}
 	if (!$differs) 
@@ -474,7 +474,7 @@ OR::prototype->constructor = OR;
 		}
 		else if ($evaluated !== null) 
 		{// Reduce the result by skipping false elements
-			$operands->push($evaluated);
+			array_push($operands, $evaluated);
 		}
 	}
 	if (!$differs) 

@@ -191,7 +191,7 @@ DefaultErrorStrategy::prototype->constructor = DefaultErrorStrategy;
     {
         $this->lastErrorStates = [];
     }
-    $this->lastErrorStates->push($recognizer->state);
+    array_push($this->lastErrorStates, $recognizer->state);
     /*var */$followSet = $this->getErrorRecoverySet($recognizer);
     $this->consumeUntil($recognizer, $followSet);
 };

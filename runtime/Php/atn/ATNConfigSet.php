@@ -115,7 +115,7 @@ function ATNConfigSet($fullCtx)
 	if ($existing === $config) 
 	{
 		$this->cachedHashCode = -1;
-		$this->configs->push($config);// track order here
+		array_push($this->configs, $config);// track order here
 		return true;
 	}
 // a previous (s,i,pi,_), merge with it and save result
@@ -152,7 +152,7 @@ function ATNConfigSet($fullCtx)
 		/*var */$c = $this->configs[$i].$semanticContext;
 		if ($c !== SemanticContext::NONE) 
 		{
-			$preds->push($c->semanticContext);
+			array_push($preds, $c->semanticContext);
 		}
 	}
 	return $preds;

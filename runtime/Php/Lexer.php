@@ -229,7 +229,7 @@ class Lexer extends Recognizer
         {
             //$console->log("pushMode " . $m);
         }
-        $this->_modeStack->push($this->_mode);
+        array_push($this->_modeStack, $this->_mode);
         $this->mode($m);
     }
 
@@ -243,7 +243,7 @@ class Lexer extends Recognizer
         {
             //$console->log("popMode back to " . $this->_modeStack->slice(0, -1));
         }
-        $this->mode($this->_modeStack->pop());
+        $this->mode(array_pop($this->_modeStack, ));
         return $this->_mode;
     }
 
@@ -347,7 +347,7 @@ class Lexer extends Recognizer
         $t = $this->nextToken();
         while ($t->type !== Token::EOF)
         {
-            $tokens->push($t);
+            array_push($tokens, $t);
             $t = $this->nextToken();
         }
         return $tokens;
@@ -368,7 +368,7 @@ class Lexer extends Recognizer
         $d = [];
         for ($i = 0; $i < $s->length; $i++)
         {
-            $d->push($s[$i]);
+            array_push($d, $s[$i]);
         }
         return $d->join('');
     }

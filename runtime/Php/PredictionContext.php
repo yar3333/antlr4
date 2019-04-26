@@ -873,7 +873,7 @@ function getAllContextNodes($context, $nodes, $visited)
 			return $nodes;
 		}
 		$visited[$context] = $context;
-		$nodes->push($context);
+		array_push($nodes, $context);
 		for ($i = 0; $i < $context->length; $i++) 
 		{
 			getAllContextNodes($context->getParent($i), $nodes, $visited);

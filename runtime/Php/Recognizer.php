@@ -36,7 +36,7 @@ Recognizer::ruleIndexMapCache = {};
 
 /* Recognizer */function addErrorListener($listener) 
 {
-    $this->_listeners->push($listener);
+    array_push($this->_listeners, $listener);
 };
 
 /* Recognizer */function removeErrorListeners() 
