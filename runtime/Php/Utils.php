@@ -17,10 +17,10 @@ class Utils
     //seed = round(random() * pow(2, 32));
     static function hashCode($obj)
     {
-        $key = $obj->toString();
+        $key = is_object($obj) ? ((object)$obj)->toString() : (string)$obj;
 
-        $remainder = $key->length & 3;// key.length % 4
-        $bytes = $key->length - $remainder;
+        $remainder = strlen($key) & 3;// key.length % 4
+        $bytes = strlen($key) - $remainder;
         $h1 = 123131231312;//String::prototype->seed;
         $c1 = 0xcc9e2d51;
         $c2 = 0x1b873593;
@@ -29,20 +29,20 @@ class Utils
         while ($i < $bytes)
         {
             $k1 =
-                (($key->charCodeAt($i) & 0xff)) |
-                (($key->charCodeAt(++$i) & 0xff) << 8) |
-                (($key->charCodeAt(++$i) & 0xff) << 16) |
-                (($key->charCodeAt(++$i) & 0xff) << 24);
+                ((ord($key[$i])) & 0xff) |
+                ((ord($key[++$i]) & 0xff) << 8) |
+                ((ord($key[++$i]) & 0xff) << 16) |
+                ((ord($key[++$i]) & 0xff) << 24);
             ++$i;
 
-            $k1 = (((($k1 & 0xffff) * $c1) + (((($k1 >>> 16) * $c1) & 0xffff) << 16))) & 0xffffffff;
-            $k1 = ($k1 << 15) | ($k1 >>> 17);
-            $k1 = (((($k1 & 0xffff) * $c2) + (((($k1 >>> 16) * $c2) & 0xffff) << 16))) & 0xffffffff;
+            $k1 = (((($k1 & 0xffff) * $c1) + (((($k1 >> 16) * $c1) & 0xffff) << 16))) & 0xffffffff;
+            $k1 = ($k1 << 15) | ($k1 >> 17);
+            $k1 = (((($k1 & 0xffff) * $c2) + (((($k1 >> 16) * $c2) & 0xffff) << 16))) & 0xffffffff;
 
             $h1 ^= $k1;
-            $h1 = ($h1 << 13) | ($h1 >>> 19);
-            $h1b = (((($h1 & 0xffff) * 5) + (((($h1 >>> 16) * 5) & 0xffff) << 16))) & 0xffffffff;
-            $h1 = ((($h1b & 0xffff) + 0x6b64) + (((($h1b >>> 16) + 0xe654) & 0xffff) << 16));
+            $h1 = ($h1 << 13) | ($h1 >> 19);
+            $h1b = (((($h1 & 0xffff) * 5) + (((($h1 >> 16) * 5) & 0xffff) << 16))) & 0xffffffff;
+            $h1 = ((($h1b & 0xffff) + 0x6b64) + (((($h1b >> 16) + 0xe654) & 0xffff) << 16));
         }
 
         $k1 = 0;
@@ -50,11 +50,11 @@ class Utils
         switch ($remainder)
         {
             case 3:
-                $k1 ^= ($key->charCodeAt($i + 2) & 0xff) << 16;
+                $k1 ^= (ord($key[$i + 2]) & 0xff) << 16;
             case 2:
-                $k1 ^= ($key->charCodeAt($i + 1) & 0xff) << 8;
+                $k1 ^= (ord($key[$i + 1]) & 0xff) << 8;
             case 1:
-                $k1 ^= ($key->charCodeAt($i) & 0xff);
+                $k1 ^= ord($key[$i]) & 0xff;
 
                 $k1 = ((($k1 & 0xffff) * $c1) + (((($k1 >> 16) * $c1) & 0xffff) << 16)) & 0xffffffff;
                 $k1 = ($k1 << 15) | ($k1 >> 17);
@@ -62,7 +62,7 @@ class Utils
                 $h1 ^= $k1;
         }
 
-        $h1 ^= $key->length;
+        $h1 ^= strlen($key);
 
         $h1 ^= $h1 >> 16;
         $h1 = ((($h1 & 0xffff) * 0x85ebca6b) + (((($h1 >> 16) * 0x85ebca6b) & 0xffff) << 16)) & 0xffffffff;
@@ -73,29 +73,79 @@ class Utils
         return $h1 >> 0;
     }
 
-    static function standardEqualsFunction($a, $b)
+    static function standardEqualsFunction(object $a, object $b)
     {
         return $a->equals($b);
     }
 
-    static function standardHashCodeFunction($a)
+    static function standardHashCodeFunction(object $a)
     {
         return $a->hashCode();
+    }
+
+    static function hashStuff(...$arguments)
+    {
+        $hash = new Hash();
+        $hash->update($arguments);
+        return $hash->finish();
+    }
+
+    function escapeWhitespace($s, $escapeSpaces)
+    {
+        $s = preg_replace('/\n/g', "\\n", $s);
+        $s = preg_replace('/\r/g', "\\r", $s);
+        $s = preg_replace('/\t/g', "\\t", $s);
+
+        if ($escapeSpaces)
+        {
+            $s = preg_replace('/ /g', "\u00B7", $s);
+        }
+
+        return $s;
+    }
+
+    function titleCase($str)
+    {
+        return preg_replace_callback('/\w\S*/g', function($txt) { return mb_strtoupper($txt[0]) . substr($txt, 1); }, $str);
+    }
+    
+    function equalArrays($a, $b)
+    {
+        if (!is_array($a) || !is_array($b)) return false;
+        if ($a == $b) return true;
+        if (count($a) != count($b)) return false;
+        for ($i = 0; $i < count($a); $i++)
+        {
+            if ($a[$i] == $b[$i]) continue;
+            if (!$a[$i].equals($b[$i])) return false;
+        }
+        return true;
     }
 }
 
 
 class Set
 {
+    /**
+     * @var array
+     */
     public $data;
+
+    /**
+     * @var \Closure
+     */
     public $hashFunction;
+
+    /**
+     * @var \Closure
+     */
     public $equalsFunction;
 
-    function __construct($hashFunction, $equalsFunction)
+    function __construct(\Closure $hashFunction, \Closure $equalsFunction)
     {
         $this->data = [];
-        $this->hashFunction = $hashFunction || Utils::standardHashCodeFunction;
-        $this->equalsFunction = $equalsFunction || Utils::standardEqualsFunction;
+        $this->hashFunction = isset($hashFunction) ? $hashFunction : (function($a) { return Utils::standardHashCodeFunction($a); });
+        $this->equalsFunction = isset($equalsFunction) ? $equalsFunction : (function($a, $b) { return Utils::standardEqualsFunction($a, $b); });
     }
 
     function getLength()
@@ -103,8 +153,8 @@ class Set
         $l = 0;
         foreach ($this->data as $key => $value)
         {
-            if ($key->indexOf("hash_") === 0) {
-                $l = $l + $this->data[$key]->length;
+            if (strpos($key, "hash_") === 0) {
+                $l = $l + count($this->data[$key]);
             }
         }
         return $l;
@@ -112,14 +162,14 @@ class Set
 
     function add($value)
     {
-        /*var */$hash = $this->hashFunction($value);
-        /*var */$key = "hash_" . $hash;
+        $hash = $this->hashFunction->call($value);
+        $key = "hash_" . $hash;
         if (isset($this->data[$key]))
         {
             $values = $this->data[$key];
             for ($i = 0; $i < $values->length; $i++)
             {
-                if ($this->equalsFunction($value, $values[$i]))
+                if ($this->equalsFunction->call($value, $values[$i]))
                 {
                     return $values[$i];
                 }
@@ -141,14 +191,14 @@ class Set
 
     function get($value)
     {
-        $hash = $this->hashFunction($value);
+        $hash = $this->hashFunction->call($value);
         $key = "hash_" . $hash;
         if (isset($this->data[$key]))
         {
-            /*var */$values = $this->data[$key];
-            for ($i = 0; $i < $values->length; $i++)
+            $values = $this->data[$key];
+            for ($i = 0; $i < count($values); $i++)
             {
-                if ($this->equalsFunction($value, $values[$i]))
+                if ($this->equalsFunction->call($value, $values[$i]))
                 {
                     return $values[$i];
                 }
@@ -162,8 +212,8 @@ class Set
         $l = [];
         foreach ($this->data as $key => $value)
         {
-            if ($key->indexOf("hash_") === 0) {
-                $l = $l->concat($value);
+            if (strpos($key, "hash_") === 0) {
+                $l = array_merge($l, $value);
             }
         }
         return $l;
@@ -171,10 +221,9 @@ class Set
 
     function toString()
     {
-        return arrayToString($this->values());
+        return Utils::arrayToString($this->values());
     }
 }
-
 
 class BitSet
 {
@@ -186,44 +235,44 @@ class BitSet
         return $this;
     }
 
-    /* BitSet */function add ($value)
+    function add ($value)
     {
         $this->data[$value] = true;
     }
 
-    /* BitSet */function or($set)
+    function or($set)
     {
         foreach ($set->data as $alt) $this->add($alt);
     }
 
-    /* BitSet */function remove ($value)
+    function remove ($value)
     {
         unset($this->data[$value]);
     }
 
-    /* BitSet */function contains ($value)
+    function contains ($value)
     {
         return $this->data[$value] === true;
     }
 
-    /* BitSet */function values()
+    function values()
     {
         return array_keys($this->data);
     }
 
-    /* BitSet */function minValue ()
+    function minValue ()
     {
         return min($this->values());
     }
 
-    /* BitSet */function hashCode ()
+    function hashCode ()
     {
         $hash = new Hash();
         $hash->update($this->values());
         return $hash->finish();
     }
 
-    /* BitSet */function equals($other)
+    function equals($other)
     {
         if (!($other instanceof BitSet))
         {
@@ -232,310 +281,239 @@ class BitSet
         return $this->hashCode() === $other->hashCode();
     }
 
-    function getLength() { return $this->values()->length; }
+    function getLength() { return count($this->values()); }
 
-    /* BitSet */function toString()
+    function toString()
     {
-        return "{" + this.values().join(", ") + "}";
+        return "{" . implode(", ", $this->values()) . "}";
     }
 }
 
-
-class Map($hashFunction, $equalsFunction
+class Map
 {
+    /**
+     * @var array
+     */
+    public $data;
 
+    /**
+     * @var \Closure
+     */
+    public $hashFunction;
 
-function Map($hashFunction, $equalsFunction)
-{
-    $this->data = {};
-    $this->hashFunction = $hashFunction || $standardHashCodeFunction;
-    $this->equalsFunction = $equalsFunction || $standardEqualsFunction;
-    return $this;
-}
+    /*
+     * @var Closure
+     */
+    public $equalsFunction;
 
-Object->defineProperty(Map::prototype, "length", {
-    $get: function () 
+    function __construct(\Closure $hashFunction, \Closure $equalsFunction)
     {
-        /*var */$l = 0;
-        for ($hashKey $in $this->data) 
+        $this->data = [];
+        $this->hashFunction = isset($hashFunction) ? $hashFunction : (function($a) { return Utils::standardHashCodeFunction($a); });
+        $this->equalsFunction = isset($equalsFunction) ? $equalsFunction : (function($a, $b) { return Utils::standardEqualsFunction($a, $b); });
+    }
+
+    function getLength()
+    {
+        $l = 0;
+        foreach ($this->data as $hashKey => $v)
         {
-            if ($hashKey->indexOf("hash_") === 0) {
-                $l = $l + $this->data[$hashKey].$length;
+            if (strpos($hashKey, "hash_") === 0) {
+                $l = $l + count($this->data[$hashKey]);
             }
         }
         return $l;
     }
-});
 
-/* Map */function put ($key, $value) 
-{
-    /*var */$hashKey = "hash_" . $this->hashFunction($key);
-    if ($hashKey $in $this->data) 
+    function put($key, $value)
     {
-        /*var */$entries = $this->data[$hashKey];
-        for ($i = 0; $i < $entries->length; $i++) 
+        $hashKey = "hash_" . $this->hashFunction->call($key);
+        if (isset($this->data[$hashKey]))
         {
-            /*var */$entry = $entries[$i];
-            if ($this->equalsFunction($key, $entry->key)) 
+            $entries = $this->data[$hashKey];
+            for ($i = 0; $i < count($entries); $i++)
             {
-                /*var */$oldValue = $entry->value;
-                $entry->value = $value;
-                return $oldValue;
+                $entry = $entries[$i];
+                if ($this->equalsFunction->call($key, $entry['key']))
+                {
+                    $oldValue = $entry['value'];
+                    $entry['value'] = $value;
+                    return $oldValue;
+                }
+            }
+            $entries->push(['key'=>$key, 'value'=>$value]);
+            return $value;
+        }
+        else
+        {
+            $this->data[$hashKey] = [['key'=>$key, 'value'=>$value]];
+            return $value;
+        }
+    }
+
+    function containsKey($key)
+    {
+        $hashKey = "hash_" . $this->hashFunction->call($key);
+        if (isset($this->data[$hashKey]))
+        {
+            $entries = $this->data[$hashKey];
+            foreach ($entries as $entry)
+            {
+                if ($this->equalsFunction->call($key, $entry['key'])) return true;
             }
         }
-        $entries->push({$key:$key, $value:$value});
-        return $value;
+        return false;
     }
-    else 
-    {
-        $this->data[$hashKey] = [{$key:$key, $value:$value}];
-        return $value;
-    }
-};
 
-/* Map */function containsKey ($key) 
-{
-    /*var */$hashKey = "hash_" . $this->hashFunction($key);
-    if($hashKey $in $this->data) 
+    function get($key)
     {
-        /*var */$entries = $this->data[$hashKey];
-        for ($i = 0; $i < $entries->length; $i++) 
+        $hashKey = "hash_" . $this->hashFunction->call($key);
+        if (isset($this->data[$hashKey]))
         {
-            /*var */$entry = $entries[$i];
-            if ($this->equalsFunction($key, $entry->key))
-                return true;
+            $entries = $this->data[$hashKey];
+            foreach ($entries as $entry)
+            {
+                if ($this->equalsFunction->call($key, $entry['key'])) return $entry['value'];
+            }
         }
-    }
-    return false;
-};
-
-/* Map */function get ($key) 
-{
-    /*var */$hashKey = "hash_" . $this->hashFunction($key);
-    if($hashKey $in $this->data) 
-    {
-        /*var */$entries = $this->data[$hashKey];
-        for ($i = 0; $i < $entries->length; $i++) 
-        {
-            /*var */$entry = $entries[$i];
-            if ($this->equalsFunction($key, $entry->key))
-                return $entry->value;
-        }
-    }
-    return null;
-};
-
-/* Map */function entries () 
-{
-    /*var */$l = [];
-    for ($key $in $this->data) 
-    {
-        if ($key->indexOf("hash_") === 0) {
-            $l = $l->concat($this->data[$key]);
-        }
-    }
-    return $l;
-};
-
-
-/* Map */function getKeys () 
-{
-    return $this->entries().map(function($e) 
-    {
-        return $e->key;
-    });
-};
-
-
-/* Map */function getValues () 
-{
-    return $this->entries().map(function($e) 
-    {
-            return $e->value;
-    });
-};
-
-
-/* Map */function toString () 
-{
-    /*var */$ss = $this->entries().map(function($entry) 
-    {
-        return '{' + entry.key + ':' + entry.value + '}';
-    });
-    return '[' + ss.join(", ") + ']';
-};
-
-
-function AltDict() 
-{
-    $this->data = {};
-    return $this;
-}
-
-
-/* AltDict */function get ($key) 
-{
-    $key = "k-" . $key;
-    if ($key $in $this->data) 
-    {
-        return $this->data[$key];
-    }
-    else 
-    {
         return null;
     }
-};
 
-/* AltDict */function put ($key, $value) 
-{
-    $key = "k-" . $key;
-    $this->data[$key] = $value;
-};
-
-/* AltDict */function values () 
-{
-    /*var */$data = $this->data;
-    /*var */$keys = Object->keys($this->data);
-    return $keys->map(function ($key) 
+    function entries()
     {
-        return $data[$key];
-    });
-};
-
-function DoubleDict() 
-{
-    return $this;
-}
-
-function Hash() 
-{
-    $this->count = 0;
-    $this->hash = 0;
-    return $this;
-}
-
-/* Hash */function update () 
-{
-    for($i=0;$i<$arguments->length;$i++) 
-    {
-        /*var */$value = $arguments[$i];
-        if ($value == null)
-            continue;
-        if(Array->isArray($value))
-            $this->update->apply($value);
-        else 
+        $l = [];
+        foreach ($this->data as $key => $value)
         {
-            /*var */$k = 0;
-            switch (typeof($value)) 
+            if (strpos($key, "hash_") === 0)
             {
-                case 'undefined':
-                case 'function':
-                    continue;
-                case 'number':
-                case 'boolean':
-                    $k = $value;
-                    break;
-                case 'string':
-                    $k = $value->hashCode();
-                    break;
-                $default:
+                $l = array_merge($l, $value);
+            }
+        }
+        return $l;
+    }
+
+    function getKeys() : array
+    {
+        return array_map(function($e) { return $e['key']; }, $this->entries());
+    }
+
+    function getValues() : array
+    {
+        return array_map(function($e) { return $e['value']; }, $this->entries());
+    }
+
+
+    function toString ()
+    {
+        $ss = array_map(function($entry) { return '{' . $entry['key'] . ':' . $entry['value'] . '}'; }, $this->entries());
+        return '[' . implode(", ", $ss) . ']';
+    }
+}
+
+class AltDict
+{
+    public $data;
+
+    function __construct()
+    {
+        $this->data = [];
+    }
+
+    function get ($key)
+    {
+        $key = "k-" . $key;
+        return isset($this->data[$key]) ? $this->data[$key] : null;
+    }
+
+    function put($key, $value)
+    {
+        $key = "k-" . $key;
+        $this->data[$key] = $value;
+    }
+
+    function values()
+    {
+        return array_values($this->data);
+    }
+}
+
+class DoubleDict
+{
+    function get($a, $b)
+    {
+        $d = $this[$a] || null;
+        return $d === null ? null : ($d[$b] || null);
+    }
+
+    function set($a, $b, $o)
+    {
+        $d = $this[$a] || null;
+        if ($d === null)
+        {
+            $d = [];
+            $this[$a] = $d;
+        }
+        $d[$b] = $o;
+    }
+}
+
+class Hash
+{
+    public $count;
+    public $hash;
+
+    function __construct()
+    {
+        $this->count = 0;
+        $this->hash = 0;
+    }
+
+    function update(...$arguments)
+    {
+        for ($i = 0; $i < count($arguments); $i++)
+        {
+            $value = $arguments[$i];
+            if ($value === null) continue;
+            if (is_array($value)) foreach ($value as $v) $this->update($v);
+            else
+            {
+                //$k = 0;
+
+                if (is_string($value)) $k = Utils::hashCode($value);
+                else
+                if (is_int($value)) $k = $value;
+                else
+                if (is_float($value)) $k = $value;
+                else
+                if (is_bool($value)) $k = $value ? 1 : 0;
+                else {
                     $value->updateHashCode($this);
                     continue;
+                }
+
+                $k = $k * 0xCC9E2D51;
+                $k = ($k << 15) | ($k >> (32 - 15));
+                $k = $k * 0x1B873593;
+
+                $this->count = $this->count + 1;
+
+                $hash = $this->hash ^ $k;
+                $hash = ($hash << 13) | ($hash >> (32 - 13));
+                $hash = $hash * 5 + 0xE6546B64;
+
+                $this->hash = $hash;
             }
-            $k = $k * 0xCC9E2D51;
-            $k = ($k << 15) | ($k >>> (32 - 15));
-            $k = $k * 0x1B873593;
-            $this->count = $this->count + 1;
-            /*var */$hash = $this->hash ^ $k;
-            $hash = ($hash << 13) | ($hash >>> (32 - 13));
-            $hash = $hash * 5 + 0xE6546B64;
-            $this->hash = $hash;
         }
     }
-}
 
-/* Hash */function finish () 
-{
-    /*var */$hash = $this->hash ^ ($this->count * 4);
-    $hash = $hash ^ ($hash >>> 16);
-    $hash = $hash * 0x85EBCA6B;
-    $hash = $hash ^ ($hash >>> 13);
-    $hash = $hash * 0xC2B2AE35;
-    $hash = $hash ^ ($hash >>> 16);
-    return $hash;
-}
-
-function hashStuff() 
-{
-    /*var */$hash = new Hash();
-    $hash->update->apply($arguments);
-    return $hash->finish();
-}
-
-/* DoubleDict */function get ($a, $b) 
-{
-    /*var */$d = $this[$a] || null;
-    return $d === null ? null : ($d[$b] || null);
-};
-
-/* DoubleDict */function set ($a, $b, $o) 
-{
-    /*var */$d = $this[$a] || null;
-    if ($d === null) 
+    function finish()
     {
-        $d = {};
-        $this[$a] = $d;
+        $hash = $this->hash ^ ($this->count * 4);
+        $hash = $hash ^ ($hash >> 16);
+        $hash = $hash * 0x85EBCA6B;
+        $hash = $hash ^ ($hash >> 13);
+        $hash = $hash * 0xC2B2AE35;
+        $hash = $hash ^ ($hash >> 16);
+        return $hash;
     }
-    $d[$b] = $o;
-};
-
-
-function escapeWhitespace($s, $escapeSpaces) 
-{
-    $s = $s->replace(/\$t/$g, "\\t")
-         .replace(/\$n/$g, "\\n")
-         .replace(/\$r/$g, "\\r");
-    if ($escapeSpaces) 
-    {
-        $s = $s->replace(/ /$g, "\u00B7");
-    }
-    return $s;
 }
-
-function titleCase($str) 
-{
-    return $str->replace(/\$w\S*/$g, function ($txt) 
-    {
-        return $txt->charAt(0).toUpperCase() + $txt->substr(1);
-    });
-};
-
-function equalArrays($a, $b)
-{
-    if (!Array->isArray($a) || !Array->isArray($b))
-        return false;
-    if ($a == $b)
-        return true;
-    if ($a->length != $b->length)
-        return false;
-    for ($i = 0; $i < $a->length; $i++) 
-    {
-        if ($a[$i] == $b[$i])
-            continue;
-        if (!$a[$i].equals($b[$i]))
-            return false;
-    }
-    return true;
-};
-
-$exports->Hash = Hash;
-$exports->Set = Set;
-$exports->Map = Map;
-$exports->BitSet = BitSet;
-$exports->AltDict = AltDict;
-$exports->DoubleDict = DoubleDict;
-$exports->hashStuff = $hashStuff;
-$exports->escapeWhitespace = $escapeWhitespace;
-$exports->arrayToString = $arrayToString;
-$exports->titleCase = $titleCase;
-$exports->equalArrays = $equalArrays;

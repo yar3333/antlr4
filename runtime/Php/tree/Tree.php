@@ -75,7 +75,7 @@ function ParseTreeVisitor()
 
 /* ParseTreeVisitor */function visit($ctx) 
 {
- 	if (Array->isArray($ctx)) 
+ 	if (is_array($ctx)) 
  	{
 		return $ctx->map(function($child) 
 		{
