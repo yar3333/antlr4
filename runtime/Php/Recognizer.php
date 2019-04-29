@@ -1,5 +1,4 @@
 <?php
-<?php
 /* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
@@ -7,11 +6,12 @@
 
 namespace Antlr4;
 
-use Antlr4\Token; //('./Token').Token;
-use Antlr4\ConsoleErrorListener; //('./error/ErrorListener').ConsoleErrorListener;
-use Antlr4\ProxyErrorListener; //('./error/ErrorListener').ProxyErrorListener;
+use Antlr4\Atn\ATN;
+use \Antlr4\Error\Listeners\ConsoleErrorListener;
+use Antlr4\Error\Listeners\ErrorListener;
+use \Antlr4\Error\Listeners\ProxyErrorListener;
 
-class Recognizer
+abstract class Recognizer
 {
     static $tokenTypeMapCache = [];
     static $ruleIndexMapCache = [];
@@ -31,9 +31,11 @@ class Recognizer
      */
     public $_stateNumber;
 
+    public $ruleNames;
+
     function Recognizer()
     {
-        $this->_listeners = [ ConsoleErrorListener::INSTANCE ];
+        $this->_listeners = [ ConsoleErrorListener::INSTANCE() ];
         $this->_interp = null;
         $this->_stateNumber = -1;
     }
@@ -174,4 +176,6 @@ class Recognizer
     //configuration information.
     function getState() { return $this->_stateNumber; }
     function setState($state) { $this->_stateNumber = $state; }
+
+    abstract function getTokenNames() : string;
 }

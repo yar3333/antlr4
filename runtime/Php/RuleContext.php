@@ -6,7 +6,7 @@
 
 namespace Antlr4;
 
-use \Antlr4\Tree\RuleNode; //('./tree/Tree').RuleNode;
+use Antlr4\Tree\RuleNode; //('./tree/Tree').RuleNode;
 //use Antlr4\INVALID_INTERVAL; //('./tree/Tree').INVALID_INTERVAL;
 //use Antlr4\INVALID_ALT_NUMBER; //('./atn/ATN').INVALID_ALT_NUMBER;
 
