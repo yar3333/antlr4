@@ -742,7 +742,7 @@ LexerATNSimulator::match_calls = 0;
 	}
 	else 
 	{
-		return "'" + String.fromCharCode(tt) + "'";
+		return "'" + Utils::fromCharCode(tt) + "'";
 	}
 };
 

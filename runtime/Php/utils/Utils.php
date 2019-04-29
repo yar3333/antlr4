@@ -139,4 +139,9 @@ class Utils
     {
         return mb_ord(mb_substr($s, $pos, 1, 'UTF-8'), 'UTF-8');
     }
+
+    static function fromCharCode(int $code) : string
+    {
+        return mb_chr($code, 'UTF-8');
+    }
 }

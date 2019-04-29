@@ -97,7 +97,7 @@ LexerDFASerializer::prototype->constructor = LexerDFASerializer;
 
 /* LexerDFASerializer */function getEdgeLabel($i) 
 {
-	return "'" + String.fromCharCode(i) + "'";
+	return "'" + Utils::fromCharCode(i) + "'";
 };
 
 $exports->DFASerializer = DFASerializer;

@@ -1,64 +1,79 @@
 <?php
-
-namespace Antlr4\Atn;
-
 /* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
-use Antlr4\Token; //('./../Token').Token;
-use Antlr4\ATN; //('./ATN').ATN;
-use Antlr4\ATNType; //('./ATNType').ATNType;
-use Antlr4\ATNStates; //('./ATNState');
+namespace Antlr4\Atn;
 
-use Antlr4\Transitions; //('./Transition');
+use Antlr4\Token; //('./../Token').Token;
+//use Antlr4\ATN; //('./ATN').ATN;
+use Antlr4\Atn\ATNType; //('./ATNType').ATNType;
+use Antlr4\Atn\States\ATNState;
+
+use \Antlr4\Atn\Transitions\Transition;
 
 use Antlr4\IntervalSet; //('./../IntervalSet').IntervalSet;
 use Antlr4\Interval; //('./../IntervalSet').Interval;
-use Antlr4\ATNDeserializationOptions; //('./ATNDeserializationOptions').ATNDeserializationOptions;
-use Antlr4\LexerActions;use mysql_xdevapi\Exception; //('./LexerAction');
-LexerActionType = LexerActions::LexerActionType;
-LexerSkipAction = LexerActions::LexerSkipAction;
-LexerChannelAction = LexerActions::LexerChannelAction;
-LexerCustomAction = LexerActions::LexerCustomAction;
-LexerMoreAction = LexerActions::LexerMoreAction;
-LexerTypeAction = LexerActions::LexerTypeAction;
-LexerPushModeAction = LexerActions::LexerPushModeAction;
-LexerPopModeAction = LexerActions::LexerPopModeAction;
-LexerModeAction = LexerActions::LexerModeAction;
+use \Antlr4\Atn\ATNDeserializationOptions;
+use \Antlr4\LexerActions;use mysql_xdevapi\Exception; //('./LexerAction');
+use \Antlr4\Utils\Utils;
+
 // This is the earliest supported serialized UUID.
 // stick to serialized version for now, we don't need a UUID instance
-BASE_SERIALIZED_UUID = "AADB8D7E-AEEF-4415-AD2B-8204D6CF042E";
+const BASE_SERIALIZED_UUID = "AADB8D7E-AEEF-4415-AD2B-8204D6CF042E";
 
 //
 // This UUID indicates the serialized ATN contains two sets of
 // IntervalSets, where the second set's values are encoded as
 // 32-bit integers to support the full Unicode SMP range up to U+10FFFF.
 //
-ADDED_UNICODE_SMP = "59627784-3BE5-417A-B9EB-8131A7286089";
+const ADDED_UNICODE_SMP = "59627784-3BE5-417A-B9EB-8131A7286089";
 
 // This list contains all of the currently supported UUIDs, ordered by when
 // the feature first appeared in this branch.
-SUPPORTED_UUIDS = [ BASE_SERIALIZED_UUID, ADDED_UNICODE_SMP ];
+const SUPPORTED_UUIDS = [ BASE_SERIALIZED_UUID, ADDED_UNICODE_SMP ];
 
-SERIALIZED_VERSION = 3;
+const SERIALIZED_VERSION = 3;
 
 // This is the current serialized UUID.
-SERIALIZED_UUID = ADDED_UNICODE_SMP;
+const SERIALIZED_UUID = ADDED_UNICODE_SMP;
 
-function initArray( $length, $value) 
+function initArray($length, $value)
 {
-	$tmp = [];
-	$tmp[$length-1] = $value;
-	return $tmp->map(function($i) {return $value;});
+    $tmp = [];
+	for ($i = 0; $i < $length; $i++) $tmp[] = $value;
+	return $tmp;
 }
 
 class ATNDeserializer
 {
-    function __construct($options)
+    /**
+     * @var ATNDeserializationOptions
+     */
+    public $deserializationOptions;
+
+    public $stateFactories;
+
+    public $actionFactories;
+    /**
+     * @var string
+     */
+    public $data;
+
+    /**
+     * @var Transition[]
+     */
+    public $transitions;
+
+    /**
+     * @var int
+     */
+    public $pos;
+
+    function __construct(ATNDeserializationOptions $options)
     {
-        if ( $options=== undefined || $options === null )
+        if (!isset($options))
         {
             $options = ATNDeserializationOptions::defaultOptions;
         }
@@ -80,15 +95,11 @@ class ATNDeserializer
     // @return {@code true} if the {@code actualUuid} value represents a
     // serialized ATN at or after the feature identified by {@code feature} was
     // introduced; otherwise, {@code false}.
-
     function isFeatureSupported($feature, $actualUuid)
     {
-        $idx1 = SUPPORTED_UUIDS->indexOf($feature);
-        if ($idx1<0)
-        {
-            return false;
-        }
-        $idx2 = SUPPORTED_UUIDS->indexOf($actualUuid);
+        $idx1 = array_search($feature, SUPPORTED_UUIDS);
+        if ($idx1 === false) return false;
+        $idx2 = array_search($actualUuid, SUPPORTED_UUIDS);
         return $idx2 >= $idx1;
     }
 
@@ -127,14 +138,15 @@ class ATNDeserializer
         return $atn;
     }
 
-    function reset($data)
+    private function reset_adjust($c)
     {
-        $adjust = function($c)
-        {
-            $v = $c->charCodeAt(0);
-            return $v>1  ? $v-2 : $v + 65533;
-        };
-        $temp = $data->split("").map($adjust);
+        $v = Utils::charCodeAt($c, 0);
+        return $v>1  ? $v-2 : $v + 65533;
+    }
+
+    function reset(string $data)
+    {
+        $temp = []; foreach (str_split($data) as $c) $temp[] = $this->reset_adjust($c);
         // don't adjust the first value since that's the version number
         $temp[0] = $data->charCodeAt(0);
         $this->data = $temp;
@@ -146,17 +158,16 @@ class ATNDeserializer
         $version = $this->readInt();
         if ( $version !== SERIALIZED_VERSION )
         {
-            throw ("Could not deserialize ATN with version " . version . " (expected " . SERIALIZED_VERSION . ").");
+            throw new \Exception("Could not deserialize ATN with version " . $version . " (expected " . SERIALIZED_VERSION . ").");
         }
     }
 
     function checkUUID()
     {
         $uuid = $this->readUUID();
-        if (SUPPORTED_UUIDS->indexOf($uuid)<0)
+        if (array_search($uuid, SUPPORTED_UUIDS) === false)
         {
-            throw ("Could not deserialize ATN with UUID: " . $uuid .
-                            " (expected " . SERIALIZED_UUID . " or a legacy UUID).", $uuid, SERIALIZED_UUID);
+            throw new \Exception("Could not deserialize ATN with UUID: " . $uuid . " (expected " . SERIALIZED_UUID . " or a legacy UUID).");
         }
         $this->uuid = $uuid;
     }
@@ -170,11 +181,10 @@ class ATNDeserializer
 
     function readStates($atn)
     {
-        $j, $pair, $stateNumber;
         $loopBackStateNumbers = [];
         $endStateNumbers = [];
         $nstates = $this->readInt();
-        for($i=0; $i<$nstates; $i++)
+        for ($i=0; $i<$nstates; $i++)
         {
             $stype = $this->readInt();
             // ignore bad type of states
@@ -301,7 +311,6 @@ class ATNDeserializer
 
     function readEdges($atn, $sets)
     {
-        $i, $j, $state, $trans, $target;
         $nedges = $this->readInt();
         for ($i=0; $i<$nedges; $i++)
         {
@@ -315,19 +324,20 @@ class ATNDeserializer
             $srcState = $atn->states[$src];
             $srcState->addTransition($trans);
         }
-    // edges for rule stop states can be derived, so they aren't serialized
+
+        // edges for rule stop states can be derived, so they aren't serialized
         for ($i=0; $i<$atn->states->length; $i++)
         {
             $state = $atn->states[$i];
-            for ($j=0; $j<$state->transitions->length; $j++)
+            for ($j=0; $j<count($this->transitions); $j++)
             {
                 $t = $state->transitions[$j];
-                if (!($t instanceof RuleTransition))
+                if (!($t instanceof \Antlr4\Atn\Transitions\RuleTransition))
                 {
                     continue;
                 }
                 $outermostPrecedenceReturn = -1;
-                if ($atn->ruleToStartState[$t->target->ruleIndex].$isPrecedenceRule)
+                if ($atn->ruleToStartState[$t->target->ruleIndex]->isPrecedenceRule)
                 {
                     if ($t->precedence === 0)
                     {
@@ -335,7 +345,7 @@ class ATNDeserializer
                     }
                 }
 
-                $trans = new Transitions::EpsilonTransition($t->followState, $outermostPrecedenceReturn);
+                $trans = new \Antlr4\Atn\Transitions\EpsilonTransition($t->followState, $outermostPrecedenceReturn);
                 $atn->ruleToStopState[$t->target->ruleIndex]->addTransition($trans);
             }
         }
@@ -357,22 +367,22 @@ class ATNDeserializer
                 }
                 $state->endState->startState = $state;
             }
-            if ($state instanceof PlusLoopbackState)
+            if ($state instanceof \Antlr4\Atn\States\PlusLoopbackState)
             {
-                for ($j=0; $j<$state->transitions->length; $j++)
+                for ($j=0; $j<count($this->transitions); $j++)
                 {
-                    $target = $state->transitions[$j].$target;
-                    if ($target instanceof PlusBlockStartState)
+                    $target = $state->transitions[$j]->target;
+                    if ($target instanceof \Antlr4\Atn\States\PlusBlockStartState)
                     {
                         $target->loopBackState = $state;
                     }
                 }
             }
-            else if ($state instanceof StarLoopbackState)
+            else if ($state instanceof \Antlr4\Atn\States\StarLoopbackState)
             {
-                for ($j=0; $j<$state->transitions->length; $j++)
+                for ($j=0; $j<count($this->transitions); $j++)
                 {
-                    $target = $state->transitions[$j].$target;
+                    $target = $state->transitions[$j]->target;
                     if ($target instanceof StarLoopEntryState)
                     {
                         $target->loopBackState = $state;
@@ -434,11 +444,11 @@ class ATNDeserializer
 
     function generateRuleBypassTransition($atn, $idx)
     {
-        $bypassStart = new ATNStates::BasicBlockStartState();
+        $bypassStart = new \Antlr4\Atn\States\BasicBlockStartState();
         $bypassStart->ruleIndex = $idx;
         $atn->addState($bypassStart);
 
-        $bypassStop = new BlockEndState();
+        $bypassStop = new \Antlr4\Atn\States\BlockEndState();
         $bypassStop->ruleIndex = $idx;
         $atn->addState($bypassStop);
 
@@ -479,7 +489,7 @@ class ATNDeserializer
         for ($i=0; $i<$atn->states->length; $i++)
         {
             $state = $atn->states[$i];
-            for($j=0; $j<$state->transitions->length; $j++)
+            for($j=0; $j<count($this->transitions); $j++)
             {
                 $transition = $state->transitions[$j];
                 if ($transition === $excludeTransition)
@@ -502,13 +512,13 @@ class ATNDeserializer
             $ruleToStartState->transitions = $ruleToStartState->transitions->slice(-1);
         }
         // link the new states
-        $atn->ruleToStartState[$idx]->addTransition(new Transitions::EpsilonTransition($bypassStart));
-        $bypassStop->addTransition(new Transitions::EpsilonTransition($endState));
+        $atn->ruleToStartState[$idx]->addTransition(new \Antlr4\Atn\Transitions\EpsilonTransition($bypassStart));
+        $bypassStop->addTransition(new \Antlr4\Atn\Transitions\EpsilonTransition($endState));
 
-        $matchState = new BasicState();
+        $matchState = new \Antlr4\Atn\States\BasicState();
         $atn->addState($matchState);
-        $matchState->addTransition(new AtomTransition($bypassStop, $atn->ruleToTokenType[$idx]));
-        $bypassStart->addTransition(new EpsilonTransition($matchState));
+        $matchState->addTransition(new \Antlr4\Atn\Transitions\AtomTransition($bypassStop, $atn->ruleToTokenType[$idx]));
+        $bypassStart->addTransition(new \Antlr4\Atn\Transitions\EpsilonTransition($matchState));
     }
 
     function stateIsEndStateFor($state, $idx)
@@ -517,16 +527,16 @@ class ATNDeserializer
         {
             return null;
         }
-        if (!( $state instanceof StarLoopEntryState))
+        if (!( $state instanceof \Antlr4\Atn\States\StarLoopEntryState))
         {
             return null;
         }
-        $maybeLoopEndState = $state->transitions[$state->transitions->length - 1]->target;
-        if (!( $maybeLoopEndState instanceof LoopEndState))
+        $maybeLoopEndState = $state->transitions[count($this->transitions) - 1]->target;
+        if (!( $maybeLoopEndState instanceof \Antlr4\Atn\States\LoopEndState))
         {
             return null;
         }
-        if ($maybeLoopEndState->epsilonOnlyTransitions && ($maybeLoopEndState->transitions[0]->target instanceof RuleStopState))
+        if ($maybeLoopEndState->epsilonOnlyTransitions && ($maybeLoopEndState->transitions[0]->target instanceof \Antlr4\Atn\States\RuleStopState))
         {
             return $state;
         }
@@ -548,7 +558,7 @@ class ATNDeserializer
         for($i=0; $i<$atn->states->length; $i++)
         {
             $state = $atn->states[$i];
-            if (!($state instanceof StarLoopEntryState))
+            if (!($state instanceof \Antlr4\Atn\States\StarLoopEntryState))
             {
                 continue;
             }
@@ -557,11 +567,11 @@ class ATNDeserializer
             // precedence rule should continue or complete.
             if ( $atn->ruleToStartState[$state->ruleIndex]->isPrecedenceRule)
             {
-                $maybeLoopEndState = $state->transitions[$state->transitions->length - 1]->target;
-                if ($maybeLoopEndState instanceof LoopEndState)
+                $maybeLoopEndState = $state->transitions[count($this->transitions) - 1]->target;
+                if ($maybeLoopEndState instanceof \Antlr4\Atn\States\LoopEndState)
                 {
                     if ( $maybeLoopEndState->epsilonOnlyTransitions &&
-                            ($maybeLoopEndState->transitions[0]->target instanceof RuleStopState))
+                            ($maybeLoopEndState->transitions[0]->target instanceof \Antlr4\Atn\States\RuleStopState))
                             {
                         $state->isPrecedenceDecision = true;
                     }
@@ -582,7 +592,7 @@ class ATNDeserializer
             {
                 continue;
             }
-            $this->checkCondition($state->epsilonOnlyTransitions || $state->transitions->length <= 1);
+            $this->checkCondition($state->epsilonOnlyTransitions || count($this->transitions) <= 1);
             if ($state instanceof PlusBlockStartState)
             {
                 $this->checkCondition($state->loopBackState !== null);
@@ -590,7 +600,7 @@ class ATNDeserializer
             else  if ($state instanceof StarLoopEntryState)
             {
                 $this->checkCondition($state->loopBackState !== null);
-                $this->checkCondition($state->transitions->length === 2);
+                $this->checkCondition(count($this->transitions) === 2);
                 if ($state->transitions[0]->target instanceof StarBlockStartState)
                 {
                     $this->checkCondition($state->transitions[1]->target instanceof LoopEndState);
@@ -606,34 +616,34 @@ class ATNDeserializer
                     throw new \Exception("IllegalState");
                 }
             }
-            else if ($state instanceof StarLoopbackState)
+            else if ($state instanceof \Antlr4\Atn\States\StarLoopbackState)
             {
-                $this->checkCondition($state->transitions->length === 1);
+                $this->checkCondition(count($this->transitions) === 1);
                 $this->checkCondition($state->transitions[0]->target instanceof StarLoopEntryState);
             }
-            else if ($state instanceof LoopEndState)
+            else if ($state instanceof \Antlr4\Atn\States\LoopEndState)
             {
                 $this->checkCondition($state->loopBackState !== null);
             }
-            else if ($state instanceof RuleStartState)
+            else if ($state instanceof \Antlr4\Atn\States\RuleStartState)
             {
                 $this->checkCondition($state->stopState !== null);
             }
-            else if ($state instanceof BlockStartState)
+            else if ($state instanceof \Antlr4\Atn\States\BlockStartState)
             {
                 $this->checkCondition($state->endState !== null);
             }
-            else if ($state instanceof BlockEndState)
+            else if ($state instanceof \Antlr4\Atn\States\BlockEndState)
             {
                 $this->checkCondition($state->startState !== null);
             }
-            else if ($state instanceof DecisionState)
+            else if ($state instanceof\Antlr4\Atn\States\ DecisionState)
             {
-                $this->checkCondition($state->transitions->length <= 1 || $state->decision >= 0);
+                $this->checkCondition(count($this->transitions) <= 1 || $state->decision >= 0);
             }
             else
             {
-                $this->checkCondition($state->transitions->length <= 1 || ($state instanceof RuleStopState));
+                $this->checkCondition(count($this->transitions) <= 1 || ($state instanceof \Antlr4\Atn\States\RuleStopState));
             }
         }
     }
@@ -679,16 +689,16 @@ class ATNDeserializer
         return $bth;
     }
 
-    $byteToHex = createByteToHex();
-
     function readUUID()
     {
+        $byteToHex = createByteToHex();
+
         $bb = [];
-        for ($i=7;$i>=0;$i--)
+        for ($i=7; $i>=0; $i--)
         {
             $int = $this->readInt();
             /* jshint bitwise: false */
-            $bb[(2*$i)+1] = $int & 0xFF;
+            $bb[2*$i+1] = $int & 0xFF;
             $bb[2*$i] = ($int >> 8) & 0xFF;
         }
         return $byteToHex[$bb[0]] + $byteToHex[$bb[1]] +
@@ -707,27 +717,27 @@ class ATNDeserializer
         switch($type)
         {
             case Transition::EPSILON:
-                return new EpsilonTransition($target);
+                return new \Antlr4\Atn\Transitions\EpsilonTransition($target);
             case Transition::RANGE:
-                return $arg3 !== 0 ? new RangeTransition($target, Token::EOF, $arg2) : new RangeTransition($target, $arg1, $arg2);
+                return $arg3 !== 0 ? new \Antlr4\Atn\Transitions\RangeTransition($target, Token::EOF, $arg2) : new \Antlr4\Atn\Transitions\RangeTransition($target, $arg1, $arg2);
             case Transition::RULE:
-                return new RuleTransition($atn->states[$arg1], $arg2, $arg3, $target);
+                return new \Antlr4\Atn\Transitions\RuleTransition($atn->states[$arg1], $arg2, $arg3, $target);
             case Transition::PREDICATE:
-                return new PredicateTransition($target, $arg1, $arg2, $arg3 !== 0);
+                return new \Antlr4\Atn\Transitions\PredicateTransition($target, $arg1, $arg2, $arg3 !== 0);
             case Transition::PRECEDENCE:
-                return new PrecedencePredicateTransition($target, $arg1);
+                return new \Antlr4\Atn\Transitions\PrecedencePredicateTransition($target, $arg1);
             case Transition::ATOM:
-                return $arg3 !== 0 ? new AtomTransition($target, Token::EOF) : new AtomTransition($target, $arg1);
+                return $arg3 !== 0 ? new \Antlr4\Atn\Transitions\AtomTransition($target, Token::EOF) : new \Antlr4\Atn\Transitions\AtomTransition($target, $arg1);
             case Transition::ACTION:
-                return new ActionTransition($target, $arg1, $arg2, $arg3 !== 0);
+                return new \Antlr4\Atn\Transitions\ActionTransition($target, $arg1, $arg2, $arg3 !== 0);
             case Transition::SET:
-                return new SetTransition($target, $sets[$arg1]);
+                return new \Antlr4\Atn\Transitions\SetTransition($target, $sets[$arg1]);
             case Transition::NOT_SET:
-                return new NotSetTransition($target, $sets[$arg1]);
+                return new \Antlr4\Atn\Transitions\NotSetTransition($target, $sets[$arg1]);
             case Transition::WILDCARD:
-                return new WildcardTransition($target);
+                return new \Antlr4\Atn\Transitions\WildcardTransition($target);
             default:
-                throw new \Exception("The specified transition type: " . type . " is not valid.");
+                throw new \Exception("The specified transition type: " . $type . " is not valid.");
         }
     }
 
@@ -737,23 +747,23 @@ class ATNDeserializer
         {
             $sf = [];
             $sf[ATNState::INVALID_TYPE] = null;
-            $sf[ATNState::BASIC] = function() { return new BasicState(); };
-            $sf[ATNState::RULE_START] = function() { return new RuleStartState(); };
-            $sf[ATNState::BLOCK_START] = function() { return new BasicBlockStartState(); };
-            $sf[ATNState::PLUS_BLOCK_START] = function() { return new PlusBlockStartState(); };
-            $sf[ATNState::STAR_BLOCK_START] = function() { return new StarBlockStartState(); };
-            $sf[ATNState::TOKEN_START] = function() { return new TokensStartState(); };
-            $sf[ATNState::RULE_STOP] = function() { return new RuleStopState(); };
-            $sf[ATNState::BLOCK_END] = function() { return new BlockEndState(); };
-            $sf[ATNState::STAR_LOOP_BACK] = function() { return new StarLoopbackState(); };
-            $sf[ATNState::STAR_LOOP_ENTRY] = function() { return new StarLoopEntryState(); };
-            $sf[ATNState::PLUS_LOOP_BACK] = function() { return new PlusLoopbackState(); };
-            $sf[ATNState::LOOP_END] = function() { return new LoopEndState(); };
+            $sf[ATNState::BASIC] = function() { return new \Antlr4\Atn\States\BasicState(); };
+            $sf[ATNState::RULE_START] = function() { return new \Antlr4\Atn\States\RuleStartState(); };
+            $sf[ATNState::BLOCK_START] = function() { return new \Antlr4\Atn\States\BasicBlockStartState(); };
+            $sf[ATNState::PLUS_BLOCK_START] = function() { return new \Antlr4\Atn\States\PlusBlockStartState(); };
+            $sf[ATNState::STAR_BLOCK_START] = function() { return new \Antlr4\Atn\States\StarBlockStartState(); };
+            $sf[ATNState::TOKEN_START] = function() { return new \Antlr4\Atn\States\TokensStartState(); };
+            $sf[ATNState::RULE_STOP] = function() { return new \Antlr4\Atn\States\RuleStopState(); };
+            $sf[ATNState::BLOCK_END] = function() { return new \Antlr4\Atn\States\BlockEndState(); };
+            $sf[ATNState::STAR_LOOP_BACK] = function() { return new \Antlr4\Atn\States\StarLoopbackState(); };
+            $sf[ATNState::STAR_LOOP_ENTRY] = function() { return new \Antlr4\Atn\States\StarLoopEntryState(); };
+            $sf[ATNState::PLUS_LOOP_BACK] = function() { return new \Antlr4\Atn\States\PlusLoopbackState(); };
+            $sf[ATNState::LOOP_END] = function() { return new \Antlr4\Atn\States\LoopEndState(); };
             $this->stateFactories = $sf;
         }
-        if ($type > $this->stateFactories->length || $this->stateFactories[$type] === null)
+        if ($type > count($this->stateFactories) || $this->stateFactories[$type] === null)
         {
-            throw new \Exception("The specified state type " + type + " is not valid.");
+            throw new \Exception("The specified state type " . $type . " is not valid.");
         }
         else
         {
@@ -783,7 +793,7 @@ class ATNDeserializer
         }
         if ($type>$this->actionFactories->length || $this->actionFactories[$type] === null)
         {
-            throw("The specified lexer action type " + type + " is not valid.");
+            throw new \Exception("The specified lexer action type " . $type .+ " is not valid.");
         }
         else
         {
