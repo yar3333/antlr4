@@ -1,17 +1,14 @@
 <?php
-
-namespace Antlr4\Atn;
-
-//
 /* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-///
 
-use Antlr4\DFAState; //('./../dfa/DFAState').DFAState;
-use Antlr4\ATNConfigSet; //('./ATNConfigSet').ATNConfigSet;
-$getCachedPredictionContext = require('./../PredictionContext').$getCachedPredictionContext;
+namespace Antlr4\Atn;
+
+use \Antlr4\Dfa\DFAState;
+use \Antlr4\Atn\ATNConfigSet;
+use \Antlr4\PredictionContext;
 
 // The context cache maps all PredictionContext objects that are ==
 //  to a single cached copy. This cache is shared across all contexts
@@ -34,9 +31,17 @@ $getCachedPredictionContext = require('./../PredictionContext').$getCachedPredic
 //  so it's not worth the complexity.</p>
 class ATNSimulator
 {
-    public $ERROR = new DFAState(0x7FFFFFFF, new ATNConfigSet());
+    private static $_ERROR;
+    public static function ERROR() { return self::$_ERROR ? self::$_ERROR : (self::$_ERROR = new DFAState(0x7FFFFFFF, new ATNConfigSet())); }
 
-    function __construct($atn, $sharedContextCache)
+    /**
+     * @var ATN
+     */
+    public $atn;
+
+    public $sharedContextCache;
+
+    function __construct(ATN $atn, $sharedContextCache)
     {
         $this->atn = $atn;
         $this->sharedContextCache = $sharedContextCache;
@@ -49,6 +54,6 @@ class ATNSimulator
         {
             return $context;
         }
-        return getCachedPredictionContext($context, $this->sharedContextCache, []);
+        return PredictionContext::getCachedPredictionContext($context, $this->sharedContextCache, []);
     }
 }

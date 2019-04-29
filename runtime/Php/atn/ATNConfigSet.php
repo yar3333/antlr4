@@ -59,7 +59,7 @@ class ATNConfigSet
     }
 
 
-    function __construct($fullCtx)
+    function __construct($fullCtx=null)
     {
         // The reason that we need this is because we don't want the hash map to use
         // the standard hash code and equals. We need all configurations with the
