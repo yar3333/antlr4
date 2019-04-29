@@ -23,7 +23,7 @@ class Set
      */
     public $equalsFunction;
 
-    function __construct(\Closure $hashFunction, \Closure $equalsFunction)
+    function __construct(\Closure $hashFunction=null, \Closure $equalsFunction=null)
     {
         $this->data = [];
         $this->hashFunction = isset($hashFunction) ? $hashFunction : (function ($a) {

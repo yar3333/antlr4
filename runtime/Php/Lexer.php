@@ -375,7 +375,7 @@ class Lexer extends Recognizer
 
     function getErrorDisplayForChar($c)
     {
-        if ($c->charCodeAt(0) === Token::EOF)
+        if (Utils::charCodeAt($c, 0) === Token::EOF)
         {
             return "<EOF>";
         }

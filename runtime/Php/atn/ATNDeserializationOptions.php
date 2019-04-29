@@ -21,7 +21,7 @@ class ATNDeserializationOptions
     {
         if (!isset(self::$defaultOptions))
         {
-            self::$defaultOptions = new ATNDeserializationOptions();
+            self::$defaultOptions = new ATNDeserializationOptions(null);
             self::$defaultOptions->readOnly = true;
         }
         return self::$defaultOptions;
@@ -29,10 +29,6 @@ class ATNDeserializationOptions
 
     function __construct(?ATNDeserializationOptions $copyFrom)
     {
-        if(!isset($copyFrom))
-        {
-            $copyFrom = null;
-        }
         $this->readOnly = false;
         $this->verifyATN = !isset($copyFrom) ? true : $copyFrom->verifyATN;
         $this->generateRuleBypassTransitions = !isset($copyFrom) ? false : $copyFrom->generateRuleBypassTransitions;

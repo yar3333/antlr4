@@ -9,17 +9,19 @@ namespace Antlr4;
  */
 ///
 
-use Antlr4\Set; //('./Utils').Set;
-use Antlr4\BitSet; //('./Utils').BitSet;
-use Antlr4\Token; //('./Token').Token;
-use \Antlr4\ATNConfig; //('./atn/ATNConfig').ATNConfig;
-use Antlr4\Interval; //('./IntervalSet').Interval;
-use Antlr4\IntervalSet; //('./IntervalSet').IntervalSet;
-use Antlr4\RuleStopState; //('./atn/ATNState').RuleStopState;
-use Antlr4\RuleTransition; //('./atn/Transition').RuleTransition;
-use Antlr4\NotSetTransition; //('./atn/Transition').NotSetTransition;
-use Antlr4\WildcardTransition; //('./atn/Transition').WildcardTransition;
-use Antlr4\AbstractPredicateTransition; //('./atn/Transition').AbstractPredicateTransition;
+use Antlr4\Atn\ATNConfigParams;
+use Antlr4\Atn\States\ATNState;
+use \Antlr4\Utils\BitSet;
+use \Antlr4\Token;
+use \Antlr4\Atn\ATNConfig;
+use \Antlr4\Interval;
+use \Antlr4\IntervalSet;
+use \Antlr4\Atn\States\RuleStopState;
+use \Antlr4\Atn\Transitions\RuleTransition;
+use \Antlr4\Atn\Transitions\NotSetTransition;
+use \Antlr4\Atn\Transitions\WildcardTransition;
+use \Antlr4\Atn\Transitions\AbstractPredicateTransition;
+use \Antlr4\Utils\Set;
 
 //$pc = require('./PredictionContext');
 //$predictionContextFromRuleContext = $pc->predictionContextFromRuleContext;
@@ -47,15 +49,13 @@ class LL1Analyzer
     //
     // @param s the ATN state
     // @return the expected symbols for each outgoing transition of {@code s}.
-    function getDecisionLookahead($s)
+    function getDecisionLookahead(?ATNState $s)
     {
-        if ($s === null)
-        {
-            return null;
-        }
-        $count = $s->transitions->length;
+        if ($s === null) return null;
+
+        $count = count($s->transitions);
         $look = [];
-        for($alt=0; $alt< $count; $alt++)
+        for ($alt=0; $alt< $count; $alt++)
         {
             $look[$alt] = new IntervalSet();
             $lookBusy = new Set();
@@ -63,7 +63,7 @@ class LL1Analyzer
             $this->_LOOK($s->transition($alt)->target, null, PredictionContext::EMPTY, $look[$alt], $lookBusy, new BitSet(), $seeThruPreds, false);
             // Wipe out lookahead for this alternative if we found nothing
             // or we had a predicate when we !seeThruPreds
-            if ($look[$alt]->length===0 || $look[$alt].contains(LL1Analyzer::HIT_PRED))
+            if ($look[$alt]->length===0 || $look[$alt]->contains(LL1Analyzer::HIT_PRED))
             {
                 $look[$alt] = null;
             }
@@ -128,14 +128,14 @@ class LL1Analyzer
     // outermost context is reached. This parameter has no effect if {@code ctx} is {@code null}.
     function _LOOK($s, $stopState , $ctx, $look, $lookBusy, $calledRuleStack, $seeThruPreds, $addEOF)
     {
-        //$c = new ATNConfig({$state:$s, $alt:0, $context: $ctx}, null);
-        $c = new ATNConfig();
-        $c->s
+        $tmp = ATNConfigParams();
+        $tmp->state = $s;
+        $tmp->alt = 0;
+        $tmp->context = $ctx;
 
-        if ($lookBusy->contains($c))
-        {
-            return;
-        }
+        $c = new ATNConfig($tmp, null);
+
+        if ($lookBusy->contains($c)) return;
 
         $lookBusy->add($c);
 
@@ -188,16 +188,13 @@ class LL1Analyzer
             }
         }
 
-        for ($j=0; $j<$s->transitions->length; $j++)
+        foreach  ($s->transitions as $t)
         {
-            $t = $s->transitions[$j];
-            if ($t->constructor === RuleTransition)
+            if ($t instanceof RuleTransition)
             {
-                if ($calledRuleStack->contains($t->target->ruleIndex))
-                {
-                    continue;
-                }
-                $newContext = SingletonPredictionContext->create($ctx, $t->followState->stateNumber);
+                if ($calledRuleStack->contains($t->target->ruleIndex)) continue;
+
+                $newContext = SingletonPredictionContext::create($ctx, $t->followState->stateNumber);
                 try
                 {
                     $calledRuleStack->add($t->target->ruleIndex);

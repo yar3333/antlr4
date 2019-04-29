@@ -13,8 +13,7 @@ use Antlr4\DFAState; //('./../dfa/DFAState').DFAState;
 use Antlr4\ATNConfigSet; //('./ATNConfigSet').ATNConfigSet;
 $getCachedPredictionContext = require('./../PredictionContext').$getCachedPredictionContext;
 
-function ATNSimulator($atn, $sharedContextCache) 
-{// The context cache maps all PredictionContext objects that are ==
+// The context cache maps all PredictionContext objects that are ==
 //  to a single cached copy. This cache is shared across all contexts
 //  in all ATNConfigs in all DFA states.  We rebuild each ATNConfigSet
 //  to use only cached nodes/graphs in addDFAState(). We don't want to
@@ -33,24 +32,23 @@ function ATNSimulator($atn, $sharedContextCache)
 //  whacked after each adaptivePredict(). It cost a little bit
 //  more time I think and doesn't save on the overall footprint
 //  so it's not worth the complexity.</p>
-///
-    $this->atn = $atn;
-    $this->sharedContextCache = $sharedContextCache;
-    return $this;
-}
-
-// Must distinguish between missing edge and edge we know leads nowhere///
-/* ATNSimulator */public $ERROR = new/ DFAState(0x7FFFFFFF, new ATNConfigSet());
-
-
-/* ATNSimulator */function getCachedContext($context) 
+class ATNSimulator
 {
-    if ($this->sharedContextCache ===null) 
-    {
-        return $context;
-    }
-    $visited = {};
-    return getCachedPredictionContext($context, $this->sharedContextCache, $visited);
-};
+    public $ERROR = new DFAState(0x7FFFFFFF, new ATNConfigSet());
 
-$exports->ATNSimulator = ATNSimulator;
+    function __construct($atn, $sharedContextCache)
+    {
+        $this->atn = $atn;
+        $this->sharedContextCache = $sharedContextCache;
+        return $this;
+    }
+
+    function getCachedContext($context)
+    {
+        if ($this->sharedContextCache === null)
+        {
+            return $context;
+        }
+        return getCachedPredictionContext($context, $this->sharedContextCache, []);
+    }
+}

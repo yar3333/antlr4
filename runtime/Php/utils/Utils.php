@@ -118,7 +118,7 @@ class Utils
         for ($i = 0; $i < count($a); $i++)
         {
             if ($a[$i] == $b[$i]) continue;
-            if (!$a[$i].equals($b[$i])) return false;
+            if (!$a[$i]->equals($b[$i])) return false;
         }
         return true;
     }
