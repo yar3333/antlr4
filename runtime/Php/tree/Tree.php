@@ -204,9 +204,11 @@ TerminalNodeImpl::prototype->constructor = TerminalNodeImpl;
 // and deletion as well as during "consume until error recovery set"
 // upon no viable alternative exceptions.
 
-function ErrorNodeImpl($token) 
+class ErrorNodeImpl extends TerminalNodeImpl
 {
-	TerminalNodeImpl->call($this, $token);
+	function __construct($token)
+	{
+		parent::__construct($token);
 	return $this;
 }
 

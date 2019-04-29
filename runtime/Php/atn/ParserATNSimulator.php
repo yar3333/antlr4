@@ -268,9 +268,11 @@ use Antlr4\NoViableAltException; //('./../error/Errors').NoViableAltException;
 use Antlr4\SingletonPredictionContext; //('./../PredictionContext').SingletonPredictionContext;
 $predictionContextFromRuleContext = require('./../PredictionContext').$predictionContextFromRuleContext;
 
-function ParserATNSimulator($parser, $atn, $decisionToDFA, $sharedContextCache) 
+class ParserATNSimulator extends ATNSimulator
 {
-	ATNSimulator->call($this, $atn, $sharedContextCache);
+	function __construct($parser, $atn, $decisionToDFA, $sharedContextCache)
+	{
+		parent::__construct($atn, $sharedContextCache);
     $this->parser = $parser;
     $this->decisionToDFA = $decisionToDFA;
 // SLL, LL, or LL + exact ambig detection?//

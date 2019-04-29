@@ -86,9 +86,11 @@ function DFASerializer($dfa, $literalNames, $symbolicNames)
     }
 };
 
-function LexerDFASerializer($dfa) 
+class LexerDFASerializer extends DFASerializer
 {
-	DFASerializer->call($this, $dfa, null);
+	function __construct($dfa)
+	{
+		parent::__construct($dfa, null);
 	return $this;
 }
 

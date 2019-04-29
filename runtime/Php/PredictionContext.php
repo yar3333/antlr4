@@ -216,9 +216,11 @@ Object->defineProperty(SingletonPredictionContext::prototype, "length", {
 	}
 };
 
-function EmptyPredictionContext() 
+class EmptyPredictionContext extends SingletonPredictionContext
 {
-	SingletonPredictionContext->call($this, null, PredictionContext::EMPTY_RETURN_STATE);
+	function __construct()
+	{
+		parent::__construct(null, PredictionContext::EMPTY_RETURN_STATE);
 	return $this;
 }
 
