@@ -12,8 +12,10 @@ namespace Antlr4;
 use Antlr4\RuleContext; //('./RuleContext').RuleContext;
 use Antlr4\Hash; //('./Utils').Hash;
 
-function PredictionContext($cachedHashCode) 
+class PredictionContext extends 
 {
+	function __construct($cachedHashCode)
+	{
 	$this->cachedHashCode = $cachedHashCode;
 }
 
@@ -87,8 +89,10 @@ function calculateHashString(parent, returnState) {
 // context cash associated with contexts in DFA states. This cache
 // can be used for both lexers and parsers.
 
-function PredictionContextCache() 
+class PredictionContextCache extends 
 {
+	function __construct()
+	{
 	$this->cache = {};
 	return $this;
 }
@@ -124,8 +128,10 @@ Object->defineProperty(PredictionContextCache::prototype, "length", {
 	}
 });
 
-function SingletonPredictionContext($parent, $returnState) 
+class SingletonPredictionContext extends 
 {
+	function __construct($parent, $returnState)
+	{
 	$hashCode = 0;
 	if($parent !== null) 
 	{
@@ -254,8 +260,10 @@ EmptyPredictionContext::prototype->constructor = EmptyPredictionContext;
 
 /* PredictionContext */public $EMPTY = new/ EmptyPredictionContext();
 
-function ArrayPredictionContext($parents, $returnStates) 
-{// Parent can be null only if full ctx mode and we make an array
+class ArrayPredictionContext extends 
+{
+	function __construct($parents, $returnStates)
+	{// Parent can be null only if full ctx mode and we make an array
 // from {@link //EMPTY} and non-empty. We merge {@link //EMPTY} by using
 // null parent and
 // returnState == {@link //EMPTY_RETURN_STATE}.

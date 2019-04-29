@@ -18,8 +18,10 @@ use Antlr4\INVALID_ALT_NUMBER; //('./../atn/ATN').INVALID_ALT_NUMBER;
 
 
 /** A set of utility routines useful for all kinds of ANTLR trees. */
-function Trees() 
+class Trees extends 
 {
+	function __construct()
+	{
 }
 
 // Print out a whole tree in LISP form. {@link //getNodeText} is used on the

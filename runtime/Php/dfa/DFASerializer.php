@@ -10,8 +10,10 @@ namespace Antlr4\Dfa;
 // A DFA walker that knows how to dump them to serialized strings.#/
 
 
-function DFASerializer($dfa, $literalNames, $symbolicNames) 
+class DFASerializer extends 
 {
+	function __construct($dfa, $literalNames, $symbolicNames)
+	{
 	$this->dfa = $dfa;
 	$this->literalNames = $literalNames || [];
 	$this->symbolicNames = $symbolicNames || [];

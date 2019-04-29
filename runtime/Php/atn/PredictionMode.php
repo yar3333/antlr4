@@ -26,8 +26,10 @@ use Antlr4\Hash; //("../Utils").Hash;
 $hashStuff = require('./../Utils').$hashStuff;
 $equalArrays = require('./../Utils').$equalArrays;
 
-function PredictionMode() 
+class PredictionMode extends 
 {
+	function __construct()
+	{
 	return $this;
 }
 

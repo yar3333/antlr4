@@ -17,8 +17,10 @@ use Antlr4\LexerDFASerializer; //('./DFASerializer').LexerDFASerializer;
 
 
 
-function DFA($atnStartState, $decision) 
+class DFA extends 
 {
+	function __construct($atnStartState, $decision)
+	{
 	if (!isset($decision)) 
 	{
 		$decision = 0;

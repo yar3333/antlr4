@@ -20,8 +20,10 @@ namespace Antlr4\Atn;
 use Antlr4\Set; //('./../Utils').Set;
 use Antlr4\Hash; //('./../Utils').Hash;
 
-function SemanticContext() 
+class SemanticContext extends 
 {
+	function __construct()
+	{
 	return $this;
 }
 

@@ -19,8 +19,10 @@ use Antlr4\ATNState; //('./../atn/ATNState').ATNState;
 use Antlr4\Interval; //('./../IntervalSet').Interval;
 use Antlr4\IntervalSet; //('./../IntervalSet').IntervalSet;
 
-function ErrorStrategy() 
+class ErrorStrategy extends 
 {
+	function __construct()
+	{
 }
 
 /* ErrorStrategy */function reset($recognizer)

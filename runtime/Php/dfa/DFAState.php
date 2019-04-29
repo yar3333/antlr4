@@ -16,8 +16,10 @@ Set = Utils::Set;
 
 // Map a predicate to a predicted alternative.///
 
-function PredPrediction($pred, $alt) 
+class PredPrediction extends 
 {
+	function __construct($pred, $alt)
+	{
 	$this->alt = $alt;
 	$this->pred = $pred;
 	return $this;
@@ -53,8 +55,10 @@ function PredPrediction($pred, $alt)
 // meaning that state was reached via a different set of rule invocations.</p>
 // /
 
-function DFAState($stateNumber, $configs) 
+class DFAState extends 
 {
+	function __construct($stateNumber, $configs)
+	{
 	if ($stateNumber === null) 
 	{
 		$stateNumber = -1;
