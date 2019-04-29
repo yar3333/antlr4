@@ -1,15 +1,14 @@
 <?php
-
-namespace Antlr4\Atn;
-
 /* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
-use Antlr4\LL1Analyzer; //('./../LL1Analyzer').LL1Analyzer;
-use Antlr4\IntervalSet; //('./../IntervalSet').IntervalSet;
-use Antlr4\Token;
+namespace Antlr4\Atn;
+
+use \Antlr4\LL1Analyzer;
+use \Antlr4\IntervalSet;
+use \Antlr4\Token;
 
 class ATN
 {
@@ -40,7 +39,7 @@ class ATN
 
     function __construct($grammarType , $maxTokenType)
     {
-        // Used for runtime deserialization of ATNs from strings///
+        // Used for runtime deserialization of ATNs from strings
         // The type of the ATN.
         $this->grammarType = $grammarType;
 
