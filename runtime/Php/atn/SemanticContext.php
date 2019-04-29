@@ -117,9 +117,11 @@ SemanticContext::orContext = function($a, $b)
 	}
 };
 
-function Predicate($ruleIndex, $predIndex, $isCtxDependent) 
+class Predicate extends SemanticContext
 {
-	SemanticContext->call($this);
+	function __construct($ruleIndex, $predIndex, $isCtxDependent)
+	{
+		parent::__construct();
 	$this->ruleIndex = $ruleIndex === undefined ? -1 : $ruleIndex;
 	$this->predIndex = $predIndex === undefined ? -1 : $predIndex;
 	$this->isCtxDependent = $isCtxDependent === undefined ? false : $isCtxDependent;// e.g., $i ref in pred
@@ -169,9 +171,11 @@ Predicate::prototype->constructor = Predicate;
 	return "{" + this.ruleIndex + ":" + this.predIndex + "}?";
 };
 
-function PrecedencePredicate($precedence) 
+class PrecedencePredicate extends SemanticContext
 {
-	SemanticContext->call($this);
+	function __construct($precedence)
+	{
+		parent::__construct();
 	$this->precedence = $precedence === undefined ? 0 : $precedence;
 }
 
@@ -245,9 +249,11 @@ PrecedencePredicate::filterPrecedencePredicates = function($set)
 // A semantic context which is true whenever none of the contained contexts
 // is false.
 //
-function AND($a, $b) 
+class AND extends SemanticContext
 {
-	SemanticContext->call($this);
+	function __construct($a, $b)
+	{
+		parent::__construct();
 	$operands = new Set();
 	if ($a instanceof AND) 
 	{
@@ -378,9 +384,11 @@ AND::prototype->constructor = AND;
 // A semantic context which is true whenever at least one of the contained
 // contexts is true.
 //
-function OR($a, $b) 
+class OR extends SemanticContext
 {
-	SemanticContext->call($this);
+	function __construct($a, $b)
+	{
+		parent::__construct();
 	$operands = new Set();
 	if ($a instanceof OR) 
 	{

@@ -23,45 +23,55 @@ function Tree()
 	return $this;
 }
 
-function SyntaxTree() 
+class SyntaxTree extends Tree
 {
-	Tree->call($this);
+	function __construct()
+	{
+		parent::__construct();
 	return $this;
 }
 
 SyntaxTree::prototype = Object->create(Tree::prototype);
 SyntaxTree::prototype->constructor = SyntaxTree;
 
-function ParseTree() 
+class ParseTree extends SyntaxTree
 {
-	SyntaxTree->call($this);
+	function __construct()
+	{
+		parent::__construct();
 	return $this;
 }
 
 ParseTree::prototype = Object->create(SyntaxTree::prototype);
 ParseTree::prototype->constructor = ParseTree;
 
-function RuleNode() 
+class RuleNode extends ParseTree
 {
-	ParseTree->call($this);
+	function __construct()
+	{
+		parent::__construct();
 	return $this;
 }
 
 RuleNode::prototype = Object->create(ParseTree::prototype);
 RuleNode::prototype->constructor = RuleNode;
 
-function TerminalNode() 
+class TerminalNode extends ParseTree
 {
-	ParseTree->call($this);
+	function __construct()
+	{
+		parent::__construct();
 	return $this;
 }
 
 TerminalNode::prototype = Object->create(ParseTree::prototype);
 TerminalNode::prototype->constructor = TerminalNode;
 
-function ErrorNode() 
+class ErrorNode extends TerminalNode
 {
-	TerminalNode->call($this);
+	function __construct()
+	{
+		parent::__construct();
 	return $this;
 }
 
@@ -130,9 +140,11 @@ function ParseTreeListener()
 {
 };
 
-function TerminalNodeImpl($symbol) 
+class TerminalNodeImpl extends TerminalNode
 {
-	TerminalNode->call($this);
+	function __construct($symbol)
+	{
+		parent::__construct();
 	$this->parentCtx = null;
 	$this->symbol = $symbol;
 	return $this;

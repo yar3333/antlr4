@@ -52,9 +52,11 @@ function ErrorStrategy()
 // This is the default implementation of {@link ANTLRErrorStrategy} used for
 // error reporting and recovery in ANTLR parsers.
 //
-function DefaultErrorStrategy() 
+class DefaultErrorStrategy extends ErrorStrategy
 {
-	ErrorStrategy->call($this);
+	function __construct()
+	{
+		parent::__construct();
 // Indicates whether the error strategy is currently "recovering from an
 // error". This is used to suppress reporting multiple error messages while
 // attempting to recover from a detected syntax error.
@@ -788,9 +790,11 @@ DefaultErrorStrategy::prototype->constructor = DefaultErrorStrategy;
 //
 // @see Parser//setErrorHandler(ANTLRErrorStrategy)
 //
-function BailErrorStrategy() 
+class BailErrorStrategy extends DefaultErrorStrategy
 {
-	DefaultErrorStrategy->call($this);
+	function __construct()
+	{
+		parent::__construct();
 	return $this;
 }
 
