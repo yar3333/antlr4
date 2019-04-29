@@ -7,7 +7,6 @@
 namespace Antlr4\Atn;
 
 use \Antlr4\Dfa\DFAState;
-use \Antlr4\Atn\ATNConfigSet;
 use \Antlr4\PredictionContext;
 
 // The context cache maps all PredictionContext objects that are ==

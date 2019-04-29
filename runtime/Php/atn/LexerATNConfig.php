@@ -2,13 +2,22 @@
 
 namespace Antlr4\Atn;
 
+use Antlr4\Atn\States\DecisionState;
+use Antlr4\Utils\Hash;
+
 class LexerATNConfig extends ATNConfig
 {
+    /**
+     * @var LexerActionExecutor
+     */
     public $lexerActionExecutor;
 
+    /**
+     * @var bool
+     */
     public $passedThroughNonGreedyDecision;
 
-    function LexerATNConfig($params, $config)
+    function LexerATNConfig(object $params, object $config)
     {
         parent::__construct($params, $config);
 
@@ -18,7 +27,7 @@ class LexerATNConfig extends ATNConfig
         $this->passedThroughNonGreedyDecision = $config !== null ? $this->checkNonGreedyDecision($config, $this->state) : false;
     }
 
-    function updateHashCode($hash)
+    function updateHashCode(Hash $hash)
     {
         $hash->update($this->state->stateNumber, $this->alt, $this->context, $this->semanticContext, $this->passedThroughNonGreedyDecision, $this->lexerActionExecutor);
     }
@@ -44,7 +53,7 @@ class LexerATNConfig extends ATNConfig
         return $this->equals($other);
     }
 
-    function checkNonGreedyDecision($source, $target)
+    function checkNonGreedyDecision(object $source, $target)
     {
         return $source->passedThroughNonGreedyDecision || ($target instanceof DecisionState) && $target->nonGreedy;
     }

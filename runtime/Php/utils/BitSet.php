@@ -16,27 +16,27 @@ class BitSet
         return $this;
     }
 
-    function add($value)
+    function add($value) : void
     {
         $this->data[$value] = true;
     }
 
-    function or($set)
+    function or($set) : void
     {
         foreach ($set->data as $alt) $this->add($alt);
     }
 
-    function remove($value)
+    function remove($value) : void
     {
         unset($this->data[$value]);
     }
 
-    function contains($value)
+    function contains($value) : bool
     {
         return $this->data[$value] === true;
     }
 
-    function values()
+    function values() : array
     {
         return array_keys($this->data);
     }
@@ -46,14 +46,14 @@ class BitSet
         return min($this->values());
     }
 
-    function hashCode()
+    function hashCode() : int
     {
         $hash = new Hash();
         $hash->update($this->values());
         return $hash->finish();
     }
 
-    function equals($other)
+    function equals($other) : bool
     {
         if (!($other instanceof BitSet)) {
             return false;
@@ -61,7 +61,7 @@ class BitSet
         return $this->hashCode() === $other->hashCode();
     }
 
-    function getLength()
+    function getLength() : int
     {
         return count($this->values());
     }

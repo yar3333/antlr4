@@ -6,59 +6,52 @@
 
 namespace Antlr4\Atn;
 
-use \Antlr4\Atn\DecisionState;
+use \Antlr4\Atn\States\DecisionState;
 use \Antlr4\Atn\SemanticContext;
 use \Antlr4\Utils\Hash;
 
-class ATNConfigParams
-{
-    public $state = null;
-    public $alt = null;
-    public $context = null;
-    public $semanticContext = null;
-}
-
-class ATNConfigConfig extends ATNConfigParams
-{
-    public $reachesIntoOuterContext = 0;
-    public $precedenceFilterSuppressed = null;
-}
-
 // A tuple: (ATN state, predicted alt, syntactic, semantic context).
-//  The syntactic context is a graph-structured stack node whose
-//  path(s) to the root is the rule invocation(s)
-//  chain used to arrive at the state.  The semantic context is
-//  the tree of semantic predicates encountered before reaching
-//  an ATN state.
-///
+// The syntactic context is a graph-structured stack node whose
+// path(s) to the root is the rule invocation(s)
+// chain used to arrive at the state.  The semantic context is
+// the tree of semantic predicates encountered before reaching an ATN state.
 class ATNConfig extends ATNConfigConfig
 {
-    private static function checkParams($params, $isCfg=false)
+    public $state;
+    public $alt;
+    public $context;
+    public $semanticContext;
+    public $reachesIntoOuterContext;
+    public $precedenceFilterSuppressed;
+
+    private static function checkParams(object $params, $isCfg=false) : object
     {
         if (!isset($params))
         {
-            return $isCfg ? new ATNConfigConfig() : new ATNConfigParams();
+            $result = (object)[ 'state'=>null, 'alt'=>null, 'context'=>null, 'semanticContext'=>null ];
+            if($isCfg)
+            {
+                $result->reachesIntoOuterContext = 0;
+            }
+            return $result;
         }
         else
         {
-            $props =  $isCfg ? new ATNConfigConfig() : new ATNConfigParams();
-
+            $props = (object)[];
             $props->state = $params->state || null;
             $props->alt = isset($params->alt) ? $params->alt : null;
             $props->context = $params->context || null;
             $props->semanticContext = $params->semanticContext || null;
-
-            if ($isCfg)
+            if($isCfg)
             {
                 $props->reachesIntoOuterContext = $params->reachesIntoOuterContext || 0;
                 $props->precedenceFilterSuppressed = $params->precedenceFilterSuppressed || false;
             }
-
             return $props;
         }
     }
 
-    function __construct(ATNConfigParams $params, ATNConfigConfig $config)
+    function __construct(object $params, object $config)
     {
         $this->checkContext($params, $config);
         $params = self::checkParams($params);
@@ -90,17 +83,15 @@ class ATNConfig extends ATNConfigConfig
         // accurate depth since I don't ever decrement. TODO: make it a boolean then
         $this->reachesIntoOuterContext = $config->reachesIntoOuterContext;
         $this->precedenceFilterSuppressed = $config->precedenceFilterSuppressed;
-        return $this;
     }
 
-    function checkContext($params, $config)
+    function checkContext(object $params, object $config)
     {
-        if (!isset($params->context) && ($config===null || !isset($config->context)))
+        if (!isset($params->context) && (!isset($config) || !isset($config->context)))
         {
             $this->context = null;
         }
     }
-
 
     function hashCode()
     {
@@ -116,9 +107,8 @@ class ATNConfig extends ATNConfigConfig
     }
 
     // An ATN configuration is equal to another if both have
-    //  the same state, they predict the same alternative, and
-    //  syntactic/semantic contexts are the same.
-
+    // the same state, they predict the same alternative, and
+    // syntactic/semantic contexts are the same.
     function equals($other)
     {
         if ($this === $other)
@@ -168,13 +158,11 @@ class ATNConfig extends ATNConfigConfig
 
     function __toString()
     {
-        return "(" . $this->state . "," . $this->alt .
-            ($this->context!==null ? ",[" . $this->context.toString() . "]" : "") .
-            ($this->semanticContext !== SemanticContext::NONE ?
-                    ("," . $this->semanticContext)
-                    : "") .
-            ($this->reachesIntoOuterContext>0 ?
-                    (",up=" . $this->reachesIntoOuterContext)
-                    : "") . ")";
+        return
+            "(" . $this->state . "," . $this->alt .
+                ($this->context!==null ? ",[" . $this->context . "]" : "") .
+                ($this->semanticContext !== SemanticContext::NONE ? "," . $this->semanticContext : "") .
+                ($this->reachesIntoOuterContext>0 ? ",up=" . $this->reachesIntoOuterContext : "") .
+            ")";
     }
 }

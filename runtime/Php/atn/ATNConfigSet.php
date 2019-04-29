@@ -6,7 +6,6 @@
 
 namespace Antlr4\Atn;
 
-use Antlr4\Atn\ATN;
 use Antlr4\Utils\Utils;
 use Antlr4\Utils\Hash;
 use Antlr4\Utils\Set;
@@ -39,12 +38,12 @@ class ATNConfigSet
 
     public $cachedHashCode;
 
-    static function hashATNConfig($c)
+    static function hashATNConfig(ATNConfig $c)
     {
         return $c->hashCodeForConfigSet();
     }
 
-    static function equalATNConfigs($a, $b)
+    static function equalATNConfigs(?ATNConfig $a, ?ATNConfig $b)
     {
         if ( $a===$b )
         {
@@ -157,7 +156,7 @@ class ATNConfigSet
     function getStates()
     {
         $states = new Set();
-        for ($i = 0; $i < $this->configs->length; $i++)
+        for ($i = 0; $i < count($this->configs); $i++)
         {
             $states->add($this->configs[$i]->state);
         }
@@ -167,7 +166,7 @@ class ATNConfigSet
     function getPredicates()
     {
         $preds = [];
-        for ($i = 0; $i < $this->configs->length; $i++)
+        for ($i = 0; $i < count($this->configs); $i++)
         {
             $c = $this->configs[$i]->semanticContext;
             if ($c !== SemanticContext::NONE)
@@ -186,11 +185,11 @@ class ATNConfigSet
         {
             throw new \Exception("This set is readonly");
         }
-        if ($this->configLookup->length === 0)
+        if ($this->configLookup->getLength() === 0)
         {
             return;
         }
-        for ($i = 0; $i < $this->configs->length; $i++)
+        for ($i = 0; $i < count($this->configs); $i++)
         {
             $config = $this->configs[$i];
             $config->context = $interpreter->getCachedContext($config->context);
@@ -225,7 +224,7 @@ class ATNConfigSet
         return $hash->finish();
     }
 
-    function updateHashCode($hash)
+    function updateHashCode(Hash $hash)
     {
         if ($this->readOnly)
         {
@@ -243,11 +242,11 @@ class ATNConfigSet
         }
     }
 
-    function getLength() { return $this->configs->length; }
+    function getLength() { return count($this->configs); }
 
     function isEmpty()
     {
-        return $this->configs->length === 0;
+        return count($this->configs) === 0;
     }
 
     function contains($item)

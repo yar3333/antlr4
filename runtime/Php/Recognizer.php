@@ -146,7 +146,7 @@ class Recognizer
         $s = str_replace("\r","\\r", $s);
         $s = str_replace("\t","\\t", $s);
 
-        return "'" . s . "'";
+        return "'" . $s . "'";
     }
 
     function getErrorListenerDispatch() : ErrorListener
