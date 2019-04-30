@@ -2,10 +2,9 @@
 
 namespace Antlr4\Tree;
 
-class TerminalNode extends ParseTree
+use Antlr4\Token;
+
+interface TerminalNode extends ParseTree
 {
-    function __construct()
-    {
-        parent::__construct();
-    }
+    function getSymbol() : Token;
 }
