@@ -35,7 +35,12 @@ class Parser extends Recognizer
     public $_ctx;
     public $buildParseTrees;
     public $_tracer;
+
+    /**
+     * @var ParserTraceListener[]
+     */
     public $_parseListeners;
+
     public $_syntaxErrors;
 
     function __construct(InputStream $input)
@@ -224,12 +229,12 @@ class Parser extends Recognizer
     {
         if ($this->_parseListeners !== null)
         {
-            $idx = $this->_parseListeners->indexOf($listener);
-            if ($idx >= 0)
+            $idx = array_search($listener, $this->_parseListeners);
+            if ($idx !== false)
             {
-                $this->_parseListeners->splice($idx, 1);
+                array_splice($this->_parseListeners, $idx, 1);
             }
-            if ($this->_parseListeners->length === 0)
+            if (count($this->_parseListeners) === 0)
             {
                 $this->_parseListeners = null;
             }
@@ -751,7 +756,7 @@ class Parser extends Recognizer
             {
                 $this->removeParseListener($this->_tracer);
             }
-            $this->_tracer = new TraceListener($this);
+            $this->_tracer = new ParserTraceListener($this);
             $this->addParseListener($this->_tracer);
         }
     }

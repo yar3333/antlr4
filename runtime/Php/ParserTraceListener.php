@@ -2,7 +2,7 @@
 
 namespace Antlr4;
 
-class TraceListener extends ParseTreeListener
+class ParserTraceListener extends ParseTreeListener
 {
     /**
      * @var Parser

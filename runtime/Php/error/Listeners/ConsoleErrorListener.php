@@ -11,7 +11,7 @@ class ConsoleErrorListener extends ErrorListener
         return self::$_INSTANCE ? self::$_INSTANCE : (self::$_INSTANCE = new ConsoleErrorListener());
     }
 
-    function ConsoleErrorListener()
+    function __construct()
     {
         parent::__construct();
     }

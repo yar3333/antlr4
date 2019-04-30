@@ -17,7 +17,7 @@ class LexerATNConfig extends ATNConfig
      */
     public $passedThroughNonGreedyDecision;
 
-    function LexerATNConfig(object $params, object $config)
+    function __construct(object $params, object $config)
     {
         parent::__construct($params, $config);
 

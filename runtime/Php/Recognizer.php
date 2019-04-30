@@ -33,7 +33,7 @@ abstract class Recognizer
 
     public $ruleNames;
 
-    function Recognizer()
+    function __construct()
     {
         $this->_listeners = [ ConsoleErrorListener::INSTANCE() ];
         $this->_interp = null;
