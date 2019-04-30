@@ -100,7 +100,7 @@ class ATN
         return $s->nextTokenWithinRule;
     }
 
-    function nextTokens($s, $ctx)
+    function nextTokens($s, $ctx=null)
     {
         if (!isset($ctx))
         {

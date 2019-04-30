@@ -177,5 +177,7 @@ class InputStream
     {
         return $this->strdata;
     }
+
+    function get($index) { return $this->data[$index]; }
 }
 

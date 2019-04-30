@@ -6,6 +6,15 @@
 
 namespace Antlr4\Atn;
 
+use \Antlr4\InputStream;
+use \Antlr4\Token;
+use \Antlr4\Lexer;
+use \Antlr4\PredictionContext;
+use \Antlr4\SingletonPredictionContext;
+use \Antlr4\Atn\States\RuleStopState;
+use \Antlr4\Error\Exceptions\LexerNoViableAltException;
+use \Antlr4\Atn\Transitions\Transition;
+
 // When we hit an accept state in either the DFA or the ATN, we
 //  have to notify the character stream to start buffering characters
 //  via {@link IntStream//mark} and record the current state. The current sim state
@@ -20,24 +29,6 @@ namespace Antlr4\Atn;
 //  back to its previously accepted state, if any. If the ATN succeeds,
 //  then the ATN does the accept and the DFA simulator that invoked it
 //  can simply return the predicted token type.</p>
-///
-
-use \Antlr4\InputStream;
-use \Antlr4\Token; //('./../Token').Token;
-use \Antlr4\Lexer; //('./../Lexer').Lexer;
-use \Antlr4\DFAState; //('./../dfa/DFAState').DFAState;
-use \Antlr4\ATNConfigSet; //('./ATNConfigSet').ATNConfigSet;
-use \Antlr4\OrderedATNConfigSet; //('./ATNConfigSet').OrderedATNConfigSet;
-use \Antlr4\PredictionContext; //('./../PredictionContext').PredictionContext;
-use \Antlr4\SingletonPredictionContext; //('./../PredictionContext').SingletonPredictionContext;
-use \Antlr4\RuleStopState; //('./ATNState').RuleStopState;
-use \Antlr4\Atn\LexerATNConfig;
-use \Antlr4\Atn\LexerActionExecutor;
-use \Antlr4\LexerNoViableAltException; //('./../error/Errors').LexerNoViableAltException;
-use \Antlr4\Atn\Transitions\Transition;
-use \Antlr4\Atn\ATNSimulator;
-
-
 class SimState
 {
     static function resetSimState($sim)
@@ -520,7 +511,7 @@ class LexerATNSimulator extends ATNSimulator
         $cfg = null;
         if ($trans->serializationType === Transition::RULE)
         {
-            $newContext = SingletonPredictionContext->create($config->context, $trans->followState->stateNumber);
+            $newContext = SingletonPredictionContext::create($config->context, $trans->followState->stateNumber);
             $cfg = new LexerATNConfig((object)[ 'state'=>$trans->target, 'context'=>$newContext ], $config);
         }
         else if ($trans->serializationType === Transition::PRECEDENCE)
@@ -620,7 +611,7 @@ class LexerATNSimulator extends ATNSimulator
     //
     // @return {@code true} if the specified predicate evaluates to
     // {@code true}.
-    function evaluatePredicate($input, $ruleIndex, $predIndex, $speculative)
+    function evaluatePredicate(InputStream $input, $ruleIndex, $predIndex, $speculative)
     {
         // assume true if no recognizer was provided
         if ($this->recog === null)

@@ -4,13 +4,9 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-namespace Antlr4\Error;
+namespace Antlr4\Error\Listeners;
 
-use function Antlr4\isEmpty;
-use Antlr4\Parser;
-use Antlr4\Recognizer;
 use Antlr4\Utils\BitSet;
-use Antlr4\Error\ErrorListener;
 use Antlr4\Interval;
 
 // This implementation of {@link ANTLRErrorListener} can be used to identify

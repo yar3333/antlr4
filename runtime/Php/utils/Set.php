@@ -26,19 +26,17 @@ class Set
     function __construct(\Closure $hashFunction=null, \Closure $equalsFunction=null)
     {
         $this->data = [];
-        $this->hashFunction = isset($hashFunction) ? $hashFunction : (function ($a) {
-            return Utils::standardHashCodeFunction($a);
-        });
-        $this->equalsFunction = isset($equalsFunction) ? $equalsFunction : (function ($a, $b) {
-            return Utils::standardEqualsFunction($a, $b);
-        });
+        $this->hashFunction = isset($hashFunction) ? $hashFunction : (function ($a) { return Utils::standardHashCodeFunction($a); });
+        $this->equalsFunction = isset($equalsFunction) ? $equalsFunction : (function ($a, $b) { return Utils::standardEqualsFunction($a, $b); });
     }
 
     function getLength()
     {
         $l = 0;
-        foreach ($this->data as $key => $value) {
-            if (strpos($key, "hash_") === 0) {
+        foreach ($this->data as $key => $value)
+        {
+            if (strpos($key, "hash_") === 0)
+            {
                 $l = $l + count($this->data[$key]);
             }
         }
@@ -49,16 +47,21 @@ class Set
     {
         $hash = $this->hashFunction->call($value);
         $key = "hash_" . $hash;
-        if (isset($this->data[$key])) {
+        if (isset($this->data[$key]))
+        {
             $values = $this->data[$key];
-            for ($i = 0; $i < $values->length; $i++) {
-                if ($this->equalsFunction->call($value, $values[$i])) {
+            for ($i = 0; $i < $values->length; $i++)
+            {
+                if ($this->equalsFunction->call($value, $values[$i]))
+                {
                     return $values[$i];
                 }
             }
             array_push($values, $value);
             return $value;
-        } else {
+        }
+        else
+            {
             $this->data[$key] = [$value];
             return $value;
         }
@@ -73,22 +76,24 @@ class Set
     {
         $hash = $this->hashFunction->call($value);
         $key = "hash_" . $hash;
-        if (isset($this->data[$key])) {
+        if (isset($this->data[$key]))
+        {
             $values = $this->data[$key];
-            for ($i = 0; $i < count($values); $i++) {
-                if ($this->equalsFunction->call($value, $values[$i])) {
-                    return $values[$i];
-                }
+            for ($i = 0; $i < count($values); $i++)
+            {
+                if ($this->equalsFunction->call($value, $values[$i])) return $values[$i];
             }
         }
         return null;
     }
 
-    function values()
+    function values() : array
     {
         $l = [];
-        foreach ($this->data as $key => $value) {
-            if (strpos($key, "hash_") === 0) {
+        foreach ($this->data as $key => $value)
+        {
+            if (strpos($key, "hash_") === 0)
+            {
                 $l = array_merge($l, $value);
             }
         }

@@ -1,383 +1,114 @@
 <?php
-
-namespace Antlr4;
-
-//
 /* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-///
 
-use Antlr4\RuleContext; //('./RuleContext').RuleContext;
-use Antlr4\Hash; //('./Utils').Hash;
+namespace Antlr4\Predictioncontexts;
 
-class PredictionContext extends 
+use \Antlr4\Utils\Hash;
+
+abstract class PredictionContext
 {
-	function __construct($cachedHashCode)
-	{
-	$this->cachedHashCode = $cachedHashCode;
+    static $globalNodeCount = 1;
+
+    // TODO: ?????
+    static $id = 1; //PredictionContext::$globalNodeCount;
+
+    // Represents {@code $} in local context prediction, which means wildcard.
+    // {@code//+x =//}.
+    const EMPTY = null;
+
+    // Represents {@code $} in an array in full context mode, when {@code $}
+    // doesn't mean wildcard: {@code $ + x = [$,x]}. Here,
+    // {@code $} = {@link //EMPTY_RETURN_STATE}.
+    const EMPTY_RETURN_STATE = 0x7FFFFFFF;
+
+    private $cachedHashCode;
+
+    function __construct($cachedHashCode)
+    {
+        $this->cachedHashCode = $cachedHashCode;
+    }
+
+    // Stores the computed hash code of this {@link PredictionContext}. The hash
+    // code is computed in parts to match the following reference algorithm.
+    //
+    // <pre>
+    // private int referenceHashCode() {
+    // int hash = {@link MurmurHash//initialize MurmurHash.initialize}({@link
+    // //INITIAL_HASH});
+    //
+    // for (int i = 0; i &lt; {@link //size()}; i++) {
+    // hash = {@link MurmurHash//update MurmurHash.update}(hash, {@link //getParent
+    // getParent}(i));
+    // }
+    //
+    // for (int i = 0; i &lt; {@link //size()}; i++) {
+    // hash = {@link MurmurHash//update MurmurHash.update}(hash, {@link
+    // //getReturnState getReturnState}(i));
+    // }
+    //
+    // hash = {@link MurmurHash//finish MurmurHash.finish}(hash, 2// {@link
+    // //size()});
+    // return hash;
+    // }
+    // </pre>
+    // /
+
+    // This means only the {@link //EMPTY} context is in set.
+    function isEmpty()
+    {
+        return $this === PredictionContext::EMPTY;
+    }
+
+    function hasEmptyPath()
+    {
+        return $this->getReturnState($this->getLength() - 1) === PredictionContext::EMPTY_RETURN_STATE;
+    }
+
+    function hashCode()
+    {
+        return $this->cachedHashCode;
+    }
+
+
+    function updateHashCode(Hash $hash)
+    {
+        $hash->update($this->cachedHashCode);
+    }
+
+    /*
+    function calculateHashString(parent, returnState) {
+        return "" + parent + returnState;
+    }
+    */
+
+    abstract function getLength() : int;
+
+    abstract function getReturnState(int $index) : int;
 }
-
-// Represents {@code $} in local context prediction, which means wildcard.
-// {@code//+x =//}.
-// /
-/* PredictionContext */const EMPTY =/ null;
-
-// Represents {@code $} in an array in full context mode, when {@code $}
-// doesn't mean wildcard: {@code $ + x = [$,x]}. Here,
-// {@code $} = {@link //EMPTY_RETURN_STATE}.
-// /
-/* PredictionContext */const EMPTY_RETURN_STATE =/ 0x7FFFFFFF;
-
-PredictionContext::globalNodeCount = 1;
-PredictionContext::id = PredictionContext::globalNodeCount;
-
-// Stores the computed hash code of this {@link PredictionContext}. The hash
-// code is computed in parts to match the following reference algorithm.
-//
-// <pre>
-// private int referenceHashCode() {
-// int hash = {@link MurmurHash//initialize MurmurHash.initialize}({@link
-// //INITIAL_HASH});
-//
-// for (int i = 0; i &lt; {@link //size()}; i++) {
-// hash = {@link MurmurHash//update MurmurHash.update}(hash, {@link //getParent
-// getParent}(i));
-// }
-//
-// for (int i = 0; i &lt; {@link //size()}; i++) {
-// hash = {@link MurmurHash//update MurmurHash.update}(hash, {@link
-// //getReturnState getReturnState}(i));
-// }
-//
-// hash = {@link MurmurHash//finish MurmurHash.finish}(hash, 2// {@link
-// //size()});
-// return hash;
-// }
-// </pre>
-// /
-
-// This means only the {@link //EMPTY} context is in set.
-/* PredictionContext */function isEmpty() 
-{
-	return $this === PredictionContext::EMPTY;
-};
-
-/* PredictionContext */function hasEmptyPath() 
-{
-	return $this->getReturnState($this->length - 1) === PredictionContext::EMPTY_RETURN_STATE;
-};
-
-/* PredictionContext */function hashCode() 
-{
-	return $this->cachedHashCode;
-};
-
-
-/* PredictionContext */function updateHashCode($hash) 
-{
-    $hash->update($this->cachedHashCode);
-};
-/*
-function calculateHashString(parent, returnState) {
-	return "" + parent + returnState;
-}
-*/
-
-// Used to cache {@link PredictionContext} objects. Its used for the shared
-// context cash associated with contexts in DFA states. This cache
-// can be used for both lexers and parsers.
-
-class PredictionContextCache extends 
-{
-	function __construct()
-	{
-	$this->cache = {};
-	return $this;
-}
-
-// Add a context to the cache and return it. If the context already exists,
-// return that one instead and do not add a new context to the cache.
-// Protect shared cache from unsafe thread access.
-//
-/* PredictionContextCache */function add($ctx) 
-{
-	if ($ctx === PredictionContext::EMPTY) 
-	{
-		return PredictionContext::EMPTY;
-	}
-	$existing = $this->cache[$ctx] || null;
-	if ($existing !== null) 
-	{
-		return $existing;
-	}
-	$this->cache[$ctx] = $ctx;
-	return $ctx;
-};
-
-/* PredictionContextCache */function get($ctx) 
-{
-	return $this->cache[$ctx] || null;
-};
-
-Object->defineProperty(PredictionContextCache::prototype, "length", {
-	$get : function() 
-	{
-		return $this->cache->length;
-	}
-});
-
-class SingletonPredictionContext extends 
-{
-	function __construct($parent, $returnState)
-	{
-	$hashCode = 0;
-	if($parent !== null) 
-	{
-		$hash = new Hash();
-		$hash->update($parent, $returnState);
-        $hashCode = $hash->finish();
-	}
-	PredictionContext->call($this, $hashCode);
-	$this->parentCtx = $parent;
-	$this->returnState = $returnState;
-}
-
-SingletonPredictionContext::prototype = Object->create(PredictionContext::prototype);
-SingletonPredictionContext::prototype->contructor = SingletonPredictionContext;
-
-SingletonPredictionContext::create = function($parent, $returnState) 
-{
-	if ($returnState === PredictionContext::EMPTY_RETURN_STATE && $parent === null) 
-	{// someone can pass in the bits of an array ctx that mean $
-		return PredictionContext::EMPTY;
-	}
-	else 
-	{
-		return new SingletonPredictionContext($parent, $returnState);
-	}
-};
-
-Object->defineProperty(SingletonPredictionContext::prototype, "length", {
-	$get : function() 
-	{
-		return 1;
-	}
-});
-
-/* SingletonPredictionContext */function getParent($index) 
-{
-	return $this->parentCtx;
-};
-
-/* SingletonPredictionContext */function getReturnState($index) 
-{
-	return $this->returnState;
-};
-
-/* SingletonPredictionContext */function equals($other) 
-{
-	if ($this === $other) 
-	{
-		return true;
-	}
-	else if (!($other instanceof SingletonPredictionContext)) 
-	{
-		return false;
-	}
-	else if ($this->hashCode() !== $other->hashCode()) 
-	{
-		return false;// can't be same if hash is different
-	}
-
-	else 
-	{
-		if($this->returnState !== $other->returnState)
-            return false;
-        else if($this->parentCtx==null)
-            return $other->parentCtx==null
-		else
-            return $this->parentCtx->equals($other->parentCtx);
-	}
-};
-
-/* SingletonPredictionContext */function __toString() 
-{
-	$up = $this->parentCtx === null ? "" : $this->parentCtx->toString();
-	if ($up->length === 0) 
-	{
-		if ($this->returnState === PredictionContext::EMPTY_RETURN_STATE) 
-		{
-			return "$";
-		}
-		else 
-		{
-			return "" . $this->returnState;
-		}
-	}
-	else 
-	{
-		return "" + this.returnState + " " . $up;
-	}
-};
-
-class EmptyPredictionContext extends SingletonPredictionContext
-{
-	function __construct()
-	{
-		parent::__construct(null, PredictionContext::EMPTY_RETURN_STATE);
-	return $this;
-}
-
-EmptyPredictionContext::prototype = Object->create(SingletonPredictionContext::prototype);
-EmptyPredictionContext::prototype->constructor = EmptyPredictionContext;
-
-/* EmptyPredictionContext */function isEmpty() 
-{
-	return true;
-};
-
-/* EmptyPredictionContext */function getParent($index) 
-{
-	return null;
-};
-
-/* EmptyPredictionContext */function getReturnState($index) 
-{
-	return $this->returnState;
-};
-
-/* EmptyPredictionContext */function equals($other) 
-{
-	return $this === $other;
-};
-
-/* EmptyPredictionContext */function __toString() 
-{
-	return "$";
-};
-
-/* PredictionContext */public $EMPTY = new/ EmptyPredictionContext();
-
-class ArrayPredictionContext extends 
-{
-	function __construct($parents, $returnStates)
-	{// Parent can be null only if full ctx mode and we make an array
-// from {@link //EMPTY} and non-empty. We merge {@link //EMPTY} by using
-// null parent and
-// returnState == {@link //EMPTY_RETURN_STATE}.
-	$h = new Hash();
-	$h->update($parents, $returnStates);
-	$hashCode = $h->finish();
-	PredictionContext->call($this, $hashCode);
-	$this->parents = $parents;
-	$this->returnStates = $returnStates;
-	return $this;
-}
-
-ArrayPredictionContext::prototype = Object->create(PredictionContext::prototype);
-ArrayPredictionContext::prototype->constructor = ArrayPredictionContext;
-
-/* ArrayPredictionContext */function isEmpty() 
-{// since EMPTY_RETURN_STATE can only appear in the last position, we
-// don't need to verify that size==1
-	return $this->returnStates[0] === PredictionContext::EMPTY_RETURN_STATE;
-};
-
-Object->defineProperty(ArrayPredictionContext::prototype, "length", {
-	$get : function() 
-	{
-		return $this->returnStates->length;
-	}
-});
-
-/* ArrayPredictionContext */function getParent($index) 
-{
-	return $this->parents[$index];
-};
-
-/* ArrayPredictionContext */function getReturnState($index) 
-{
-	return $this->returnStates[$index];
-};
-
-/* ArrayPredictionContext */function equals($other) 
-{
-	if ($this === $other) 
-	{
-		return true;
-	}
-	else if (!($other instanceof ArrayPredictionContext)) 
-	{
-		return false;
-	}
-	else if ($this->hashCode() !== $other->hashCode()) 
-	{
-		return false;// can't be same if hash is different
-	}
-
-	else 
-	{
-		return $this->returnStates === $other->returnStates &&
-				$this->parents === $other->parents;
-	}
-};
-
-/* ArrayPredictionContext */function __toString() 
-{
-	if ($this->isEmpty()) 
-	{
-		return "[]";
-	}
-	else 
-	{
-		$s = "[";
-		for ($i = 0; $i < $this->returnStates->length; $i++) 
-		{
-			if ($i > 0) 
-			{
-				$s = $s . ", ";
-			}
-			if ($this->returnStates[$i] === PredictionContext::EMPTY_RETURN_STATE) 
-			{
-				$s = $s . "$";
-				continue;
-			}
-			$s = $s + $this->returnStates[$i];
-			if ($this->parents[$i] !== null) 
-			{
-				$s = $s . " " . $this->parents[$i];
-			}
-			else 
-			{
-				$s = $s . "null";
-			}
-		}
-		return $s . "]";
-	}
-};
 
 // Convert a {@link RuleContext} tree to a {@link PredictionContext} graph.
 // Return {@link //EMPTY} if {@code outerContext} is empty or null.
 // /
 function predictionContextFromRuleContext($atn, $outerContext) 
 {
-	if ($outerContext === undefined || $outerContext === null) 
-	{
-		$outerContext = RuleContext::EMPTY;
-	}
-// if we are in RuleContext of start rule, s, then PredictionContext
-// is EMPTY. Nobody called us. (if we are empty, return empty)
+	if (!isset($outerContext)) $outerContext = RuleContext::EMPTY;
+
+    // if we are in RuleContext of start rule, s, then PredictionContext
+    // is EMPTY. Nobody called us. (if we are empty, return empty)
 	if ($outerContext->parentCtx === null || $outerContext === RuleContext::EMPTY) 
 	{
 		return PredictionContext::EMPTY;
 	}
-// If we have a parent, convert it to a PredictionContext graph
+
+    // If we have a parent, convert it to a PredictionContext graph
 	$parent = predictionContextFromRuleContext($atn, $outerContext->parentCtx);
 	$state = $atn->states[$outerContext->invokingState];
 	$transition = $state->transitions[0];
-	return SingletonPredictionContext->create($parent, $transition->followState->stateNumber);
+
+	return SingletonPredictionContext::create($parent, $transition->followState->stateNumber);
 }
 /*
 function calculateListsHashString(parents, returnStates) {
@@ -392,7 +123,8 @@ function calculateListsHashString(parents, returnStates) {
 }
 */
 function merge($a, $b, $rootIsWildcard, $mergeCache) 
-{// share same graph if both same
+{
+    // share same graph if both same
 	if ($a === $b) 
 	{
 		return $a;
@@ -401,8 +133,9 @@ function merge($a, $b, $rootIsWildcard, $mergeCache)
 	{
 		return mergeSingletons($a, $b, $rootIsWildcard, $mergeCache);
 	}
-// At least one of a or b is array
-// If one is $ and rootIsWildcard, return $ as// wildcard
+
+    // At least one of a or b is array
+    // If one is $ and rootIsWildcard, return $ as// wildcard
 	if ($rootIsWildcard) 
 	{
 		if ($a instanceof EmptyPredictionContext) 
@@ -414,7 +147,8 @@ function merge($a, $b, $rootIsWildcard, $mergeCache)
 			return $b;
 		}
 	}
-// convert singleton so both are arrays to normalize
+
+    // convert singleton so both are arrays to normalize
 	if ($a instanceof SingletonPredictionContext) 
 	{
 		$a = new ArrayPredictionContext([$a->getParent()], [$a->returnState]);
@@ -423,6 +157,7 @@ function merge($a, $b, $rootIsWildcard, $mergeCache)
 	{
 		$b = new ArrayPredictionContext([$b->getParent()], [$b->returnState]);
 	}
+
 	return mergeArrays($a, $b, $rootIsWildcard, $mergeCache);
 }
 
@@ -499,7 +234,7 @@ function mergeSingletons($a, $b, $rootIsWildcard, $mergeCache)
 // merge parents x and y, giving array node with x,y then remainders
 // of those graphs. dup a, a' points at merged array
 // new joined parent so create new singleton pointing to it, a'
-		$spc = SingletonPredictionContext->create($parent, $a->returnState);
+		$spc = SingletonPredictionContext::create($parent, $a->returnState);
 		if ($mergeCache !== null) 
 		{
 			$mergeCache->set($a, $b, $spc);
@@ -507,18 +242,21 @@ function mergeSingletons($a, $b, $rootIsWildcard, $mergeCache)
 		return $spc;
 	}
 	else 
-	{// a != b payloads differ
-// see if we can collapse parents due to $+x parents if local ctx
+	{
+	    // a != b payloads differ
+        // see if we can collapse parents due to $+x parents if local ctx
 		$singleParent = null;
 		if ($a === $b || ($a->parentCtx !== null && $a->parentCtx === $b->parentCtx)) 
-		{// ax +
-// bx =
-// [a,b]x
+		{
+		    // ax +
+            // bx =
+            // [a,b]x
 			$singleParent = $a->parentCtx;
 		}
 		if ($singleParent !== null) 
-		{// parents are same
-// sort payloads and use same parent
+		{
+		    // parents are same
+            // sort payloads and use same parent
 			$payloads = [ $a->returnState, $b->returnState ];
 			if ($a->returnState > $b->returnState) 
 			{
@@ -533,13 +271,14 @@ function mergeSingletons($a, $b, $rootIsWildcard, $mergeCache)
 			}
 			return $apc;
 		}
-// parents differ and can't merge them. Just pack together
-// into array; can't merge.
-// ax + by = [ax,by]
+        // parents differ and can't merge them. Just pack together
+        // into array; can't merge.
+        // ax + by = [ax,by]
 		$payloads = [ $a->returnState, $b->returnState ];
 		$parents = [ $a->parentCtx, $b->parentCtx ];
 		if ($a->returnState > $b->returnState) 
-		{// sort by payload
+		{
+		    // sort by payload
 			$payloads[0] = $b->returnState;
 			$payloads[1] = $a->returnState;
 			$parents = [ $b->parentCtx, $a->parentCtx ];
@@ -628,7 +367,6 @@ function mergeRoot($a, $b, $rootIsWildcard)
 	return null;
 }
 
-//
 // Merge two {@link ArrayPredictionContext} instances.
 //
 // <p>Different tops, different parents.<br>
@@ -647,8 +385,7 @@ function mergeRoot($a, $b, $rootIsWildcard)
 // <p>Equal tops, merge parents and reduce top to
 // {@link SingletonPredictionContext}.<br>
 // <embed src="images/ArrayMerge_EqualTop.svg" type="image/svg+xml"/></p>
-// /
-function mergeArrays($a, $b, $rootIsWildcard, $mergeCache) 
+function mergeArrays($a, $b, $rootIsWildcard, $mergeCache)
 {
 	if ($mergeCache !== null) 
 	{
@@ -663,34 +400,38 @@ function mergeArrays($a, $b, $rootIsWildcard, $mergeCache)
 			return $previous;
 		}
 	}
-// merge sorted payloads a + b => M
+
+    // merge sorted payloads a + b => M
 	$i = 0;// walks a
 	$j = 0;// walks b
 	$k = 0;// walks target M array
 
 	$mergedReturnStates = [];
 	$mergedParents = [];
-// walk and merge to yield mergedParents, mergedReturnStates
+
+	// walk and merge to yield mergedParents, mergedReturnStates
 	while ($i < $a->returnStates->length && $j < $b->returnStates->length) 
 	{
 		$a_parent = $a->parents[$i];
 		$b_parent = $b->parents[$j];
 		if ($a->returnStates[$i] === $b->returnStates[$j]) 
-		{// same payload (stack tops are equal), must yield merged singleton
+		{
+		    // same payload (stack tops are equal), must yield merged singleton
 			$payload = $a->returnStates[$i];
-// $+$ = $
+            // $+$ = $
 			$bothDollars = $payload === PredictionContext::EMPTY_RETURN_STATE &&
 					$a_parent === null && $b_parent === null;
 			$ax_ax = ($a_parent !== null && $b_parent !== null && $a_parent === $b_parent);// ax+ax
-// ->
-// ax
+            // ->
+            // ax
 			if ($bothDollars || $ax_ax) 
 			{
 				$mergedParents[$k] = $a_parent;// choose left
 				$mergedReturnStates[$k] = $payload;
 			}
 			else 
-			{// ax+ay -> a'[x,y]
+			{
+			    // ax+ay -> a'[x,y]
 				$mergedParent = merge($a_parent, $b_parent, $rootIsWildcard, $mergeCache);
 				$mergedParents[$k] = $mergedParent;
 				$mergedReturnStates[$k] = $payload;
@@ -700,20 +441,23 @@ function mergeArrays($a, $b, $rootIsWildcard, $mergeCache)
 		}
 
 		else if ($a->returnStates[$i] < $b->returnStates[$j]) 
-		{// copy a[i] to M
+		{
+		    // copy a[i] to M
 			$mergedParents[$k] = $a_parent;
 			$mergedReturnStates[$k] = $a->returnStates[$i];
 			$i += 1;
 		}
 		else 
-		{// b > a, copy b[j] to M
+		{
+		    // b > a, copy b[j] to M
 			$mergedParents[$k] = $b_parent;
 			$mergedReturnStates[$k] = $b->returnStates[$j];
 			$j += 1;
 		}
 		$k += 1;
 	}
-// copy over any payloads remaining in either array
+
+	// copy over any payloads remaining in either array
 	if ($i < $a->returnStates->length) 
 	{
 		for ($p = $i; $p < $a->returnStates->length; $p++) 
@@ -732,11 +476,14 @@ function mergeArrays($a, $b, $rootIsWildcard, $mergeCache)
 			$k += 1;
 		}
 	}
-// trim merged if we combined a few that had same stack tops
+
+	// trim merged if we combined a few that had same stack tops
 	if ($k < $mergedParents->length) 
-	{// write index < last position; trim
+	{
+	    // write index < last position; trim
 		if ($k === 1) 
-		{// for just one merged element, return singleton top
+		{
+		    // for just one merged element, return singleton top
 			$a_ = SingletonPredictionContext->create($mergedParents[0],
 					$mergedReturnStates[0]);
 			if ($mergeCache !== null) 
@@ -749,11 +496,11 @@ function mergeArrays($a, $b, $rootIsWildcard, $mergeCache)
 		$mergedReturnStates = $mergedReturnStates->slice(0, $k);
 	}
 
-	M = new ArrayPredictionContext($mergedParents, $mergedReturnStates);
+	$M = new ArrayPredictionContext($mergedParents, $mergedReturnStates);
 
-// if we created same array as a or b, return that instead
-// TODO: track whether this is possible above during merge sort for speed
-	if (M === $a) 
+    // if we created same array as a or b, return that instead
+    // TODO: track whether this is possible above during merge sort for speed
+	if ($M === $a)
 	{
 		if ($mergeCache !== null) 
 		{
@@ -761,7 +508,7 @@ function mergeArrays($a, $b, $rootIsWildcard, $mergeCache)
 		}
 		return $a;
 	}
-	if (M === $b) 
+	if ($M === $b)
 	{
 		if ($mergeCache !== null) 
 		{
@@ -773,28 +520,25 @@ function mergeArrays($a, $b, $rootIsWildcard, $mergeCache)
 
 	if ($mergeCache !== null) 
 	{
-		$mergeCache->set($a, $b, M);
+		$mergeCache->set($a, $b, $M);
 	}
-	return M;
+	return $M;
 }
 
-//
-// Make pass over all <em>M</em> {@code parents}; merge any {@code equals()}
-// ones.
-// /
-function combineCommonParents($parents) 
+// Make pass over all <em>M</em> {@code parents}; merge any {@code equals()} ones.
+function combineCommonParents(array $parents)
 {
-	$uniqueParents = {};
+	$uniqueParents = [];
 
-	for ($p = 0; $p < $parents->length; $p++) 
+	for ($p = 0; $p < count($parents); $p++)
 	{
 		$parent = $parents[$p];
-		if (!($parent $in $uniqueParents)) 
+		if (!(array_key_exists($parent, $uniqueParents)))
 		{
 			$uniqueParents[$parent] = $parent;
 		}
 	}
-	for ($q = 0; $q < $parents->length; $q++) 
+	for ($q = 0; $q < count($parents); $q++)
 	{
 		$parents[$q] = $uniqueParents[$parents[$q]];
 	}
@@ -819,7 +563,7 @@ function getCachedPredictionContext($context, $contextCache, $visited)
 	}
 	$changed = false;
 	$parents = [];
-	for ($i = 0; $i < $parents->length; $i++) 
+	for ($i = 0; $i < count($parents); $i++)
 	{
 		$parent = getCachedPredictionContext($context->getParent($i), $contextCache, $visited);
 		if ($changed || $parent !== $context->getParent($i)) 
@@ -849,8 +593,7 @@ function getCachedPredictionContext($context, $contextCache, $visited)
 	}
 	else if ($parents->length === 1) 
 	{
-		$updated = SingletonPredictionContext->create($parents[0], $context
-				.getReturnState(0));
+		$updated = SingletonPredictionContext->create($parents[0], $context->getReturnState(0));
 	}
 	else 
 	{
@@ -866,17 +609,9 @@ function getCachedPredictionContext($context, $contextCache, $visited)
 // ter's recursive version of Sam's getAllNodes()
 function getAllContextNodes($context, $nodes, $visited) 
 {
-	if ($nodes === null) 
-	{
-		$nodes = [];
-		return getAllContextNodes($context, $nodes, $visited);
-	}
-	else if ($visited === null) 
-	{
-		$visited = {};
-		return getAllContextNodes($context, $nodes, $visited);
-	}
-	else 
+	if      ($nodes === null) return getAllContextNodes($context, [], $visited);
+	else if ($visited === null) return getAllContextNodes($context, $nodes, []);
+	else
 	{
 		if ($context === null || $visited[$context] !== null) 
 		{
@@ -891,10 +626,3 @@ function getAllContextNodes($context, $nodes, $visited)
 		return $nodes;
 	}
 }
-
-$exports->merge = $merge;
-$exports->PredictionContext = PredictionContext;
-$exports->PredictionContextCache = PredictionContextCache;
-$exports->SingletonPredictionContext = SingletonPredictionContext;
-$exports->predictionContextFromRuleContext = $predictionContextFromRuleContext;
-$exports->getCachedPredictionContext = $getCachedPredictionContext;

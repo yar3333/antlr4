@@ -107,7 +107,7 @@ class ATNConfigSet
     // {@code pi} is the {@link ATNConfig//semanticContext}. We use {@code (s,i,pi)} as key.
     //
     // <p>This method updates {@link //dipsIntoOuterContext} and {@link //hasSemanticContext} when necessary.</p>
-    function add($config, $mergeCache)
+    function add($config, $mergeCache=null)
     {
         if (!isset($mergeCache))
         {
@@ -135,7 +135,7 @@ class ATNConfigSet
 
         // a previous (s,i,pi,_), merge with it and save result
         $rootIsWildcard = !$this->fullCtx;
-        $merged = merge($existing->context, $config->context, $rootIsWildcard, $mergeCache);
+        $merged = PredictionContext::merge($existing->context, $config->context, $rootIsWildcard, $mergeCache);
 
         // no need to check for existing.context, config.context in cache
         // since only way to create new graphs is "call rule" and here. We
@@ -178,6 +178,7 @@ class ATNConfigSet
     }
 
     function getItems() { return $this->configs; }
+    function getItem(int $index) { return $this->configs[$index]; }
 
     function optimizeConfigs($interpreter)
     {
@@ -294,17 +295,5 @@ class ATNConfigSet
             ($this->uniqueAlt !== ATN::INVALID_ALT_NUMBER ? ",uniqueAlt=" . $this->uniqueAlt : "") .
             ($this->conflictingAlts !== null ? ",conflictingAlts=" . $this->conflictingAlts : "") .
             ($this->dipsIntoOuterContext ? ",dipsIntoOuterContext" : "");
-    }
-}
-
-class OrderedATNConfigSet extends ATNConfigSet
-{
-    function OrderedATNConfigSet()
-    {
-        parent::__construct();
-
-        $this->configLookup = new Set();
-
-        return $this;
     }
 }
