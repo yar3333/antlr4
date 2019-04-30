@@ -64,7 +64,6 @@ abstract class SemanticContext
     // <li>A non-{@code null} {@link SemanticContext}: the new simplified
     // semantic context after precedence predicates are evaluated.</li>
     // </ul>
-    //
     function evalPrecedence(Recognizer $parser, $outerContext)
     {
         return $this;

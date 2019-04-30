@@ -270,14 +270,16 @@ class PredictionContextUtils
             }
 
             else if ($a === PredictionContext::EMPTY)
-            {// $ + x = [$,x]
+            {
+                // $ + x = [$,x]
                 $payloads = [ $b->returnState,
                         PredictionContext::EMPTY_RETURN_STATE ];
                 $parents = [ $b->parentCtx, null ];
                 return new ArrayPredictionContext($parents, $payloads);
             }
             else if ($b === PredictionContext::EMPTY)
-            {// x + $ = [$,x] ($ is always first if present)
+            {
+                // x + $ = [$,x] ($ is always first if present)
                 $payloads = [ $a->returnState, PredictionContext::EMPTY_RETURN_STATE ];
                 $parents = [ $a->parentCtx, null ];
                 return new ArrayPredictionContext($parents, $payloads);

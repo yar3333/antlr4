@@ -133,7 +133,6 @@ class InputStream
 
     // consume() ahead until p==_index; can't just set p=_index as we must
     // update line and column. If we seek backwards, just set p
-    //
     function seek(int $_index)
     {
         if ($_index <= $this->_index)

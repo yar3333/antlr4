@@ -137,7 +137,8 @@ class DFAState extends
 // exists that has this exact set of ATN configurations. The
 // {@link //stateNumber} is irrelevant.</p>
 /* DFAState */function equals($other) 
-{// compare set of ATN configurations in this set with other
+{
+	// compare set of ATN configurations in this set with other
 	return $this === $other ||
 			($other instanceof DFAState &&
 				$this->configs->equals($other->configs));

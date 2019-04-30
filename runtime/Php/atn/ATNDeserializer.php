@@ -552,7 +552,6 @@ class ATNDeserializer
     // correct value.
     //
     // @param atn The ATN.
-    //
     function markPrecedenceDecisions($atn)
     {
         for($i=0; $i<$atn->states->length; $i++)

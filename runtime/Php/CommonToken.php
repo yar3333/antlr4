@@ -37,7 +37,6 @@ class CommonToken extends Token
     // {@link Token//getInputStream}.</p>
     //
     // @param oldToken The token to copy.
-    //
     function clone()
     {
         $t = new CommonToken($this->source, $this->type, $this->channel, $this->start, $this->stop);

@@ -196,7 +196,8 @@ class Lexer extends Recognizer
             }
         }
         finally
-        {// make sure we release marker after match or
+        {
+    // make sure we release marker after match or
     // unbuffered char stream will keep buffering
             $this->_input->release($tokenStartMarker);
         }

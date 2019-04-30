@@ -145,7 +145,8 @@ Trees::findAllNodes = function($t, $index, $findTokens)
 };
 
 Trees::_findAllNodes = function($t, $index, $findTokens, $nodes) 
-{// check this node (the root) first
+{
+	// check this node (the root) first
 	if ($findTokens && ($t instanceof TerminalNode)) 
 	{
 		if($t->symbol->type===$index) 

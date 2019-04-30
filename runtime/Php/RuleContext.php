@@ -133,8 +133,6 @@ class RuleContext extends RuleNode
 
     // Print out a whole tree, not just a node, in LISP format
     // (root child1 .. childN). Print just a node if this is a leaf.
-    //
-
     function toStringTree($ruleNames, $recog)
     {
         return Trees::toStringTree($this, $ruleNames, $recog);

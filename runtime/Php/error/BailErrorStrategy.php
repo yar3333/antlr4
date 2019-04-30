@@ -43,7 +43,6 @@ class BailErrorStrategy extends DefaultErrorStrategy
     // in a {@link ParseCancellationException} so it is not caught by the
     // rule function catches. Use {@link Exception//getCause()} to get the
     // original {@link RecognitionException}.
-    //
     function recover($recognizer, $e)
     {
         $context = $recognizer->_ctx;
@@ -56,7 +55,6 @@ class BailErrorStrategy extends DefaultErrorStrategy
 
     // Make sure we don't attempt to recover inline; if the parser
     // successfully recovers, it won't throw an exception.
-    //
     function recoverInline($recognizer)
     {
         $this->recover($recognizer, new InputMismatchException($recognizer));

@@ -426,7 +426,6 @@ class ParserATNSimulator extends ATNSimulator
     //    single alt + preds
     //    conflict
     //    conflict + preds
-    //
     function execATN($dfa, $s0, InputStream $input, $startIndex, $outerContext )
     {
         if (self::$debug || self::$debug_list_atn_decisions)
@@ -531,7 +530,8 @@ class ParserATNSimulator extends ATNSimulator
                     return $alts->minValue();
                 }
                 else
-                {// report ambiguity after predicate evaluation to make sure the correct set of ambig alts is reported.
+                {
+                    // report ambiguity after predicate evaluation to make sure the correct set of ambig alts is reported.
                     $this->reportAmbiguity($dfa, $D, $startIndex, $stopIndex, false, $alts, $D->configs);
                     return $alts->minValue();
                 }
@@ -1047,7 +1047,6 @@ class ParserATNSimulator extends ATNSimulator
     // @return The transformed configuration set representing the start state
     // for a precedence DFA at a particular precedence level (determined by
     // calling {@link Parser//getPrecedence}).
-    //
     function applyPrecedenceFilter(ATNConfigSet $configs)
     {
         $statesFromAlt1 = [];
@@ -1062,7 +1061,8 @@ class ParserATNSimulator extends ATNSimulator
             }
             $updatedContext = $config->semanticContext->evalPrecedence($this->parser, $this->_outerContext);
             if ($updatedContext===null)
-            {// the configuration was eliminated
+            {
+                // the configuration was eliminated
                 continue;
             }
             $statesFromAlt1[$config->state->stateNumber] = $config->context;
@@ -1227,7 +1227,6 @@ class ParserATNSimulator extends ATNSimulator
     // @return The value to return from {@link //adaptivePredict}, or
     // {@link ATN//INVALID_ALT_NUMBER} if a suitable alternative was not
     // identified and {@link //adaptivePredict} should report an error instead.
-    //
     function getSynValidOrSemInvalidAltThatFinishedDecisionEntryRule($configs, $outerContext)
     {
         $cfgs = $this->splitAccordingToSemanticValidity($configs, $outerContext);
@@ -1465,7 +1464,8 @@ class ParserATNSimulator extends ATNSimulator
 
                     $c->reachesIntoOuterContext += 1;
                     if ($closureBusy->add($c)!==$c)
-                    {// avoid infinite recursion for right-recursive rules
+                    {
+                        // avoid infinite recursion for right-recursive rules
                         continue;
                     }
                     $configs->dipsIntoOuterContext = true;// TODO: can remove? only care when we add to set per middle of this method
@@ -1754,7 +1754,6 @@ class ParserATNSimulator extends ATNSimulator
     // looking for input reasonably, I don't declare the state done. We
     // ignore a set of conflicting alts when we have an alternative
     // that we still need to pursue.
-    //
     function getConflictingAltsOrUniqueAlt(ATNConfigSet $configs)
     {
         $conflictingAlts = null;
@@ -1800,7 +1799,6 @@ class ParserATNSimulator extends ATNSimulator
     // Used for debugging in adaptivePredict around execATN but I cut
     //  it out for clarity now that alg. works well. We can leave this
     //  "dead" code for a bit.
-    //
     function dumpDeadEndConfigs($nvae)
     {
         //$console->log("dead end configs: ");

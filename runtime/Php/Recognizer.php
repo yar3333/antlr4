@@ -79,7 +79,6 @@ abstract class Recognizer
     // Get a map from rule names to rule indexes.
     //
     // <p>Used for XPath and tree pattern compilation.</p>
-    //
     function getRuleIndexMap()
     {
         $ruleNames = $this->ruleNames;
@@ -124,7 +123,6 @@ abstract class Recognizer
     // implementations of {@link ANTLRErrorStrategy} may provide a similar
     // feature when necessary. For example, see
     // {@link DefaultErrorStrategy//getTokenErrorDisplay}.
-    //
     function getTokenErrorDisplay($t)
     {
         if ($t===null)

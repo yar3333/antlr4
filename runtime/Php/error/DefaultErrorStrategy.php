@@ -201,7 +201,6 @@ class DefaultErrorStrategy extends ErrorStrategy
     // compare token set at the start of the loop and at each iteration. If for
     // some reason speed is suffering for you, you can turn off this
     // functionality by simply overriding this method as a blank { }.</p>
-    //
     function sync($recognizer)
     {
         // If already recovering, don't try to sync
@@ -247,7 +246,6 @@ class DefaultErrorStrategy extends ErrorStrategy
     //
     // @param recognizer the parser instance
     // @param e the recognition exception
-    //
     function reportNoViableAlternative($recognizer, $e)
     {
         $tokens = $recognizer->getTokenStream();
@@ -273,7 +271,6 @@ class DefaultErrorStrategy extends ErrorStrategy
     //
     // @param recognizer the parser instance
     // @param e the recognition exception
-    //
     function reportInputMismatch($recognizer, $e)
     {
         $msg = "mismatched input " . $this->getTokenErrorDisplay($e->offendingToken) +
@@ -289,7 +286,6 @@ class DefaultErrorStrategy extends ErrorStrategy
     //
     // @param recognizer the parser instance
     // @param e the recognition exception
-    //
     function reportFailedPredicate($recognizer, $e)
     {
         $ruleName = $recognizer->ruleNames[$recognizer->_ctx->ruleIndex];
@@ -313,7 +309,6 @@ class DefaultErrorStrategy extends ErrorStrategy
     // {@link Parser//notifyErrorListeners}.</p>
     //
     // @param recognizer the parser instance
-    //
     function reportUnwantedToken($recognizer)
     {
         if ($this->inErrorRecoveryMode($recognizer)) {
@@ -343,7 +338,6 @@ class DefaultErrorStrategy extends ErrorStrategy
     // {@link Parser//notifyErrorListeners}.</p>
     //
     // @param recognizer the parser instance
-    //
     function reportMissingToken($recognizer)
     {
         if ($this->inErrorRecoveryMode($recognizer)) {
@@ -439,7 +433,6 @@ class DefaultErrorStrategy extends ErrorStrategy
     // @param recognizer the parser instance
     // @return {@code true} if single-token insertion is a viable recovery
     // strategy for the current mismatched input, otherwise {@code false}
-    //
     function singleTokenInsertion($recognizer)
     {
         $currentSymbolType = $recognizer->getTokenStream() . LA(1);
@@ -546,7 +539,6 @@ class DefaultErrorStrategy extends ErrorStrategy
     // the token). This is better than forcing you to override a method in
     // your token objects because you don't have to go modify your lexer
     // so that it creates a new Java type.
-    //
     function getTokenErrorDisplay($t)
     {
         if ($t === null) {
@@ -662,13 +654,13 @@ class DefaultErrorStrategy extends ErrorStrategy
     //
     // Like Grosch I implement context-sensitive FOLLOW sets that are combined
     // at run-time upon error to avoid overhead during parsing.
-    //
     function getErrorRecoverySet($recognizer)
     {
         $atn = $recognizer->_interp->atn;
         $ctx = $recognizer->_ctx;
         $recoverSet = new IntervalSet();
-        while ($ctx !== null && $ctx->invokingState >= 0) {// compute what follows who invoked us
+        while ($ctx !== null && $ctx->invokingState >= 0) {
+            // compute what follows who invoked us
             $invokingState = $atn->states[$ctx->invokingState];
             $rt = $invokingState->transitions[0];
             $follow = $atn->nextTokens($rt->followState);

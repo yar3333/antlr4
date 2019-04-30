@@ -95,7 +95,8 @@ class BufferedTokenStream extends TokenStream
     }
 
     function release($marker)
-    {// no resources to release
+    {
+    // no resources to release
     }
 
     function reset()
@@ -127,12 +128,14 @@ class BufferedTokenStream extends TokenStream
                 $skipEofCheck = $this->index < count($this->tokens) - 1;
             }
             else
-            {// no EOF token in tokens. skip check if p indexes a fetched token.
+            {
+                // no EOF token in tokens. skip check if p indexes a fetched token.
                 $skipEofCheck = $this->index < count($this->tokens);
             }
         }
         else
-        {// not yet initialized
+        {
+            // not yet initialized
             $skipEofCheck = false;
         }
         if (!$skipEofCheck && $this->LA(1) === Token::EOF)

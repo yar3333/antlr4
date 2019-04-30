@@ -1,53 +1,14 @@
 <?php
-
-namespace Antlr4;
-
 /* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
-use Antlr4\Token; //('./Token').Token;
-use Antlr4\ParseTreeListener; //('./tree/Tree').ParseTreeListener;
-use Antlr4\Recognizer; //('./Recognizer').Recognizer;
-use Antlr4\DefaultErrorStrategy; //('./error/ErrorStrategy').DefaultErrorStrategy;
-use Antlr4\ATNDeserializer; //('./atn/ATNDeserializer').ATNDeserializer;
-use Antlr4\ATNDeserializationOptions; //('./atn/ATNDeserializationOptions').ATNDeserializationOptions;
-use Antlr4\TerminalNode; //('./tree/Tree').TerminalNode;
-use Antlr4\ErrorNode; //('./tree/Tree').ErrorNode;
-use Antlr4\Lexer; //('./Lexer').Lexer;
-
-class TraceListener extends ParseTreeListener
-{
-    /**
-     * @var Parser
-     */
-    public $parser;
-
-    function __construct(Parser $parser)
-    {
-        parent::__construct();
-
-        $this->parser = $parser;
-    }
-
-    function enterEveryRule($ctx)
-    {
-        //$console->log("enter   " + this.parser.ruleNames[ctx.ruleIndex] + ", LT(1)=" . $this->parser->_input->LT(1).$text);
-    }
-
-    function visitTerminal( $node)
-    {
-        //$console->log("consume " + node.symbol + " rule " . $this->parser->ruleNames[$this->parser->_ctx->ruleIndex]);
-    }
-
-    function exitEveryRule($ctx)
-    {
-        //$console->log("exit    " + this.parser.ruleNames[ctx.ruleIndex] + ", LT(1)=" . $this->parser->_input->LT(1).$text);
-    }
-}
+namespace Antlr4;
 
 // This is all the parsing support code essentially; most of it is error recovery stuff.
+use Antlr4\Error\DefaultErrorStrategy;
+
 class Parser extends Recognizer
 {
     /**
@@ -63,7 +24,7 @@ class Parser extends Recognizer
     public $_input;
 
     /**
-     * @var \Antlr4\DefaultErrorStrategy
+     * @var DefaultErrorStrategy
      */
     public $_errHandler;
 
@@ -301,7 +262,8 @@ class Parser extends Recognizer
     function triggerExitRuleEvent()
     {
         if ($this->_parseListeners !== null)
-        {// reverse order walk of listeners
+        {
+            // reverse order walk of listeners
             $ctx = $this->_ctx;
             $this->_parseListeners->slice(0).reverse().map(function($listener)
             {
@@ -397,7 +359,6 @@ class Parser extends Recognizer
 
     // Match needs to return the current input symbol, which gets put
     // into the label for the associated token ref; e.g., x=ID.
-    //
     function getCurrentToken()
     {
         return $this->_input->LT(1);
@@ -712,7 +673,6 @@ class Parser extends Recognizer
     // in the ATN a rule is invoked.
     //
     // this is very useful for error messages.
-    //
     function getRuleInvocationStack($p)
     {
         $p = $p || null;
@@ -722,7 +682,8 @@ class Parser extends Recognizer
         }
         $stack = [];
         while ($p !== null)
-        {// compute what follows who invoked us
+        {
+            // compute what follows who invoked us
             $ruleIndex = $p->ruleIndex;
             if ($ruleIndex < 0)
             {
@@ -777,7 +738,6 @@ class Parser extends Recognizer
 
     // During a parse is sometimes useful to listen in on the rule entry and exit
     // events as well as token matches. this is for quick and dirty debugging.
-    //
     function setTrace($trace)
     {
         if (!$trace)
