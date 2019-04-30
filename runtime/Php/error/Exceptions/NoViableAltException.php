@@ -3,6 +3,7 @@
 namespace Antlr4\Error\Exceptions;
 
 use Antlr4\Parser;
+use Antlr4\Token;
 
 // Indicates that the parser could not decide which of two or more paths
 // to take based upon the remaining input. It tracks the starting token
@@ -11,9 +12,11 @@ use Antlr4\Parser;
 class NoViableAltException extends RecognitionException
 {
     /**
-     * @var bool
+     * @var Token
      */
     public $startToken;
+
+    public $deadEndConfigs;
 
     function __construct(Parser $recognizer, $input, $startToken, $offendingToken, $deadEndConfigs, $ctx)
     {
@@ -24,8 +27,7 @@ class NoViableAltException extends RecognitionException
 
         parent::__construct((object)['message' => "", 'recognizer' => $recognizer, 'input' => $input, 'ctx' => $ctx]);
 
-        // Which configurations did we try at input.index() that couldn't match
-        // input.LT(1)?//
+        // Which configurations did we try at $input->index() that couldn't match $input->LT(1)?
         $this->deadEndConfigs = $deadEndConfigs;
 
         // The token object at the start index; the input stream might

@@ -6,6 +6,8 @@
 
 namespace Antlr4;
 
+use Antlr4\Utils\Utils;
+
 /**
  * Vacuum all input from a string and then treat it like a buffer.
  */
@@ -178,5 +180,7 @@ class InputStream
     }
 
     function get($index) { return $this->data[$index]; }
+
+    function getSourceName() { return ""; }
 }
 

@@ -1,182 +1,165 @@
 <?php
-
-namespace Antlr4\Tree;
-
 /* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
-use Antlr4\Utils; //('./../Utils');
-use Antlr4\Token; //('./../Token').Token;
-use Antlr4\RuleNode; //('./Tree').RuleNode;
-use Antlr4\ErrorNode; //('./Tree').ErrorNode;
-use Antlr4\TerminalNode; //('./Tree').TerminalNode;
-use Antlr4\ParserRuleContext; //('./../ParserRuleContext').ParserRuleContext;
-use Antlr4\RuleContext; //('./../RuleContext').RuleContext;
-use Antlr4\INVALID_ALT_NUMBER; //('./../atn/ATN').INVALID_ALT_NUMBER;
+namespace Antlr4\Tree;
 
+use Antlr4\Recognizer;
+use Antlr4\RuleContext;
+use Antlr4\Token;
+use Antlr4\Utils\Utils;
 
 /** A set of utility routines useful for all kinds of ANTLR trees. */
-class Trees extends 
+class Trees
 {
-	function __construct()
-	{
-}
+    // Print out a whole tree in LISP form. {@link //getNodeText} is used on the
+    //  node payloads to get the text for the nodes.  Detect
+    //  parse trees and extract data appropriately.
+    static function toStringTree($tree, $ruleNames, $recog)
+    {
+        $ruleNames = $ruleNames || null;
+        $recog = $recog || null;
+        if($recog!==null)
+        {
+           $ruleNames = $recog->ruleNames;
+        }
+        $s = self::getNodeText($tree, $ruleNames);
+        $s = Utils::escapeWhitespace($s, false);
+        $c = $tree->getChildCount();
+        if($c===0)
+        {
+            return $s;
+        }
+        $res = "(" . $s . " ";
+        if ($c > 0)
+        {
+            $s = Trees::toStringTree($tree->getChild(0), $ruleNames);
+            $res = $res->concat($s);
+        }
+        for($i=1; $i<$c; $i++)
+        {
+            $s = self::toStringTree($tree->getChild($i), $ruleNames);
+            $res = $res->concat(' ' . $s);
+        }
+        $res = $res->concat(")");
+        return $res;
+    }
 
-// Print out a whole tree in LISP form. {@link //getNodeText} is used on the
-//  node payloads to get the text for the nodes.  Detect
-//  parse trees and extract data appropriately.
-static function /* 
- */Trees($tree, $ruleNames, $recog) 
-{
-	$ruleNames = $ruleNames || null;
-	$recog = $recog || null;
-    if($recog!==null) 
+    static function getNodeText($t, array $ruleNames, Recognizer $recog)
     {
-       $ruleNames = $recog->ruleNames;
-    }
-    $s = Trees->getNodeText($tree, $ruleNames);
-    $s = Utils->escapeWhitespace($s, false);
-    $c = $tree->getChildCount();
-    if($c===0) 
-    {
-        return $s;
-    }
-    $res = "(" . $s . ' ';
-    if($c>0) 
-    {
-        $s = Trees->toStringTree($tree->getChild(0), $ruleNames);
-        $res = $res->concat($s);
-    }
-    for($i=1;$i<$c;$i++) 
-    {
-        $s = Trees->toStringTree($tree->getChild($i), $ruleNames);
-        $res = $res->concat(' ' . $s);
-    }
-    $res = $res->concat(")");
-    return $res;
-};
+        if ($recog !== null)
+        {
+            $ruleNames = $recog->ruleNames;
+        }
 
-Trees::getNodeText = function($t, $ruleNames, $recog) 
-{
-	$ruleNames = $ruleNames || null;
-	$recog = $recog || null;
-    if($recog!==null) 
-    {
-        $ruleNames = $recog->ruleNames;
-    }
-    if($ruleNames!==null) 
-    {
-       if ($t instanceof RuleContext) 
-       {
-           $altNumber = $t->getAltNumber();
-           if ( $altNumber!=INVALID_ALT_NUMBER ) 
+        if ($ruleNames!==null)
+        {
+           if ($t instanceof RuleContext)
            {
-               return $ruleNames[$t->ruleIndex]+":".$altNumber;
+               $altNumber = $t->getAltNumber();
+               if ($altNumber != INVALID_ALT_NUMBER)
+               {
+                   return $ruleNames[$t->ruleIndex] . ":" . $altNumber;
+               }
+               return $ruleNames[$t->ruleIndex];
            }
-           return $ruleNames[$t->ruleIndex];
-       }
-       else if ( $t instanceof ErrorNode) 
-       {
-           return $t->toString();
-       }
-       else if($t instanceof TerminalNode) 
-       {
-           if($t->symbol!==null) 
+           else if ($t instanceof ErrorNode)
            {
-               return $t->symbol->text;
+               return (string)$t;
            }
-       }
+           else if ($t instanceof TerminalNode)
+           {
+               if ($t->symbol!==null)
+               {
+                   return $t->symbol->text;
+               }
+           }
+        }
+        // no recog for rule names
+        $payload = $t->getPayload();
+        if ($payload instanceof Token)
+        {
+           return $payload->text;
+        }
+        return (string)$t->getPayload();
     }
-// no recog for rule names
-    $payload = $t->getPayload();
-    if ($payload instanceof Token ) 
+
+    // Return ordered list of all children of this node
+    static function getChildren($t)
     {
-       return $payload->text;
+        $list = [];
+        for($i=0; $i<$t->getChildCount(); $i++)
+        {
+            array_push($list, $t->getChild($i));
+        }
+        return $list;
     }
-    return $t->getPayload().toString();
-};
 
-
-// Return ordered list of all children of this node
-static function /* 
- */Trees($t) 
-{
-	$list = [];
-	for($i=0;$i<$t->getChildCount();$i++) 
-	{
-		array_push($list, $t->getChild($i));
-	}
-	return $list;
-};
-
-// Return a list of all ancestors of this node.  The first node of
-//  list is the root and the last is the parent of this node.
-//
-static function /* 
- */Trees($t) 
-{
-    $ancestors = [];
-    $t = $t->getParent();
-    while($t!==null) 
+    // Return a list of all ancestors of this node.  The first node of
+    //  list is the root and the last is the parent of this node.
+    static function getAncestors($t)
     {
-        $ancestors = [$t].concat($ancestors);
+        $ancestors = [];
         $t = $t->getParent();
+        while($t!==null)
+        {
+            $ancestors = array_merge([$t],  $ancestors);
+            $t = $t->getParent();
+        }
+        return $ancestors;
     }
-    return $ancestors;
-};
 
-Trees::findAllTokenNodes = function($t, $ttype) 
-{
-    return Trees->findAllNodes($t, $ttype, true);
-};
-
-Trees::findAllRuleNodes = function($t, $ruleIndex) 
-{
-	return Trees->findAllNodes($t, $ruleIndex, false);
-};
-
-Trees::findAllNodes = function($t, $index, $findTokens) 
-{
-	$nodes = [];
-	Trees->_findAllNodes($t, $index, $findTokens, $nodes);
-	return $nodes;
-};
-
-Trees::_findAllNodes = function($t, $index, $findTokens, $nodes) 
-{
-	// check this node (the root) first
-	if ($findTokens && ($t instanceof TerminalNode)) 
-	{
-		if($t->symbol->type===$index) 
-		{
-			array_push($nodes, $t);
-		}
-	}
-	else if(!$findTokens && ($t instanceof ParserRuleContext)) 
-	{
-		if($t->ruleIndex===$index) 
-		{
-			array_push($nodes, $t);
-		}
-	}
-// check children
-	for($i=0;$i<$t->getChildCount();$i++) 
-	{
-		Trees->_findAllNodes($t->getChild($i), $index, $findTokens, $nodes);
-	}
-};
-
-Trees::descendants = function($t) 
-{
-	$nodes = [$t];
-    for($i=0;$i<$t->getChildCount();$i++) 
+    static function findAllTokenNodes($t, $ttype)
     {
-        $nodes = $nodes->concat(Trees->descendants($t->getChild($i)));
+        return self::findAllNodes($t, $ttype, true);
     }
-    return $nodes;
-};
 
+    static function findAllRuleNodes($t, $ruleIndex)
+    {
+        return self::findAllNodes($t, $ruleIndex, false);
+    }
 
-$exports->Trees = Trees;
+    static function findAllNodes($t, $index, $findTokens)
+    {
+        $nodes = [];
+        self::_findAllNodes($t, $index, $findTokens, $nodes);
+        return $nodes;
+    }
+
+    static function _findAllNodes($t, $index, $findTokens, $nodes)
+    {
+        // check this node (the root) first
+        if ($findTokens && ($t instanceof TerminalNode))
+        {
+            if($t->symbol->type===$index)
+            {
+                array_push($nodes, $t);
+            }
+        }
+        else if(!$findTokens && ($t instanceof ParserRuleContext))
+        {
+            if($t->ruleIndex===$index)
+            {
+                array_push($nodes, $t);
+            }
+        }
+
+        // check children
+        for($i=0; $i<$t->getChildCount(); $i++)
+        {
+            self::_findAllNodes($t->getChild($i), $index, $findTokens, $nodes);
+        }
+    }
+
+    static function descendants($t)
+    {
+        $nodes = [$t];
+        for($i=0; $i<$t->getChildCount(); $i++)
+        {
+            $nodes = $nodes->concat(self::descendants($t->getChild($i)));
+        }
+        return $nodes;
+    }
+}

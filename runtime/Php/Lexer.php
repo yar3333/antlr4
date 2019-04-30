@@ -1,28 +1,20 @@
 <?php
-
-namespace Antlr4;
-
 /* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-///
+
+namespace Antlr4;
+
+use Antlr4\Atn\LexerATNSimulator;
+use Antlr4\Error\Exceptions\LexerNoViableAltException;
+use Antlr4\Error\Exceptions\RecognitionException;
+use Antlr4\Utils\Utils;
 
 // A lexer is recognizer that draws input symbols from a character stream.
 //  lexer grammars result in a subclass of this object. A Lexer object
 //  uses simplified match() and error recovery mechanisms in the interest of speed.
-
-use Antlr4\Token; //('./Token').Token;
-use Antlr4\Recognizer; //('./Recognizer').Recognizer;
-use Antlr4\CommonTokenFactory; //('./CommonTokenFactory').CommonTokenFactory;
-use Antlr4\RecognitionException; //('./error/Errors').RecognitionException;
-use Antlr4\LexerNoViableAltException; //('./error/Errors').LexerNoViableAltException;
-
-class TokenSource
-{
-}
-
-class Lexer extends Recognizer
+abstract class Lexer extends Recognizer
 {
     const DEFAULT_MODE = 0;
     const MORE = -2;
@@ -33,19 +25,38 @@ class Lexer extends Recognizer
     const MIN_CHAR_VALUE = 0x0000;
     const MAX_CHAR_VALUE = 0x10FFFF;
 
+    /**
+     * @var InputStream
+     */
     public $_input;
+
     public $_factory;
+
     public $_tokenFactorySourcePair;
+
+    /**
+     * @var LexerATNSimulator
+     */
     public $_interp;
+
     public $_token;
+
     public $_tokenStartCharIndex;
+
     public $_tokenStartLine;
+
     public $_tokenStartColumn;
+
     public $_hitEOF;
+
     public $_channel;
+
     public $_type;
+
     public $_modeStack;
+
     public $_mode;
+
     public $_text;
 
     function __construct($input)
@@ -140,7 +151,7 @@ class Lexer extends Recognizer
                 }
                 $this->_token = null;
                 $this->_channel = Token::DEFAULT_CHANNEL;
-                $this->_tokenStartCharIndex = $this->_input->index;
+                $this->_tokenStartCharIndex = $this->_input->getIndex();
                 $this->_tokenStartColumn = $this->_interp->column;
                 $this->_tokenStartLine = $this->_interp->line;
                 $this->_text = null;
@@ -197,8 +208,8 @@ class Lexer extends Recognizer
         }
         finally
         {
-    // make sure we release marker after match or
-    // unbuffered char stream will keep buffering
+            // make sure we release marker after match or
+            // unbuffered char stream will keep buffering
             $this->_input->release($tokenStartMarker);
         }
     }
@@ -236,7 +247,7 @@ class Lexer extends Recognizer
 
     function popMode()
     {
-        if ($this->_modeStack->length === 0)
+        if (count($this->_modeStack) === 0)
         {
             throw new \Exception("Empty Stack");
         }
@@ -259,7 +270,7 @@ class Lexer extends Recognizer
             $this->_tokenFactorySourcePair = [ $this, $this->_input ];
     }
 
-    function getSourceName() { return $this->_input->sourceName; }
+    function getSourceName() { return $this->_input->getSourceName(); }
 
     // By default does not support multiple emits per nextToken invocation
     // for efficiency reasons. Subclass and override this method, nextToken,
@@ -295,16 +306,16 @@ class Lexer extends Recognizer
 
     function emitEOF()
     {
-        $cpos = $this->column;
-        $lpos = $this->line;
+        $cpos = $this->getColumn();
+        $lpos = $this->getLine();
         $eof = $this->_factory->create($this->_tokenFactorySourcePair, Token::EOF,
-                null, Token::DEFAULT_CHANNEL, $this->_input->index,
-                $this->_input->index - 1, $lpos, $cpos);
+                null, Token::DEFAULT_CHANNEL, $this->_input->getIndex(),
+                $this->_input->getIndex() - 1, $lpos, $cpos);
         $this->emitToken($eof);
         return $eof;
     }
 
-    // LOOKS LIKE ERROR: function getType() { return $this->type; }
+    // TODO: LOOKS LIKE ERROR: function getType() { return $this->type; }
     // FIXED `type` TO `_type`
     function getType() { return $this->_type; }
     function setType($type) { $this->_type = $type; }
@@ -315,14 +326,14 @@ class Lexer extends Recognizer
     function getColumn() { return $this->_interp->column; }
     function setColumn($column) { $this->_interp->column = $column; }
 
-    // What is the index of the current character of lookahead?///
-    function getCharIndex()
+    // What is the index of the current character of lookahead?
+    function getCharIndex() : int
     {
-        return $this->_input->index;
+        return $this->_input->getIndex();
     }
 
     // Return the text matched so far for the current token or any text override.
-    //Set the complete text of this token; it wipes any previous changes to the text.
+    // Set the complete text of this token; it wipes any previous changes to the text.
     function getText()
     {
         if ($this->_text !== null)
@@ -341,7 +352,6 @@ class Lexer extends Recognizer
 
     // Return a list of all Token objects in input char stream.
     // Forces load of all tokens. Does not include EOF token.
-    // /
     function getAllTokens()
     {
         $tokens = [];
@@ -357,21 +367,23 @@ class Lexer extends Recognizer
     function notifyListeners($e)
     {
         $start = $this->_tokenStartCharIndex;
-        $stop = $this->_input->index;
+        $stop = $this->_input->getIndex();
         $text = $this->_input->getText($start, $stop);
-        $msg = "token recognition error at: '" + this.getErrorDisplay(text) + "'";
+        $msg = "token recognition error at: '" . $this->getErrorDisplay($text) . "'";
         $listener = $this->getErrorListenerDispatch();
         $listener->syntaxError($this, null, $this->_tokenStartLine, $this->_tokenStartColumn, $msg, $e);
     }
 
     function getErrorDisplay($s)
     {
-        $d = [];
+        // TODO: ??????????
+        /*$d = [];
         for ($i = 0; $i < $s->length; $i++)
         {
             array_push($d, $s[$i]);
         }
-        return $d->join('');
+        return $d->join('');*/
+        return $s;
     }
 
     function getErrorDisplayForChar($c)
@@ -397,7 +409,7 @@ class Lexer extends Recognizer
 
     function getCharErrorDisplay($c)
     {
-        return "'" + this.getErrorDisplayForChar(c) + "'";
+        return "'" . $this->getErrorDisplayForChar($c) . "'";
     }
 
     // Lexers can normally match any char in it's vocabulary after matching

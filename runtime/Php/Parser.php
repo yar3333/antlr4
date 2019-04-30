@@ -9,7 +9,7 @@ namespace Antlr4;
 // This is all the parsing support code essentially; most of it is error recovery stuff.
 use Antlr4\Error\DefaultErrorStrategy;
 
-class Parser extends Recognizer
+abstract class Parser extends Recognizer
 {
     /**
      * this field maps from the serialized ATN string to the deserialized {@link ATN} with bypass alternatives.
@@ -32,8 +32,14 @@ class Parser extends Recognizer
      * @var array
      */
     public $_precedenceStack;
+
+    /**
+     * @var ParserRuleContext
+     */
     public $_ctx;
+
     public $buildParseTrees;
+
     public $_tracer;
 
     /**
@@ -349,7 +355,7 @@ class Parser extends Recognizer
         $this->setTokenStream($input);
     }
 
-    function getTokenStream()
+    function getTokenStream() : InputStream
     {
         return $this->_input;
     }
@@ -759,5 +765,10 @@ class Parser extends Recognizer
             $this->_tracer = new ParserTraceListener($this);
             $this->addParseListener($this->_tracer);
         }
+    }
+
+    function notifyErrorListenersByMessage(string $msg)
+    {
+        $this->notifyErrorListeners($this->getCurrentToken(), $msg, null);
     }
 }

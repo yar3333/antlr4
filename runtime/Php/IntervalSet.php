@@ -6,6 +6,8 @@
 
 namespace Antlr4;
 
+use Antlr4\Utils\Utils;
+
 class IntervalSet
 {
     /**
@@ -96,7 +98,7 @@ class IntervalSet
         return $this;
     }
 
-    function reduce($k)
+    /*function reduce($k)
     {
         // only need to reduce if k is not the last
         if ($k < $this->intervalslength - 1)
@@ -115,7 +117,7 @@ class IntervalSet
                 array_pop($this->intervals, $k + 1);
             }
         }
-    }
+    }*/
 
     function complement($start, $stop)
     {
@@ -150,7 +152,7 @@ class IntervalSet
     function getLength()
     {
         $len = 0;
-        foreach ($this->intervals as $i) $len += $i->length;
+        foreach ($this->intervals as $i) $len += $i->getLength();
         return $len;
     }
 
@@ -242,7 +244,12 @@ class IntervalSet
         }
     }
 
-    function __toString($literalNames, $symbolicNames, $elemsAreChar)
+    function __toString()
+    {
+        return $this->toString(null, null, false);
+    }
+
+    function toString($literalNames, $symbolicNames, $elemsAreChar)
     {
         $literalNames = $literalNames || null;
         $symbolicNames = $symbolicNames || null;
@@ -284,12 +291,12 @@ class IntervalSet
             }
             else
             {
-                array_push($names, "'" . Utils::fromCharCode($v->start) . "'..'" . Utils::fromCharCode($v->stop-1) + "'");
+                array_push($names, "'" . Utils::fromCharCode($v->start) . "'..'" . Utils::fromCharCode($v->stop-1) . "'");
             }
         }
-        if ($names->length > 1)
+        if (count($names) > 1)
         {
-            return "{" + names.join(", ") + "}";
+            return "{" . implode(", ", $names) . "}";
         }
         else
         {
@@ -304,25 +311,25 @@ class IntervalSet
         for ($i = 0; $i < count($this->intervals); $i++)
         {
             $v = $this->intervals[$i];
-            if($v->stop===$v->start+1)
+            if ($v->stop===$v->start+1)
             {
-                if ( $v->start===Token::EOF )
+                if ($v->start===Token::EOF )
                 {
                     array_push($names, "<EOF>");
                 }
                 else
                 {
-                    array_push($names, $v->start->toString());
+                    array_push($names, $v->start);
                 }
             }
             else
             {
-                array_push($names, $v->start->toString() + ".." + ($v->stop-1).toString());
+                array_push($names, $v->start . ".." . ($v->stop - 1));
             }
         }
-        if ($names->length > 1)
+        if (count($names) > 1)
         {
-            return "{" + names.join(", ") + "}";
+            return "{" . implode(", ", $names) . "}";
         }
         else
         {
@@ -333,17 +340,16 @@ class IntervalSet
     function toTokenString($literalNames, $symbolicNames)
     {
         $names = [];
-        for ($i = 0; $i < count($this->intervals); $i++)
+        foreach ($this->intervals as $v)
         {
-            $v = $this->intervals[$i];
             for ($j = $v->start; $j < $v->stop; $j++)
             {
                 array_push($names, $this->elementName($literalNames, $symbolicNames, $j));
             }
         }
-        if ($names->length > 1)
+        if (count($names) > 1)
         {
-            return "{" + names.join(", ") + "}";
+            return "{" . implode(", ", $names) . "}";
         }
         else
         {

@@ -24,22 +24,22 @@ class ArrayPredictionContext extends PredictionContext
     function __construct(array $parents, array $returnStates)
     {
         // Parent can be null only if full ctx mode and we make an array
-        // from {@link //EMPTY} and non-empty. We merge {@link //EMPTY} by using
-        // null parent and
-        // returnState == {@link //EMPTY_RETURN_STATE}.
+        // from {@link //EMPTY} and non-empty. We merge {@link //EMPTY}
+        // by using null parent and// returnState == {@link //EMPTY_RETURN_STATE}.
+
         $h = new Hash();
         $h->update($parents, $returnStates);
         $hashCode = $h->finish();
+
         parent::__construct($hashCode);
+
         $this->parents = $parents;
         $this->returnStates = $returnStates;
-        return $this;
     }
 
     function isEmpty()
     {
-        // since EMPTY_RETURN_STATE can only appear in the last position, we
-        // don't need to verify that size==1
+        // since EMPTY_RETURN_STATE can only appear in the last position, we don't need to verify that size==1
         return $this->returnStates[0] === PredictionContext::EMPTY_RETURN_STATE;
     }
 
@@ -58,42 +58,36 @@ class ArrayPredictionContext extends PredictionContext
         return $this->returnStates[$index];
     }
 
-    function equals($other)
+    function equals($other) : bool
     {
-        if ($this === $other) {
-            return true;
-        } else if (!($other instanceof ArrayPredictionContext)) {
-            return false;
-        } else if ($this->hashCode() !== $other->hashCode()) {
-            return false;// can't be same if hash is different
-        } else {
-            return $this->returnStates === $other->returnStates &&
-                $this->parents === $other->parents;
-        }
+        if ($this === $other) return true;
+        if (!($other instanceof ArrayPredictionContext)) return false;
+        if ($this->hashCode() !== $other->hashCode()) return false;
+
+        return $this->returnStates === $other->returnStates &&
+               $this->parents === $other->parents;
     }
 
     function __toString()
     {
-        if ($this->isEmpty()) {
-            return "[]";
-        } else {
-            $s = "[";
-            for ($i = 0; $i < count($this->returnStates); $i++) {
-                if ($i > 0) {
-                    $s = $s . ", ";
-                }
-                if ($this->returnStates[$i] === PredictionContext::EMPTY_RETURN_STATE) {
-                    $s = $s . "$";
-                    continue;
-                }
-                $s = $s . $this->returnStates[$i];
-                if ($this->parents[$i] !== null) {
-                    $s = $s . " " . $this->parents[$i];
-                } else {
-                    $s = $s . "null";
-                }
+        if ($this->isEmpty()) return "[]";
+
+        $s = "[";
+        for ($i = 0; $i < count($this->returnStates); $i++) {
+            if ($i > 0) {
+                $s = $s . ", ";
             }
-            return $s . "]";
+            if ($this->returnStates[$i] === PredictionContext::EMPTY_RETURN_STATE) {
+                $s = $s . '$';
+                continue;
+            }
+            $s = $s . $this->returnStates[$i];
+            if ($this->parents[$i] !== null) {
+                $s = $s . " " . $this->parents[$i];
+            } else {
+                $s = $s . "null";
+            }
         }
+        return $s . "]";
     }
 }

@@ -7,6 +7,8 @@
 namespace Antlr4;
 
 use Antlr4\Atn\ATN;
+use Antlr4\Atn\ATNSimulator;
+use Antlr4\Error\Exceptions\RecognitionException;
 use \Antlr4\Error\Listeners\ConsoleErrorListener;
 use Antlr4\Error\Listeners\ErrorListener;
 use \Antlr4\Error\Listeners\ProxyErrorListener;
@@ -22,9 +24,9 @@ abstract class Recognizer
     public $_listeners;
 
     /**
-     * @var ATN
+     * @var ATNSimulator
      */
-    public $_interp;
+    protected $_interp;
 
     /**
      * @var int
@@ -62,14 +64,14 @@ abstract class Recognizer
     function getTokenTypeMap() : array
     {
         $tokenNames = $this->getTokenNames();
-        if ($tokenNames===null)
-        {
-            throw new \Exception("The current recognizer does not provide a list of token names.");
-        }
+        if ($tokenNames === null) throw new \Exception("The current recognizer does not provide a list of token names.");
+
         $result = self::$tokenTypeMapCache[$tokenNames];
         if(!isset($result))
         {
-            $result = $tokenNames->reduce(function($o, $k, $i) { $o[$k] = $i; });
+            //$result = $tokenNames->reduce(function($o, $k, $i) { $o[$k] = $i; });
+            $result = []; foreach ($tokenNames as $i => $k) $result[$k] = $i;
+
             $result->EOF = Token::EOF;
             self::$tokenTypeMapCache[$tokenNames] = $result;
         }
@@ -103,13 +105,12 @@ abstract class Recognizer
     }
 
     // What is the error header, normally line/character position information?//
-    function getErrorHeader($e) : string
+    function getErrorHeader(RecognitionException $e) : string
     {
-        $line = $e->getOffendingToken()->line;
-        $column = $e->getOffendingToken()->column;
+        $line = $e->offendingToken->line;
+        $column = $e->offendingToken->column;
         return "line " . $line . ":" . $column;
     }
-
 
     // How should a token be displayed in an error message? The default
     //  is to display just the text, but during development you might
@@ -175,5 +176,12 @@ abstract class Recognizer
     function getState() { return $this->_stateNumber; }
     function setState($state) { $this->_stateNumber = $state; }
 
-    abstract function getTokenNames() : string;
+    function getInterpreter() : ATNSimulator { return $this->_interp; }
+
+    /**
+     * @return string[]
+     */
+    abstract function getTokenNames() : array;
+
+    abstract function getATN() : ATN;
 }

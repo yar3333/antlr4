@@ -100,7 +100,7 @@ class ATN
         return $s->nextTokenWithinRule;
     }
 
-    function nextTokens($s, $ctx=null)
+    function nextTokens($s, $ctx=null) : IntervalSet
     {
         if (!isset($ctx))
         {
@@ -154,15 +154,12 @@ class ATN
     // {@link RuleStopState} of the outermost context without matching any
     // symbols, {@link Token//EOF} is added to the returned set.
     //
-    // <p>If {@code context} is {@code null}, it is treated as
-    // {@link ParserRuleContext//EMPTY}.</p>
+    // <p>If {@code context} is {@code null}, it is treated as {@link ParserRuleContext//EMPTY}.</p>
     //
     // @param stateNumber the ATN state number
     // @param context the full parse context
-    // @return The set of potentially valid input symbols which could follow the
-    // specified state in the specified context.
-    // @throws IllegalArgumentException if the ATN does not contain a state with
-    // number {@code stateNumber}
+    // @return The set of potentially valid input symbols which could follow the specified state in the specified context.
+    // @throws IllegalArgumentException if the ATN does not contain a state with number {@code stateNumber}
     function getExpectedTokens($stateNumber, $ctx)
     {
         if ($stateNumber < 0 || $stateNumber >= count($this->states))

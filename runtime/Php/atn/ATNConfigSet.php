@@ -6,11 +6,12 @@
 
 namespace Antlr4\Atn;
 
+use Antlr4\Atn\Semanticcontexts\SemanticContext;
+use Antlr4\Predictioncontexts\PredictionContext;
+use Antlr4\Utils\BitSet;
 use Antlr4\Utils\Utils;
 use Antlr4\Utils\Hash;
 use Antlr4\Utils\Set;
-use Antlr4\SemanticContext; //('./SemanticContext').SemanticContext;
-//$merge = require('./../PredictionContext').$merge;
 
 // Specialized {@link Set}{@code <}{@link ATNConfig}{@code >} that can track
 // info about the set, with support for combining similar configurations using a
@@ -24,14 +25,29 @@ class ATNConfigSet
 
     public $fullCtx;
 
+    /**
+     * @var bool
+     */
     public $readOnly;
 
+    /**
+     * @var ATNConfig[]
+     */
     public $configs;
 
+    /**
+     * @var int
+     */
     public $uniqueAlt;
 
+    /**
+     * @var BitSet
+     */
     public $conflictingAlts;
 
+    /**
+     * @var bool
+     */
     public $hasSemanticContext;
 
     public $dipsIntoOuterContext;
@@ -45,16 +61,15 @@ class ATNConfigSet
 
     static function equalATNConfigs(?ATNConfig $a, ?ATNConfig $b)
     {
-        if ( $a===$b )
+        if ($a===$b)
         {
             return true;
         }
-        else if ( $a===null || $b===null )
+        else if ($a===null || $b===null)
         {
             return false;
         }
-        else
-            return $a->equalsForConfigSet($b);
+        return $a->equalsForConfigSet($b);
     }
 
 
@@ -117,7 +132,7 @@ class ATNConfigSet
         {
             throw new \Exception("This set is readonly");
         }
-        if ($config->semanticContext !== SemanticContext::NONE)
+        if ($config->semanticContext !== SemanticContext::NONE())
         {
             $this->hasSemanticContext = true;
         }

@@ -1,32 +1,23 @@
 <?php
-
-namespace Antlr4;
-
-//
 /* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-///
 
-use Antlr4\Atn\ATNConfigParams;
+namespace Antlr4;
+
 use Antlr4\Atn\States\ATNState;
+use Antlr4\Atn\Transitions\WildcardTransition;
+use Antlr4\Predictioncontexts\PredictionContext;
+use Antlr4\Predictioncontexts\PredictionContextUtils;
+use Antlr4\Predictioncontexts\SingletonPredictionContext;
 use \Antlr4\Utils\BitSet;
-use \Antlr4\Token;
 use \Antlr4\Atn\ATNConfig;
-use \Antlr4\Interval;
-use \Antlr4\IntervalSet;
 use \Antlr4\Atn\States\RuleStopState;
 use \Antlr4\Atn\Transitions\RuleTransition;
 use \Antlr4\Atn\Transitions\NotSetTransition;
-use \Antlr4\Atn\Transitions\WildcardTransition;
 use \Antlr4\Atn\Transitions\AbstractPredicateTransition;
 use \Antlr4\Utils\Set;
-
-//$pc = require('./PredictionContext');
-//$predictionContextFromRuleContext = $pc->predictionContextFromRuleContext;
-//PredictionContext = $pc->PredictionContext;
-//SingletonPredictionContext = $pc->SingletonPredictionContext;
 
 class LL1Analyzer
 {
@@ -94,7 +85,7 @@ class LL1Analyzer
         $r = new IntervalSet();
         $seeThruPreds = true;// ignore preds; get all lookahead
         $ctx = $ctx || null;
-        $lookContext = $ctx!==null ? predictionContextFromRuleContext($s->atn, $ctx) : null;
+        $lookContext = $ctx!==null ? PredictionContextUtils::predictionContextFromRuleContext($s->atn, $ctx) : null;
         $this->_LOOK($s, $stopState, $lookContext, $r, new Set(), new BitSet(), $seeThruPreds, true);
         return $r;
     }
@@ -109,31 +100,16 @@ class LL1Analyzer
     // reached, {@link Token//EOF} is added to the result set.</p>
     //
     // @param s the ATN state.
-    // @param stopState the ATN state to stop at. This can be a
-    // {@link BlockEndState} to detect epsilon paths through a closure.
-    // @param ctx The outer context, or {@code null} if the outer context should
-    // not be used.
+    // @param stopState the ATN state to stop at. This can be a {@link BlockEndState} to detect epsilon paths through a closure.
+    // @param ctx The outer context, or {@code null} if the outer context should not be used.
     // @param look The result lookahead set.
-    // @param lookBusy A set used for preventing epsilon closures in the ATN
-    // from causing a stack overflow. Outside code should pass
-    // {@code new Set<ATNConfig>} for this argument.
-    // @param calledRuleStack A set used for preventing left recursion in the
-    // ATN from causing a stack overflow. Outside code should pass
-    // {@code new BitSet()} for this argument.
-    // @param seeThruPreds {@code true} to true semantic predicates as
-    // implicitly {@code true} and "see through them", otherwise {@code false}
-    // to treat semantic predicates as opaque and add {@link //HIT_PRED} to the
-    // result if one is encountered.
-    // @param addEOF Add {@link Token//EOF} to the result if the end of the
-    // outermost context is reached. This parameter has no effect if {@code ctx} is {@code null}.
-    function _LOOK($s, $stopState , $ctx, $look, $lookBusy, $calledRuleStack, $seeThruPreds, $addEOF)
+    // @param lookBusy A set used for preventing epsilon closures in the ATN from causing a stack overflow. Outside code should pass {@code new Set<ATNConfig>} for this argument.
+    // @param calledRuleStack A set used for preventing left recursion in the ATN from causing a stack overflow. Outside code should pass {@code new BitSet()} for this argument.
+    // @param seeThruPreds {@code true} to true semantic predicates as implicitly {@code true} and "see through them", otherwise {@code false} to treat semantic predicates as opaque and add {@link //HIT_PRED} to the result if one is encountered.
+    // @param addEOF Add {@link Token//EOF} to the result if the end of the outermost context is reached. This parameter has no effect if {@code ctx} is {@code null}.
+    function _LOOK(ATNState $s, ATNState $stopState, PredictionContext $ctx, IntervalSet $look, Set $lookBusy, BitSet $calledRuleStack, $seeThruPreds, $addEOF)
     {
-        $tmp = ATNConfigParams();
-        $tmp->state = $s;
-        $tmp->alt = 0;
-        $tmp->context = $ctx;
-
-        $c = new ATNConfig($tmp, null);
+        $c = new ATNConfig((object)[ 'state'=>$s, 'alt'=>0, 'context'=>$ctx ], null);
 
         if ($lookBusy->contains($c)) return;
 
@@ -167,7 +143,7 @@ class LL1Analyzer
             if ($ctx !== PredictionContext::EMPTY)
             {
                 // run thru all possible stack tops in ctx
-                for($i=0; $i<$ctx->length; $i++)
+                for($i=0; $i<$ctx->getLength(); $i++)
                 {
                     $returnState = $this->atn->states[$ctx->getReturnState($i)];
                     $removed = $calledRuleStack->contains($returnState->ruleIndex);
@@ -220,7 +196,7 @@ class LL1Analyzer
             {
                 $this->_LOOK($t->target, $stopState, $ctx, $look, $lookBusy, $calledRuleStack, $seeThruPreds, $addEOF);
             }
-            else if ($t->constructor === WildcardTransition)
+            else if ($t instanceOf WildcardTransition)
             {
                 $look->addRange( Token::MIN_USER_TOKEN_TYPE, $this->atn->maxTokenType );
             }

@@ -9,8 +9,6 @@ namespace Antlr4\Atn;
 use \Antlr4\InputStream;
 use \Antlr4\Token;
 use \Antlr4\Lexer;
-use \Antlr4\PredictionContext;
-use \Antlr4\SingletonPredictionContext;
 use \Antlr4\Atn\States\RuleStopState;
 use \Antlr4\Error\Exceptions\LexerNoViableAltException;
 use \Antlr4\Atn\Transitions\Transition;
@@ -53,8 +51,8 @@ class SimState
 
 class LexerATNSimulator extends ATNSimulator
 {
-    static $debug = false;
-    static $dfa_debug = false;
+    public $debug = false;
+    public $dfa_debug = false;
 
     const MIN_DFA_EDGE = 0;
     const MAX_DFA_EDGE = 127;// forces unicode to stay in ATN
@@ -434,9 +432,8 @@ class LexerATNSimulator extends ATNSimulator
     // search from {@code config}, all other (potentially reachable) states for
     // this rule would have a lower priority.
     //
-    // @return {@code true} if an accept state is reached, otherwise
-    // {@code false}.
-    function closure($input, $config, $configs, $currentAltReachedAcceptState, $speculative, $treatEofAsEpsilon)
+    // @return {@code true} if an accept state is reached, otherwise {@code false}.
+    function closure(InputStream $input, ATNConfig $config, ATNConfigSet $configs, $currentAltReachedAcceptState, $speculative, $treatEofAsEpsilon)
 	{
         $cfg = null;
         if (LexerATNSimulator::$debug)

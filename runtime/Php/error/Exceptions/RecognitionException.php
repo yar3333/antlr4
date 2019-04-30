@@ -8,6 +8,7 @@ namespace Antlr4\Error\Exceptions;
 
 use \Antlr4\InputStream;
 use \Antlr4\Parser;
+use Antlr4\Token;
 
 // The root of the ANTLR exception hierarchy. In general, ANTLR tracks just
 // 3 kinds of errors: prediction errors, failed predicate errors, and
@@ -28,6 +29,9 @@ class RecognitionException extends \Exception
 
     public $ctx;
 
+    /**
+     * @var Token
+     */
     public $offendingToken;
 
     /**
@@ -75,7 +79,7 @@ class RecognitionException extends \Exception
     {
         if ($this->recognizer!==null)
         {
-            return $this->recognizer->atn->getExpectedTokens($this->offendingState, $this->ctx);
+            return $this->recognizer->getATN()->getExpectedTokens($this->offendingState, $this->ctx);
         }
         else
         {

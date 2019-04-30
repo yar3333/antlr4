@@ -138,10 +138,13 @@ class RuleContext extends RuleNode
         return Trees::toStringTree($this, $ruleNames, $recog);
     }
 
-    function __toString($ruleNames, $stop)
+    function __toString() : string
     {
-        $ruleNames = $ruleNames || null;
-        $stop = $stop || null;
+        return $this->toString(null,  null);
+    }
+
+    function toString(array $ruleNames, RuleContext $stop) : string
+    {
         $p = $this;
         $s = "[";
         while ($p !== null && $p !== $stop)
@@ -150,7 +153,7 @@ class RuleContext extends RuleNode
             {
                 if (!$p->isEmpty())
                 {
-                    $s += $p->invokingState;
+                    $s .= $p->invokingState;
                 }
             }
             else

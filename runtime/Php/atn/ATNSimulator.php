@@ -7,7 +7,7 @@
 namespace Antlr4\Atn;
 
 use \Antlr4\Dfa\DFAState;
-use \Antlr4\PredictionContext;
+use Antlr4\Predictioncontexts\PredictionContext;
 
 // The context cache maps all PredictionContext objects that are ==
 //  to a single cached copy. This cache is shared across all contexts

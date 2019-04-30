@@ -1096,7 +1096,7 @@ class ParserATNSimulator extends ATNSimulator
         return $configSet;
     }
 
-    function getReachableTarget($trans, $ttype)
+    function getReachableTarget(Transition $trans, $ttype)
     {
         if ($trans->matches($ttype, 0, $this->atn->maxTokenType))
         {
@@ -1127,7 +1127,7 @@ class ParserATNSimulator extends ATNSimulator
             $c = $configs->items[$i];
             if($ambigAlts->contains( $c->alt ))
             {
-                $altToPred[$c->alt] = SemanticContext->orContext($altToPred[$c->alt] || null, $c->semanticContext);
+                $altToPred[$c->alt] = SemanticContext::orContext($altToPred[$c->alt] || null, $c->semanticContext);
             }
         }
         $nPredAlts = 0;
@@ -1138,7 +1138,7 @@ class ParserATNSimulator extends ATNSimulator
             {
                 $altToPred[$i] = SemanticContext::NONE();
             }
-            else if ($pred !== SemanticContext::NONE)
+            else if ($pred !== SemanticContext::NONE())
             {
                 $nPredAlts += 1;
             }
@@ -1170,7 +1170,7 @@ class ParserATNSimulator extends ATNSimulator
             {
                 array_push($pairs, new PredPrediction($pred, $i));
             }
-            if ($pred !== SemanticContext::NONE)
+            if ($pred !== SemanticContext::NONE())
             {
                 $containsPredicate = true;
             }
@@ -1754,7 +1754,7 @@ class ParserATNSimulator extends ATNSimulator
     // looking for input reasonably, I don't declare the state done. We
     // ignore a set of conflicting alts when we have an alternative
     // that we still need to pursue.
-    function getConflictingAltsOrUniqueAlt(ATNConfigSet $configs)
+    function getConflictingAltsOrUniqueAlt(ATNConfigSet $configs) : BitSet
     {
         $conflictingAlts = null;
         if ($configs->uniqueAlt!== ATN::INVALID_ALT_NUMBER)

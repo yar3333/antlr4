@@ -35,7 +35,7 @@ class ActionTransition extends Transition
         $this->isEpsilon = true;
     }
 
-    function matches($symbol, $minVocabSymbol, $maxVocabSymbol)
+    function matches($symbol, $minVocabSymbol, $maxVocabSymbol) : bool
     {
         return false;
     }

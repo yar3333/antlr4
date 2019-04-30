@@ -6,8 +6,7 @@
 
 namespace Antlr4\Atn\Transitions;
 
-use \Antlr4\Predicate; //('./SemanticContext').Predicate;
-use \Antlr4\PrecedencePredicate;
+use Antlr4\IntervalSet;
 
 //  An ATN transition between any two ATN states.  Subclasses define
 //  atom, set, epsilon, action, predicate, rule transitions.
@@ -20,7 +19,7 @@ use \Antlr4\PrecedencePredicate;
 //  on the other hand need to update the labels as it adds transitions to
 //  the states. We'll use the term Edge for the DFA to distinguish them from
 //  ATN transitions.</p>
-class Transition
+abstract class Transition
 {
     const EPSILON = 1;
     const RANGE = 2;
@@ -62,7 +61,12 @@ class Transition
     ];
 
     public $target;
+
     public $isEpsilon;
+
+    /**
+     * @var IntervalSet
+     */
     public $label;
 
     function __construct($target)
@@ -75,5 +79,10 @@ class Transition
         $this->isEpsilon = false;
 
         $this->label = null;
+    }
+
+    function matches($symbol, $minVocabSymbol, $maxVocabSymbol) : bool
+    {
+        return false;
     }
 }

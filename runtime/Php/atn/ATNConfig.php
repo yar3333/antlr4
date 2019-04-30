@@ -6,8 +6,9 @@
 
 namespace Antlr4\Atn;
 
-use \Antlr4\Atn\States\DecisionState;
-use Antlr4\Atn\Semanticcontexts\SemanticContext;
+use \Antlr4\Atn\Semanticcontexts\SemanticContext;
+use Antlr4\Atn\States\ATNState;
+use \Antlr4\Predictioncontexts\PredictionContext;
 use \Antlr4\Utils\Hash;
 
 // A tuple: (ATN state, predicted alt, syntactic, semantic context).
@@ -15,13 +16,27 @@ use \Antlr4\Utils\Hash;
 // path(s) to the root is the rule invocation(s)
 // chain used to arrive at the state.  The semantic context is
 // the tree of semantic predicates encountered before reaching an ATN state.
-class ATNConfig extends ATNConfigConfig
+class ATNConfig
 {
+    /**
+     * @var ATNState
+     */
     public $state;
+
     public $alt;
+
+    /**
+     * @var PredictionContext
+     */
     public $context;
+
+    /**
+     * @var SemanticContext
+     */
     public $semanticContext;
+
     public $reachesIntoOuterContext;
+
     public $precedenceFilterSuppressed;
 
     private static function checkParams(object $params, $isCfg=false) : object
@@ -70,7 +85,7 @@ class ATNConfig extends ATNConfigConfig
 
         $this->semanticContext = $params->semanticContext!==null
                                 ? $params->semanticContext
-                                : ($config->semanticContext!==null ? $config->semanticContext : SemanticContext::NONE);
+                                : ($config->semanticContext!==null ? $config->semanticContext : SemanticContext::NONE());
 
         // We cannot execute predicates dependent upon local context unless
         // we know for sure we are in the correct context. Because there is

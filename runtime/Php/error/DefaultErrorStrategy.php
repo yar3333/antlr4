@@ -2,13 +2,15 @@
 
 namespace Antlr4\Error;
 
-use \Antlr4\Atn\ATNState;
+use Antlr4\Atn\States\ATNState;
 use Antlr4\Error\Exceptions\FailedPredicateException;
 use Antlr4\Error\Exceptions\InputMismatchException;
 use Antlr4\Error\Exceptions\NoViableAltException;
 use Antlr4\Error\Exceptions\RecognitionException;
+use Antlr4\IntervalSet;
 use Antlr4\Parser;
 use Antlr4\Recognizer;
+use Antlr4\Token;
 
 // This is the default implementation of {@link ANTLRErrorStrategy} used for
 // error reporting and recovery in ANTLR parsers.
@@ -24,6 +26,9 @@ class DefaultErrorStrategy extends ErrorStrategy
      */
     public $lastErrorIndex;
 
+    /**
+     * @var int[]
+     */
     public $lastErrorStates;
 
     function __construct()
@@ -65,7 +70,7 @@ class DefaultErrorStrategy extends ErrorStrategy
         $this->errorRecoveryMode = true;
     }
 
-    function inErrorRecoveryMode(Recognizer $recognizer)
+    function inErrorRecoveryMode($recognizer)
     {
         return $this->errorRecoveryMode;
     }
@@ -116,43 +121,53 @@ class DefaultErrorStrategy extends ErrorStrategy
     {
         // if we've already reported an error and have not matched a token
         // yet successfully, don't report any errors.
-        if ($this->inErrorRecoveryMode($recognizer)) {
-            return;// don't report spurious errors
-        }
+        if ($this->inErrorRecoveryMode($recognizer)) return; // don't report spurious errors
+
         $this->beginErrorCondition($recognizer);
-        if ($e instanceof NoViableAltException) {
+
+        if ($e instanceof NoViableAltException)
+        {
             $this->reportNoViableAlternative($recognizer, $e);
-        } else if ($e instanceof InputMismatchException) {
+        }
+        else if ($e instanceof InputMismatchException)
+        {
             $this->reportInputMismatch($recognizer, $e);
-        } else if ($e instanceof FailedPredicateException) {
+        }
+        else if ($e instanceof FailedPredicateException)
+        {
             $this->reportFailedPredicate($recognizer, $e);
-        } else {
+        }
+        else
+        {
             //$console->log("unknown recognition error type: " . $e->constructor->name);
             //$console->log($e->stack);
             $recognizer->notifyErrorListeners($e->offendingToken, $e->getMessage(), $e);
         }
     }
 
-    // {@inheritDoc}
-    //
-    // <p>The default implementation resynchronizes the parser by consuming tokens
-    // until we find one in the resynchronization set--loosely the set of tokens
-    // that can follow the current rule.</p>
-    function recover(Parser $recognizer, $e)
+    /**
+     * {@inheritDoc}
+     * <p>The default implementation resynchronizes the parser by consuming tokens
+     * until we find one in the resynchronization set--loosely the set of tokens that can follow the current rule.</p>
+     * @param Parser $recognizer
+     * @param RecognitionException $e
+     */
+    function recover($recognizer, $e)
     {
         if ($this->lastErrorIndex === $recognizer->getInputStream()->getIndex() &&
-            $this->lastErrorStates !== null && $this->lastErrorStates->indexOf($recognizer->state) >= 0) {
+            $this->lastErrorStates && array_search($recognizer->getState(), $this->lastErrorStates) !== false)
+        {
             // uh oh, another error at same token index and previously-visited
             // state in ATN; must be a case where LT(1) is in the recovery
             // token set so nothing got consumed. Consume a single token
             // at least to prevent an infinite loop; this is a failsafe.
             $recognizer->consume();
         }
-        $this->lastErrorIndex = $recognizer->_input->index;
+        $this->lastErrorIndex = $recognizer->_input->getIndex();
         if ($this->lastErrorStates === null) {
             $this->lastErrorStates = [];
         }
-        array_push($this->lastErrorStates, $recognizer->state);
+        array_push($this->lastErrorStates, $recognizer->getState());
         $followSet = $this->getErrorRecoverySet($recognizer);
         $this->consumeUntil($recognizer, $followSet);
     }
@@ -201,16 +216,20 @@ class DefaultErrorStrategy extends ErrorStrategy
     // compare token set at the start of the loop and at each iteration. If for
     // some reason speed is suffering for you, you can turn off this
     // functionality by simply overriding this method as a blank { }.</p>
+    /**
+     * @param Parser $recognizer
+     * @throws InputMismatchException
+     */
     function sync($recognizer)
     {
         // If already recovering, don't try to sync
-        if ($this->inErrorRecoveryMode($recognizer)) {
-            return;
-        }
-        $s = $recognizer->_interp->atn->states[$recognizer->state];
-        $la = $recognizer->getTokenStream() . LA(1);
+        if ($this->inErrorRecoveryMode($recognizer)) return;
+
+        $s = $recognizer->getInterpreter()->atn->states[$recognizer->getState()];
+        $la = $recognizer->getTokenStream()->LA(1);
+
         // try cheaper subset first; might get lucky. seems to shave a wee bit off
-        $nextTokens = $recognizer->atn->nextTokens($s);
+        $nextTokens = $recognizer->getATN()->nextTokens($s);
         if ($nextTokens->contains(Token::EPSILON) || $nextTokens->contains($la)) {
             return;
         }
@@ -243,18 +262,19 @@ class DefaultErrorStrategy extends ErrorStrategy
     // {@link NoViableAltException}.
     //
     // @see //reportError
-    //
-    // @param recognizer the parser instance
-    // @param e the recognition exception
+    /**
+     * @param Parser $recognizer
+     * @param NoViableAltException $e
+     */
     function reportNoViableAlternative($recognizer, $e)
     {
         $tokens = $recognizer->getTokenStream();
-        $input;
         if ($tokens !== null) {
             if ($e->startToken->type === Token::EOF) {
                 $input = "<EOF>";
             } else {
-                $input = $tokens->getText(new Interval($e->startToken->tokenIndex, $e->offendingToken->tokenIndex));
+                // TODO: BUGFIXED
+                $input = $tokens->getText($e->startToken->tokenIndex, $e->offendingToken->tokenIndex);
             }
         } else {
             $input = "<unknown input>";
@@ -271,10 +291,14 @@ class DefaultErrorStrategy extends ErrorStrategy
     //
     // @param recognizer the parser instance
     // @param e the recognition exception
+
+    /**
+     * @param Parser $recognizer
+     * @param RecognitionException $e
+     */
     function reportInputMismatch($recognizer, $e)
     {
-        $msg = "mismatched input " . $this->getTokenErrorDisplay($e->offendingToken) +
-            " expecting " . $e->getExpectedTokens() . toString($recognizer->literalNames, $recognizer->symbolicNames);
+        $msg = "mismatched input " . $this->getTokenErrorDisplay($e->offendingToken) . " expecting " . $e->getExpectedTokens()->toString($recognizer->literalNames, $recognizer->symbolicNames);
         $recognizer->notifyErrorListeners($msg, $e->offendingToken, $e);
     }
 
@@ -283,13 +307,14 @@ class DefaultErrorStrategy extends ErrorStrategy
     // {@link FailedPredicateException}.
     //
     // @see //reportError
-    //
-    // @param recognizer the parser instance
-    // @param e the recognition exception
+    /**
+     * @param Parser $recognizer
+     * @param RecognitionException $e
+     */
     function reportFailedPredicate($recognizer, $e)
     {
         $ruleName = $recognizer->ruleNames[$recognizer->_ctx->ruleIndex];
-        $msg = "rule " + ruleName + " " . $e->message;
+        $msg = "rule " . $ruleName . " " . $e->getMessage();
         $recognizer->notifyErrorListeners($msg, $e->offendingToken, $e);
     }
 
@@ -307,18 +332,18 @@ class DefaultErrorStrategy extends ErrorStrategy
     // error recovery mode. Otherwise, it calls {@link //beginErrorCondition} to
     // enter error recovery mode, followed by calling
     // {@link Parser//notifyErrorListeners}.</p>
-    //
-    // @param recognizer the parser instance
+    /**
+     * @param Parser $recognizer
+     */
     function reportUnwantedToken($recognizer)
     {
-        if ($this->inErrorRecoveryMode($recognizer)) {
-            return;
-        }
+        if ($this->inErrorRecoveryMode($recognizer)) return;
+
         $this->beginErrorCondition($recognizer);
         $t = $recognizer->getCurrentToken();
         $tokenName = $this->getTokenErrorDisplay($t);
         $expecting = $this->getExpectedTokens($recognizer);
-        $msg = "extraneous input " + tokenName + " expecting " .
+        $msg = "extraneous input " . tokenName . " expecting " .
             $expecting->toString($recognizer->literalNames, $recognizer->symbolicNames);
         $recognizer->notifyErrorListeners($msg, $t, null);
     }
@@ -470,7 +495,7 @@ class DefaultErrorStrategy extends ErrorStrategy
     // {@code null}
     function singleTokenDeletion($recognizer)
     {
-        $nextTokenType = $recognizer->getTokenStream() . LA(2);
+        $nextTokenType = $recognizer->getTokenStream()->LA(2);
         $expecting = $this->getExpectedTokens($recognizer);
         if ($expecting->contains($nextTokenType)) {
             $this->reportUnwantedToken($recognizer);
@@ -506,28 +531,27 @@ class DefaultErrorStrategy extends ErrorStrategy
     // a CommonToken of the appropriate type. The text will be the token.
     // If you change what tokens must be created by the lexer,
     // override this method to create the appropriate tokens.
-    function getMissingSymbol($recognizer)
+    function getMissingSymbol(Parser $recognizer)
     {
         $currentSymbol = $recognizer->getCurrentToken();
         $expecting = $this->getExpectedTokens($recognizer);
         $expectedTokenType = $expecting->first();// get any element
-        $tokenText;
         if ($expectedTokenType === Token::EOF) {
             $tokenText = "<missing EOF>";
         } else {
-            $tokenText = "<missing " + recognizer . literalNames[expectedTokenType] + ">";
+            $tokenText = "<missing " . $recognizer->literalNames[$expectedTokenType] . ">";
         }
         $current = $currentSymbol;
-        $lookback = $recognizer->getTokenStream() . LT(-1);
+        $lookback = $recognizer->getTokenStream()->LT(-1);
         if ($current->type === Token::EOF && $lookback !== null) {
             $current = $lookback;
         }
-        return $recognizer->getTokenFactory() . create($current->source,
+        return $recognizer->getTokenFactory()->create($current->source,
                 $expectedTokenType, $tokenText, Token::DEFAULT_CHANNEL,
                 -1, -1, $current->line, $current->column);
     }
 
-    function getExpectedTokens($recognizer)
+    function getExpectedTokens(Parser $recognizer)
     {
         return $recognizer->getExpectedTokens();
     }
@@ -549,7 +573,7 @@ class DefaultErrorStrategy extends ErrorStrategy
             if ($t->type === Token::EOF) {
                 $s = "<EOF>";
             } else {
-                $s = "<" + t . type + ">";
+                $s = "<" . $t->type . ">";
             }
         }
         return $this->escapeWSAndQuote($s);
@@ -659,7 +683,8 @@ class DefaultErrorStrategy extends ErrorStrategy
         $atn = $recognizer->_interp->atn;
         $ctx = $recognizer->_ctx;
         $recoverSet = new IntervalSet();
-        while ($ctx !== null && $ctx->invokingState >= 0) {
+        while ($ctx !== null && $ctx->invokingState >= 0)
+        {
             // compute what follows who invoked us
             $invokingState = $atn->states[$ctx->invokingState];
             $rt = $invokingState->transitions[0];
@@ -672,12 +697,12 @@ class DefaultErrorStrategy extends ErrorStrategy
     }
 
     // Consume tokens until one matches the given token set.//
-    function consumeUntil($recognizer, $set)
+    function consumeUntil(Parser $recognizer, $set)
     {
-        $ttype = $recognizer->getTokenStream() . LA(1);
+        $ttype = $recognizer->getTokenStream()->LA(1);
         while ($ttype !== Token::EOF && !$set->contains($ttype)) {
             $recognizer->consume();
-            $ttype = $recognizer->getTokenStream() . LA(1);
+            $ttype = $recognizer->getTokenStream()->LA(1);
         }
     }
 }
