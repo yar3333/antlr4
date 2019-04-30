@@ -4,13 +4,16 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-namespace Antlr4\Atn;
+namespace Antlr4\Atn\Semanticcontexts;
 
 // A tree structure used to record the semantic context in which
 //  an ATN configuration is valid.  It's either a single predicate,
 //  a conjunction {@code p1&&p2}, or a sum of products {@code p1||p2}.
 //  <p>I have scoped the {@link AND}, {@link OR}, and {@link Predicate} subclasses of
 //  {@link SemanticContext} within the scope of this outer class.</p>
+use Antlr4\Atn\Semanticcontexts\SemanticContextAnd;
+use Antlr4\Atn\Semanticcontexts\SemanticContextOr;
+use Antlr4\Atn\Semanticcontexts\SemanticContextPredicate;
 use Antlr4\Recognizer;
 use Antlr4\Utils\Hash;
 

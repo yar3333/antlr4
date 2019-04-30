@@ -1,8 +1,8 @@
 <?php
 
-namespace Antlr4\Atn;
+namespace Antlr4\Atn\Semanticcontexts;
 
-use Antlr4\Parser;
+use Antlr4\Recognizer;
 use Antlr4\Utils\Hash;
 
 class SemanticContextPredicate extends SemanticContext
@@ -31,13 +31,18 @@ class SemanticContextPredicate extends SemanticContext
         $this->isCtxDependent = !isset($isCtxDependent) ? false : $isCtxDependent; // e.g., $i ref in pred
     }
 
-    function evaluate(Parser $parser, $outerContext)
+    /**
+     * @param Recognizer $parser
+     * @param $outerContext
+     * @return bool
+     */
+    function evaluate(Recognizer $parser, $outerContext)
     {
         $localctx = $this->isCtxDependent ? $outerContext : null;
         return $parser->sempred($localctx, $this->ruleIndex, $this->predIndex);
     }
 
-    function updateHashCode(Hash $hash)
+    function updateHashCode(Hash $hash) : void
     {
         $hash->update($this->ruleIndex, $this->predIndex, $this->isCtxDependent);
     }

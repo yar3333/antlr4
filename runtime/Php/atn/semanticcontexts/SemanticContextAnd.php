@@ -1,7 +1,9 @@
 <?php
 
-namespace Antlr4\Atn;
+namespace Antlr4\Atn\Semanticcontexts;
 
+use Antlr4\Atn\Semanticcontexts\PrecedencePredicate;
+use Antlr4\Atn\Semanticcontexts\SemanticContext;
 use Antlr4\Utils\Hash;
 use Antlr4\Utils\Set;
 

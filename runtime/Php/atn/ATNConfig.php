@@ -7,7 +7,7 @@
 namespace Antlr4\Atn;
 
 use \Antlr4\Atn\States\DecisionState;
-use \Antlr4\Atn\SemanticContext;
+use Antlr4\Atn\Semanticcontexts\SemanticContext;
 use \Antlr4\Utils\Hash;
 
 // A tuple: (ATN state, predicted alt, syntactic, semantic context).

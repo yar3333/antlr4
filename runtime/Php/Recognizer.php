@@ -158,12 +158,12 @@ abstract class Recognizer
 
     // subclass needs to override these if there are sempreds or actions
     // that the ATN interp needs to execute
-    function sempred($localctx, $ruleIndex, $actionIndex)
+    function sempred($localctx, int $ruleIndex, int $actionIndex) : bool
     {
         return true;
     }
 
-    function precpred($localctx , $precedence)
+    function precpred($localctx , $precedence) : bool
     {
         return true;
     }

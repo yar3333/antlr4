@@ -3,11 +3,29 @@
 namespace Antlr4\Error;
 
 use \Antlr4\Atn\ATNState;
+use Antlr4\Error\Exceptions\FailedPredicateException;
+use Antlr4\Error\Exceptions\InputMismatchException;
+use Antlr4\Error\Exceptions\NoViableAltException;
+use Antlr4\Error\Exceptions\RecognitionException;
+use Antlr4\Parser;
+use Antlr4\Recognizer;
 
 // This is the default implementation of {@link ANTLRErrorStrategy} used for
 // error reporting and recovery in ANTLR parsers.
 class DefaultErrorStrategy extends ErrorStrategy
 {
+    /**
+     * @var bool
+     */
+    public $errorRecoveryMode;
+
+    /**
+     * @var int
+     */
+    public $lastErrorIndex;
+
+    public $lastErrorStates;
+
     function __construct()
     {
         parent::__construct();
@@ -26,34 +44,36 @@ class DefaultErrorStrategy extends ErrorStrategy
         // one token/tree node is consumed for two errors.
         $this->lastErrorIndex = -1;
         $this->lastErrorStates = null;
-        return $this;
     }
 
-    // <p>The default implementation simply calls {@link //endErrorCondition} to
-    // ensure that the handler is not in error recovery mode.</p>
+    /**
+     * <p>The default implementation simply calls {@link //endErrorCondition} to
+     * ensure that the handler is not in error recovery mode.</p>
+     * @param Recognizer $recognizer
+     */
     function reset($recognizer)
     {
         $this->endErrorCondition($recognizer);
     }
 
-    // This method is called to enter error recovery mode when a recognition
-    // exception is reported.
-    //
-    // @param recognizer the parser instance
-    function beginErrorCondition($recognizer)
+    /**
+     * This method is called to enter error recovery mode when a recognition exception is reported.
+     * @param Recognizer $recognizer recognizer the parser instance
+     */
+    function beginErrorCondition(Recognizer $recognizer)
     {
         $this->errorRecoveryMode = true;
     }
 
-    function inErrorRecoveryMode($recognizer)
+    function inErrorRecoveryMode(Recognizer $recognizer)
     {
         return $this->errorRecoveryMode;
     }
 
-    // This method is called to leave error recovery mode after recovering from
-    // a recognition exception.
-    //
-    // @param recognizer
+    /**
+     * This method is called to leave error recovery mode after recovering from a recognition exception.
+     * @param $recognizer
+     */
     function endErrorCondition($recognizer)
     {
         $this->errorRecoveryMode = false;
@@ -61,9 +81,11 @@ class DefaultErrorStrategy extends ErrorStrategy
         $this->lastErrorIndex = -1;
     }
 
-    // {@inheritDoc}
-    //
-    // <p>The default implementation simply calls {@link //endErrorCondition}.</p>
+    /**
+     * {@inheritDoc}
+     * <p>The default implementation simply calls {@link //endErrorCondition}.</p>
+     * @param $recognizer
+     */
     function reportMatch($recognizer)
     {
         $this->endErrorCondition($recognizer);
@@ -86,6 +108,10 @@ class DefaultErrorStrategy extends ErrorStrategy
     // <li>All other types: calls {@link Parser//notifyErrorListeners} to report
     // the exception</li>
     // </ul>
+    /**
+     * @param Parser $recognizer
+     * @param RecognitionException $e
+     */
     function reportError($recognizer, $e)
     {
         // if we've already reported an error and have not matched a token
@@ -102,8 +128,8 @@ class DefaultErrorStrategy extends ErrorStrategy
             $this->reportFailedPredicate($recognizer, $e);
         } else {
             //$console->log("unknown recognition error type: " . $e->constructor->name);
-            $console->log($e->stack);
-            $recognizer->notifyErrorListeners($e->getOffendingToken(), $e->getMessage(), $e);
+            //$console->log($e->stack);
+            $recognizer->notifyErrorListeners($e->offendingToken, $e->getMessage(), $e);
         }
     }
 
@@ -112,9 +138,9 @@ class DefaultErrorStrategy extends ErrorStrategy
     // <p>The default implementation resynchronizes the parser by consuming tokens
     // until we find one in the resynchronization set--loosely the set of tokens
     // that can follow the current rule.</p>
-    function recover($recognizer, $e)
+    function recover(Parser $recognizer, $e)
     {
-        if ($this->lastErrorIndex === $recognizer->getInputStream() . $index &&
+        if ($this->lastErrorIndex === $recognizer->getInputStream()->getIndex() &&
             $this->lastErrorStates !== null && $this->lastErrorStates->indexOf($recognizer->state) >= 0) {
             // uh oh, another error at same token index and previously-visited
             // state in ATN; must be a case where LT(1) is in the recovery
