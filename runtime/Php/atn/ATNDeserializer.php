@@ -56,6 +56,7 @@ class ATNDeserializer
     public $stateFactories;
 
     public $actionFactories;
+    
     /**
      * @var string
      */

@@ -24,23 +24,61 @@ class  Token
     // All tokens go to the parser (unless skip() is called in that rule)
     // on a particular "channel". The parser tunes to a particular channel
     // so that whitespace etc... can go to the parser on a "hidden" channel.
-
     const DEFAULT_CHANNEL = 0;
 
     // Anything on different channel than DEFAULT_CHANNEL is not parsed
     // by parser.
-
     const HIDDEN_CHANNEL = 1;
 
     public $source;
-    public $type;// token type of the token
-    public $channel;// The parser ignores everything not on DEFAULT_CHANNEL
-    public $start;// optional; return -1 if not implemented.
-    public $stop;// optional; return -1 if not implemented.
-    public $tokenIndex;// from 0..n-1 of the token object in the input stream
-    public $line;// line=1..n of the 1st character
-    public $column;// beginning of the line at which it occurs, 0..n-1
-    protected $_text;// text of the token.
+    
+    /**
+     * token type of the token
+     * @var 
+     */
+    public $type;
+    
+    /**
+     * The parser ignores everything not on DEFAULT_CHANNEL
+     * @var 
+     */
+    public $channel;
+    
+    /**
+     * optional; return -1 if not implemented.
+     * @var 
+     */
+    public $start;
+    
+    /**
+     * optional; return -1 if not implemented.
+     * @var 
+     */
+    public $stop;
+    
+    /**
+     * from 0..n-1 of the token object in the input stream
+     * @var 
+     */
+    public $tokenIndex;
+    
+    /**
+     * line=1..n of the 1st character
+     * @var 
+     */
+    public $line;
+    
+    /**
+     * beginning of the line at which it occurs, 0..n-1
+     * @var 
+     */
+    public $column;
+
+    /**
+     * text of the token.
+     * @var 
+     */
+    protected $_text;
 
     function __construct()
     {
