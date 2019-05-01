@@ -47,6 +47,10 @@ class ATNSimulator
         return $this;
     }
 
+    /**
+     * @param $context
+     * @return \Antlr4\Predictioncontexts\ArrayPredictionContext|\Antlr4\Predictioncontexts\SingletonPredictionContext|bool|null
+     */
     function getCachedContext($context)
     {
         if ($this->sharedContextCache === null)

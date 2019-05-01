@@ -83,7 +83,7 @@ class SemanticContextAnd extends SemanticContext
         }
     }
 
-    function updateHashCode(Hash $hash)
+    function updateHashCode(Hash $hash) : void
     {
         $hash->update($this->opnds, "AND");
     }
@@ -94,7 +94,7 @@ class SemanticContextAnd extends SemanticContext
     {
         for ($i = 0; $i < count($this->opnds); $i++)
         {
-            if (!$this->opnds[$i]->evaluate($parser, $outerContext)) return false;
+            if (!$this->opnds[$i]->eval($parser, $outerContext)) return false;
         }
         return true;
     }
@@ -113,7 +113,7 @@ class SemanticContextAnd extends SemanticContext
                 // The AND context is false if any element is false
                 return null;
             }
-            else if ($evaluated !== SemanticContext::NONE)
+            else if ($evaluated !== SemanticContext::NONE())
             {
                 // Reduce the result by skipping true elements
                 array_push($operands, $evaluated);
@@ -122,7 +122,7 @@ class SemanticContextAnd extends SemanticContext
         if (!$differs) return $this;
 
         // all elements were true, so the AND context is true
-        if (count($operands) === 0) return SemanticContext::NONE;
+        if (count($operands) === 0) return SemanticContext::NONE();
 
         $result = null;
         foreach ($operands as $o)
@@ -136,7 +136,7 @@ class SemanticContextAnd extends SemanticContext
     {
         $s = "";
         foreach ($this->opnds as $o) {
-            $s .= "&& " . $o->toString();
+            $s .= "&& " . $o;
         }
         return strlen($s) > 3 ? substr($s, 3) : $s;
     }

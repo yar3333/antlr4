@@ -195,14 +195,11 @@ abstract class Lexer extends Recognizer
                         break;
                     }
                 }
-                if ($continueOuter)
-                {
-                    continue;
-                }
-                if ($this->_token === null)
-                {
-                    $this->emit();
-                }
+
+                if ($continueOuter)continue;
+
+                if ($this->_token === null) $this->emit();
+
                 return $this->_token;
             }
         }

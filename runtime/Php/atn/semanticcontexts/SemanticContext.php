@@ -6,17 +6,15 @@
 
 namespace Antlr4\Atn\Semanticcontexts;
 
+use Antlr4\Recognizer;
+use Antlr4\RuleContext;
+use Antlr4\Utils\Hash;
+
 // A tree structure used to record the semantic context in which
 //  an ATN configuration is valid.  It's either a single predicate,
 //  a conjunction {@code p1&&p2}, or a sum of products {@code p1||p2}.
 //  <p>I have scoped the {@link AND}, {@link OR}, and {@link Predicate} subclasses of
 //  {@link SemanticContext} within the scope of this outer class.</p>
-use Antlr4\Atn\Semanticcontexts\SemanticContextAnd;
-use Antlr4\Atn\Semanticcontexts\SemanticContextOr;
-use Antlr4\Atn\Semanticcontexts\SemanticContextPredicate;
-use Antlr4\Recognizer;
-use Antlr4\Utils\Hash;
-
 abstract class SemanticContext
 {
     //The default {@link SemanticContext}, which is semantically equivalent to a predicate of the form {@code {true}?}.
@@ -25,7 +23,7 @@ abstract class SemanticContext
 
     function __construct() {}
 
-    function hashCode()
+    function hashCode() : int
     {
         $hash = new Hash();
         $this->updateHashCode($hash);
@@ -43,9 +41,7 @@ abstract class SemanticContext
     // capture context dependent predicates in the context in which we begin
     // prediction, so we passed in the outer context here in case of context
     // dependent predicate evaluation.</p>
-    function evaluate(Recognizer $parser, $outerContext)
-    {
-    }
+    abstract function eval(Recognizer $parser, RuleContext $outerContext);
 
     //
     // Evaluate the precedence predicates for the context and reduce the result.
@@ -64,7 +60,7 @@ abstract class SemanticContext
     // <li>A non-{@code null} {@link SemanticContext}: the new simplified
     // semantic context after precedence predicates are evaluated.</li>
     // </ul>
-    function evalPrecedence(Recognizer $parser, $outerContext)
+    function evalPrecedence(Recognizer $parser, RuleContext $outerContext)
     {
         return $this;
     }
@@ -80,14 +76,14 @@ abstract class SemanticContext
         return count($result->opnds) === 1 ? $result->opnds[0] : $result;
     }
 
-    static function orContext($a, $b)
+    static function orContext(SemanticContext $a, SemanticContext $b)
     {
         if ($a === null) return $b;
         if ($b === null) return $a;
         if ($a === SemanticContext::NONE() || $b === SemanticContext::NONE()) return SemanticContext::NONE();
 
         $result = new SemanticContextOr($a, $b);
-        return $result->opnds->length === 1 ? $result->opnds[0] : $result;
+        return count($result->opnds) === 1 ? $result->opnds[0] : $result;
     }
 }
 

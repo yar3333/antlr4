@@ -11,21 +11,28 @@ use Antlr4\Atn\States\ATNState;
 use Antlr4\Atn\States\RuleStopState;
 use Antlr4\Atn\Transitions\ActionTransition;
 use Antlr4\Atn\Transitions\AtomTransition;
+use Antlr4\Atn\Transitions\EpsilonTransition;
 use Antlr4\Atn\Transitions\NotSetTransition;
+use Antlr4\Atn\Transitions\PrecedencePredicateTransition;
+use Antlr4\Atn\Transitions\PredicateTransition;
 use Antlr4\Atn\Transitions\RuleTransition;
 use Antlr4\Atn\Transitions\SetTransition;
 use Antlr4\Atn\Transitions\Transition;
+use Antlr4\Dfa\DFA;
+use Antlr4\Dfa\DFAState;
 use Antlr4\Dfa\PredPrediction;
 use Antlr4\DoubleDict;
 use Antlr4\Error\Exceptions\NoViableAltException;
 use Antlr4\InputStream;
 use Antlr4\Parser;
 use Antlr4\ParserRuleContext;
+use Antlr4\Predictioncontexts\PredictionContext;
+use Antlr4\Predictioncontexts\PredictionContextCache;
+use Antlr4\Predictioncontexts\SingletonPredictionContext;
 use Antlr4\Token;
-use Antlr4\PredictionContext;
-use Antlr4\Interval;
 use Antlr4\Utils\BitSet;
 use Antlr4\Utils\Set;
+use Antlr4\VocabularyImpl;
 
 // The embodiment of the adaptive LL(*), ALL(*), parsing strategy.
 //
@@ -267,8 +274,14 @@ class ParserATNSimulator extends ATNSimulator
      */
     public $parser;
 
+    /**
+     * @var DFA[]
+     */
     public $decisionToDFA;
 
+    /**
+     * @var int
+     */
     public $predictionMode;
 
     /**
@@ -281,13 +294,29 @@ class ParserATNSimulator extends ATNSimulator
      */
     private $_startIndex;
 
+    /**
+     * @var ParserRuleContext
+     */
     private $_outerContext;
 
+    /**
+     * @var DFA
+     */
     private $_dfa;
 
+    /**
+     * @var DoubleDict
+     */
     private $mergeCache;
 
-    function __construct($parser, $atn, $decisionToDFA, $sharedContextCache)
+    /**
+     * ParserATNSimulator constructor.
+     * @param Parser $parser
+     * @param ATN $atn
+     * @param DFA[] $decisionToDFA
+     * @param PredictionContextCache $sharedContextCache
+     */
+    function __construct(Parser $parser, ATN $atn, array $decisionToDFA, PredictionContextCache $sharedContextCache)
 	{
 		parent::__construct($atn, $sharedContextCache);
 
@@ -363,7 +392,7 @@ class ParserATNSimulator extends ATNSimulator
                 $fullCtx = false;
                 $s0_closure = $this->computeStartState($dfa->atnStartState, ParserRuleContext::EMPTY(), $fullCtx);
 
-                if( $dfa->precedenceDfa)
+                if ($dfa->precedenceDfa)
                 {
                     // If this is a precedence DFA, we use applyPrecedenceFilter
                     // to convert the computed start state to a precedence start
@@ -438,7 +467,9 @@ class ParserATNSimulator extends ATNSimulator
         {
             //$console->log("s0 = " . $s0);
         }
+
         $t = $input->LA(1);
+
         while(true)
         {
             // while more work
@@ -486,8 +517,8 @@ class ParserATNSimulator extends ATNSimulator
                     {
                         $input->seek($startIndex);
                     }
-                    $conflictingAlts = $this->evalSemanticContext($D->predicates, $outerContext, true);
-                    if ($conflictingAlts->length===1)
+                    $conflictingAlts = $this->evalSemanticContextMany($D->predicates, $outerContext, true);
+                    if ($conflictingAlts->length()===1)
                     {
                         if(self::$debug)
                         {
@@ -520,12 +551,12 @@ class ParserATNSimulator extends ATNSimulator
                 }
                 $stopIndex = $input->getIndex();
                 $input->seek($startIndex);
-                $alts = $this->evalSemanticContext($D->predicates, $outerContext, true);
-                if ($alts->length===0)
+                $alts = $this->evalSemanticContextMany($D->predicates, $outerContext, true);
+                if ($alts->length()===0)
                 {
                     throw $this->noViableAlt($input, $outerContext, $D->configs, $startIndex);
                 }
-                else if ($alts->length===1)
+                else if ($alts->length()===1)
                 {
                     return $alts->minValue();
                 }
@@ -544,27 +575,23 @@ class ParserATNSimulator extends ATNSimulator
                 $t = $input->LA(1);
             }
         }
+
+        return null;
     }
 
     // Get an existing target state for an edge in the DFA. If the target state
     // for the edge has not yet been computed or is otherwise not available,
     // this method returns {@code null}.
     //
-    // @param previousD The current DFA state
-    // @param t The next input symbol
-    // @return The existing target DFA state for the given input symbol
+    // @param DFAState $previousD The current DFA state
+    // @param int $t The next input symbol
+    // @return ?DFAState The existing target DFA state for the given input symbol
     // {@code t}, or {@code null} if the target state for this edge is not already cached
-    function getExistingTargetState($previousD, $t) : ?TargetState
+    function getExistingTargetState(DFAState $previousD, int $t) : ?DFAState
     {
         $edges = $previousD->edges;
-        if ($edges === null)
-        {
-            return null;
-        }
-        else
-        {
-            return $edges[$t + 1] || null;
-        }
+        if ($edges === null) return null;
+        return $edges[$t + 1];
     }
 
     // Compute a target state for an edge in the DFA, and attempt to add the
@@ -581,7 +608,7 @@ class ParserATNSimulator extends ATNSimulator
     {
         $reach = $this->computeReachSet($previousD->configs, $t, false);
 
-        if($reach===null)
+        if ($reach===null)
         {
             $this->addDFAEdge($dfa, $previousD, $t, ATNSimulator::ERROR());
             return ATNSimulator::ERROR();
@@ -860,7 +887,7 @@ class ParserATNSimulator extends ATNSimulator
     //
         if ($skippedStopStates===null && $t!==Token::EOF)
         {
-            if (count($intermediate->getItems())===1)
+            if (count($intermediate->items())===1)
             {
                 // Don't pursue the closure if there is just one state.
                 // It can only have one alternative; just add to result
@@ -882,7 +909,7 @@ class ParserATNSimulator extends ATNSimulator
             $reach = new ATNConfigSet($fullCtx);
             $closureBusy = new Set();
             $treatEofAsEpsilon = $t === Token::EOF;
-            foreach ($intermediate->getItems() as $item)
+            foreach ($intermediate->items() as $item)
             {
                 $this->closure($item, $reach, $closureBusy, false, $fullCtx, $treatEofAsEpsilon);
             }
@@ -981,7 +1008,7 @@ class ParserATNSimulator extends ATNSimulator
     function computeStartState($p, $ctx, $fullCtx)
     {
         // always at least the implicit call to start rule
-        $initialContext = self::predictionContextFromRuleContext($this->atn, $ctx);
+        $initialContext = PredictionContext::predictionContextFromRuleContext($this->atn, $ctx);
         $configs = new ATNConfigSet($fullCtx);
         for($i=0;$i<$p->transitions->length;$i++)
         {
@@ -1049,11 +1076,14 @@ class ParserATNSimulator extends ATNSimulator
     // calling {@link Parser//getPrecedence}).
     function applyPrecedenceFilter(ATNConfigSet $configs)
     {
+        /**
+         * @var PredictionContext[] $statesFromAlt1
+         */
         $statesFromAlt1 = [];
         $configSet = new ATNConfigSet($configs->fullCtx);
-        for ($i=0; $i < count($configs->getItems()); $i++)
+        for ($i=0; $i < count($configs->items()); $i++)
         {
-            $config = $configs->getItem($i);
+            $config = $configs->item($i);
             // handle alt 1 first
             if ($config->alt !== 1)
             {
@@ -1075,7 +1105,7 @@ class ParserATNSimulator extends ATNSimulator
                 $configSet->add($config, $this->mergeCache);
             }
         }
-        foreach ($configs->getItems() as $config)
+        foreach ($configs->items() as $config)
         {
             if ($config->alt === 1) continue; // already handled
 
@@ -1084,8 +1114,8 @@ class ParserATNSimulator extends ATNSimulator
             // (basically a graph subtraction algorithm).
             if (!$config->precedenceFilterSuppressed)
             {
-                $context = $statesFromAlt1[$config->state->stateNumber] || null;
-                if ($context!==null && $context->equals($config->context))
+                $context = $statesFromAlt1[$config->state->stateNumber];
+                if ($context && $context->equals($config->context))
                 {
                     // eliminated
                     continue;
@@ -1108,7 +1138,7 @@ class ParserATNSimulator extends ATNSimulator
         }
     }
 
-    function getPredsForAmbigAlts($ambigAlts, $configs, $nalts)
+    function getPredsForAmbigAlts(BitSet $ambigAlts, ATNConfigSet $configs, int $nalts)
     {
         // REACH=[1|1|[]|0:0, 1|2|[]|0:1]
         // altToPred starts as an array of all null contexts. The entry at index i
@@ -1122,12 +1152,11 @@ class ParserATNSimulator extends ATNSimulator
         //
         // From this, it is clear that NONE||anything==NONE.
         $altToPred = [];
-        for($i=0;$i<$configs->items->length;$i++)
+        foreach ($configs->items() as $c)
         {
-            $c = $configs->items[$i];
             if($ambigAlts->contains( $c->alt ))
             {
-                $altToPred[$c->alt] = SemanticContext::orContext($altToPred[$c->alt] || null, $c->semanticContext);
+                $altToPred[$c->alt] = SemanticContext::orContext($altToPred[$c->alt], $c->semanticContext);
             }
         }
         $nPredAlts = 0;
@@ -1158,15 +1187,20 @@ class ParserATNSimulator extends ATNSimulator
         return $altToPred;
     }
 
-    function getPredicatePredictions($ambigAlts, $altToPred)
+    /**
+     * @param BitSet $ambigAlts
+     * @param SemanticContext[] $altToPred
+     * @return PredPrediction[]
+     */
+    function getPredicatePredictions(BitSet $ambigAlts, array $altToPred) : array
     {
         $pairs = [];
         $containsPredicate = false;
-        for ($i=1; $i<$altToPred->length;$i++)
+        for ($i = 1; $i < count($altToPred); $i++)
         {
             $pred = $altToPred[$i];
             // unpredicated is indicated by SemanticContext.NONE
-            if ($ambigAlts!==null && $ambigAlts->contains($i))
+            if ($ambigAlts && $ambigAlts->contains($i))
             {
                 array_push($pairs, new PredPrediction($pred, $i));
             }
@@ -1249,12 +1283,12 @@ class ParserATNSimulator extends ATNSimulator
             }
         }
         return ATN::INVALID_ALT_NUMBER;
-    };
+    }
 
     function getAltThatFinishedDecisionEntryRule(ATNConfigSet $configs)
     {
         $alts = [];
-        foreach ($configs->getItems() as $c)
+        foreach ($configs->items() as $c)
         {
             if ($c->reachesIntoOuterContext > 0 || (($c->state instanceof RuleStopState) && $c->context->hasEmptyPath()))
             {
@@ -1289,7 +1323,7 @@ class ParserATNSimulator extends ATNSimulator
         for($i=0;$i<$configs->items->length; $i++)
         {
             $c = $configs->items[$i];
-            if ($c->semanticContext !== SemanticContext::NONE)
+            if ($c->semanticContext !== SemanticContext::NONE())
             {
                 $predicateEvaluationResult = $c->semanticContext->evaluate($this->parser, $outerContext);
                 if ($predicateEvaluationResult)
@@ -1309,24 +1343,30 @@ class ParserATNSimulator extends ATNSimulator
         return [$succeeded, $failed];
     }
 
-    // Look through a list of predicate/alt pairs, returning alts for the
-    //  pairs that win. A {@code NONE} predicate indicates an alt containing an
-    //  unpredicated config which behaves as "always true." If !complete
-    //  then we stop at the first predicate that evaluates to true. This
-    //  includes pairs with null predicates.
-    function evalSemanticContext(array $predPredictions, $outerContext, $complete)
+    /** Look through a list of predicate/alt pairs, returning alts for the
+     *  pairs that win. A {@code NONE} predicate indicates an alt containing an
+     *  unpredicated config which behaves as "always true." If !complete
+     *  then we stop at the first predicate that evaluates to true. This
+     *  includes pairs with null predicates.
+     * @param PredPrediction[] $predPredictions
+     * @param ParserRuleContext $outerContext
+     * @param bool $complete
+     * @return BitSet
+     */
+    protected function evalSemanticContextMany(array $predPredictions, ParserRuleContext $outerContext, bool $complete) : BitSet
     {
         $predictions = new BitSet();
-        for ($i = 0; $i < count($predPredictions); $i++)
+        foreach ($predPredictions as $pair)
         {
-            $pair = $predPredictions[$i];
-            if ($pair->pred === SemanticContext::NONE)
+            if ($pair->pred === SemanticContext::NONE())
             {
                 $predictions->add($pair->alt);
                 if (!$complete) break;
                 continue;
             }
-            $predicateEvaluationResult = $pair->pred->evaluate($this->parser, $outerContext);
+
+            $fullCtx = false; // in dfa
+            $predicateEvaluationResult = $this->evalSemanticContextOne($pair->pred, $outerContext, $pair->alt, $fullCtx);
             if (self::$debug || self::$dfa_debug)
             {
                 //$console->log("eval pred " . $pair + "=" . $predicateEvaluationResult);
@@ -1342,7 +1382,12 @@ class ParserATNSimulator extends ATNSimulator
             }
         }
         return $predictions;
-    };
+    }
+
+    protected function evalSemanticContextOne(SemanticContext $pred, ParserRuleContext $parserCallStack, int $alt, bool $fullCtx) : bool
+    {
+        return $pred->eval($this->parser, $parserCallStack);
+    }
 
     // TODO: If we are doing predicates, there is no point in pursuing
     //     closure operations if we reach a DFA state that uniquely predicts
@@ -1426,20 +1471,21 @@ class ParserATNSimulator extends ATNSimulator
 
 
     // Do the actual work of walking epsilon edges//
-    function closure_($config, ATNConfigSet $configs, $closureBusy, $collectPredicates, $fullCtx, $depth, $treatEofAsEpsilon)
+    function closure_(ATNConfig $config, ATNConfigSet $configs, Set $closureBusy, bool $collectPredicates, bool $fullCtx, int $depth, bool $treatEofAsEpsilon)
     {
         $p = $config->state;
-    // optimization
-        if (! $p->epsilonOnlyTransitions)
+
+        // optimization
+        if (!$p->epsilonOnlyTransitions)
         {
             $configs->add($config, $this->mergeCache);
-    // make sure to not return here, because EOF transitions can act as
-    // both epsilon transitions and non-epsilon transitions.
+            // make sure to not return here, because EOF transitions can act as
+            // both epsilon transitions and non-epsilon transitions.
         }
-        for($i = 0;$i<$p->transitions->length; $i++)
+
+        for ($i = 0; $i < count($p->transitions); $i++)
         {
-            if($i==0 && $this->canDropLoopEntryEdgeInLeftRecursiveRule($config))
-                continue;
+            if ($i==0 && $this->canDropLoopEntryEdgeInLeftRecursiveRule($config)) continue;
 
             $t = $p->transitions[$i];
             $continueCollecting = $collectPredicates && !($t instanceof ActionTransition);
@@ -1447,7 +1493,7 @@ class ParserATNSimulator extends ATNSimulator
             if ($c!==null)
             {
                 $newDepth = $depth;
-                if ( $config->state instanceof RuleStopState)
+                if ($config->state instanceof RuleStopState)
                 {
                     // target fell off end of rule; mark resulting c as having dipped into outer context
                     // We can't get here if incoming config was rule stop and we had context
@@ -1456,14 +1502,14 @@ class ParserATNSimulator extends ATNSimulator
                     // preds if this is > 0.
                     if ($this->_dfa !== null && $this->_dfa->precedenceDfa)
                     {
-                        if ($t->outermostPrecedenceReturn === $this->_dfa->atnStartState->ruleIndex)
+                        if ($t instanceof EpsilonTransition && $t->outermostPrecedenceReturn === $this->_dfa->atnStartState->ruleIndex)
                         {
                             $c->precedenceFilterSuppressed = true;
                         }
                     }
 
                     $c->reachesIntoOuterContext += 1;
-                    if ($closureBusy->add($c)!==$c)
+                    if ($closureBusy->add($c) !== $c)
                     {
                         // avoid infinite recursion for right-recursive rules
                         continue;
@@ -1571,17 +1617,20 @@ class ParserATNSimulator extends ATNSimulator
         }
     }
 
-    function getEpsilonTarget($config, $t, $collectPredicates, $inContext, $fullCtx, $treatEofAsEpsilon)
+    function getEpsilonTarget(ATNConfig $config, Transition $t, bool $collectPredicates, bool $inContext, bool $fullCtx, bool $treatEofAsEpsilon)
     {
         switch($t->serializationType)
         {
             case Transition::RULE:
                 return $this->ruleTransition($config, $t);
             case Transition::PRECEDENCE:
+                /** @var PrecedencePredicateTransition $t */
                 return $this->precedenceTransition($config, $t, $collectPredicates, $inContext, $fullCtx);
             case Transition::PREDICATE:
+                /** @var PredicateTransition $t */
                 return $this->predTransition($config, $t, $collectPredicates, $inContext, $fullCtx);
             case Transition::ACTION:
+                /** @var ActionTransition $t */
                 return $this->actionTransition($config, $t);
             case Transition::EPSILON:
                 return new ATNConfig((object)[ 'state'=>$t->target ], $config);
@@ -1594,7 +1643,7 @@ class ParserATNSimulator extends ATNSimulator
                 {
                     if ($t->matches(Token::EOF, 0, 1))
                     {
-                        return new ATNConfig((object)[ 'state'=>$t->target ], $config);
+                        return new ATNConfig((object)[ 'state' => $t->target ], $config);
                     }
                 }
                 return null;
@@ -1603,17 +1652,17 @@ class ParserATNSimulator extends ATNSimulator
         }
     }
 
-    function actionTransition($config, $t)
+    function actionTransition(ATNConfig $config, ActionTransition $t)
     {
         if (self::$debug)
         {
-            $index = $t->actionIndex == -1 ? 65535 : $t->actionIndex;
+            //$index = $t->actionIndex == -1 ? 65535 : $t->actionIndex;
             //$console->log("ACTION edge " . $t->ruleIndex . ":" . $index);
         }
         return new ATNConfig((object)[ 'state'=>$t->target ], $config);
     }
 
-    function precedenceTransition($config, $pt,  $collectPredicates, $inContext, $fullCtx)
+    function precedenceTransition(ATNConfig $config, PrecedencePredicateTransition $pt, bool $collectPredicates, bool $inContext, bool $fullCtx)
     {
         if (self::$debug)
         {
@@ -1634,7 +1683,7 @@ class ParserATNSimulator extends ATNSimulator
                 // later during conflict resolution.
                 $currentPosition = $this->_input->getIndex();
                 $this->_input->seek($this->_startIndex);
-                $predSucceeds = $pt->getPredicate()->evaluate($this->parser, $this->_outerContext);
+                $predSucceeds = $pt->getPredicate()->eval($this->parser, $this->_outerContext);
                 $this->_input->seek($currentPosition);
                 if ($predSucceeds)
                 {
@@ -1658,7 +1707,7 @@ class ParserATNSimulator extends ATNSimulator
         return $c;
     }
 
-    function predTransition($config, Transition $pt, $collectPredicates, $inContext, $fullCtx)
+    function predTransition(ATNConfig $config, PredicateTransition $pt, bool $collectPredicates, bool $inContext, bool $fullCtx)
     {
         if (self::$debug)
         {
@@ -1679,7 +1728,7 @@ class ParserATNSimulator extends ATNSimulator
                 // later during conflict resolution.
                 $currentPosition = $this->_input->getIndex();
                 $this->_input->seek($this->_startIndex);
-                $predSucceeds = $pt->getPredicate()->evaluate($this->parser, $this->_outerContext);
+                $predSucceeds = $pt->getPredicate()->eval($this->parser, $this->_outerContext);
                 $this->_input->seek($currentPosition);
                 if ($predSucceeds)
                 {
@@ -1769,29 +1818,22 @@ class ParserATNSimulator extends ATNSimulator
         return $conflictingAlts;
     }
 
-    function getTokenName( $t)
+    function getTokenName(int $t) : string
     {
-        if ($t===Token::EOF)
-        {
+        if ($t == Token::EOF) {
             return "EOF";
         }
-        if( $this->parser!==null && $this->parser->literalNames!==null)
-        {
-            if ($t >= $this->parser->literalNames->length && $t >= $this->parser->symbolicNames->length)
-            {
-                //$console->log("" . $t . " ttype out of range: " . $this->parser->literalNames);
-                //$console->log("" . $this->parser->getInputStream()->getTokens());
-            }
-            else
-            {
-                $name = $this->parser->literalNames[$t] || $this->parser->symbolicNames[$t];
-                return $name . "<" . $t . ">";
-            }
+
+        $vocabulary = $this->parser != null ? $this->parser->getVocabulary() : VocabularyImpl::EMPTY_VOCABULARY();
+		$displayName = $vocabulary->getDisplayName($t);
+		if ($displayName === (string)$t) {
+            return $displayName;
         }
-        return (string)$t;
+
+		return $displayName . "<" . $t . ">";
     }
 
-    function getLookaheadName($input)
+    function getLookaheadName(InputStream $input)
     {
         return $this->getTokenName($input->LA(1));
     }

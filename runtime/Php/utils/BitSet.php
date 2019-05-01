@@ -61,7 +61,7 @@ class BitSet
         return $this->hashCode() === $other->hashCode();
     }
 
-    function getLength() : int
+    function length() : int
     {
         return count($this->values());
     }

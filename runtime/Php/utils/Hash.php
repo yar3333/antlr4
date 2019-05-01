@@ -19,24 +19,24 @@ class Hash
 
     function update(...$arguments)
     {
-        for ($i = 0; $i < count($arguments); $i++) {
+        for ($i = 0; $i < count($arguments); $i++)
+        {
             $value = $arguments[$i];
             if ($value === null) continue;
             if (is_array($value)) foreach ($value as $v) $this->update($v);
             else {
                 //$k = 0;
-
                 if (is_string($value)) $k = Utils::hashCode($value);
                 else
-                    if (is_int($value)) $k = $value;
-                    else
-                        if (is_float($value)) $k = $value;
-                        else
-                            if (is_bool($value)) $k = $value ? 1 : 0;
-                            else {
-                                $value->updateHashCode($this);
-                                continue;
-                            }
+                if (is_int($value)) $k = $value;
+                else
+                if (is_float($value)) $k = $value;
+                else
+                if (is_bool($value)) $k = $value ? 1 : 0;
+                else {
+                    $value->updateHashCode($this);
+                    continue;
+                }
 
                 $k = $k * 0xCC9E2D51;
                 $k = ($k << 15) | ($k >> (32 - 15));
@@ -53,7 +53,7 @@ class Hash
         }
     }
 
-    function finish()
+    function finish() : int
     {
         $hash = $this->hash ^ ($this->count * 4);
         $hash = $hash ^ ($hash >> 16);

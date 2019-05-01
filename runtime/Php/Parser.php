@@ -6,7 +6,9 @@
 
 namespace Antlr4;
 
-// This is all the parsing support code essentially; most of it is error recovery stuff.
+use Antlr4\Atn\ATN;
+use Antlr4\Atn\ATNDeserializationOptions;
+use Antlr4\Atn\ATNDeserializer;
 use Antlr4\Error\DefaultErrorStrategy;
 
 abstract class Parser extends Recognizer
@@ -14,12 +16,12 @@ abstract class Parser extends Recognizer
     /**
      * this field maps from the serialized ATN string to the deserialized {@link ATN} with bypass alternatives.
      * @see ATNDeserializationOptions//isGenerateRuleBypassTransitions()
-     * @var array
+     * @var ATN[]
      */
     static $bypassAltsAtnCache = [];
 
     /**
-     * @var InputStream
+     * @var TokenStream
      */
     public $_input;
 
@@ -38,7 +40,10 @@ abstract class Parser extends Recognizer
      */
     public $_ctx;
 
-    public $buildParseTrees;
+    /**
+     * @var bool 
+     */
+    protected $_buildParseTrees;
 
     public $_tracer;
 
@@ -49,7 +54,7 @@ abstract class Parser extends Recognizer
 
     public $_syntaxErrors;
 
-    function __construct(InputStream $input)
+    function __construct(TokenStream $input)
     {
         parent::__construct();
 
@@ -70,7 +75,7 @@ abstract class Parser extends Recognizer
 
         // Specifies whether or not the parser should construct a parse tree during
         // the parsing process. The default value is {@code true}.
-        $this->buildParseTrees = true;
+        $this->_buildParseTrees = true;
 
         // When {@link //setTrace}{@code (true)} is called, a reference to the
         // {@link TraceListener} is stored here so it can be easily removed in a
@@ -135,7 +140,7 @@ abstract class Parser extends Recognizer
         else
         {
             $t = $this->_errHandler->recoverInline($this);
-            if ($this->buildParseTrees && $t->tokenIndex === -1)
+            if ($this->_buildParseTrees && $t->tokenIndex === -1)
             {
                 // we must have conjured up a new token during single token
                 // insertion
@@ -259,11 +264,11 @@ abstract class Parser extends Recognizer
         if ($this->_parseListeners !== null)
         {
             $ctx = $this->_ctx;
-            $this->_parseListeners->map(function($listener)
+            foreach ($this->_parseListeners as $listener)
             {
                 $listener->enterEveryRule($ctx);
                 $ctx->enterRule($listener);
-            });
+            }
         }
     }
 
@@ -276,23 +281,23 @@ abstract class Parser extends Recognizer
         {
             // reverse order walk of listeners
             $ctx = $this->_ctx;
-            $this->_parseListeners->slice(0).reverse().map(function($listener)
+            foreach (array_reverse($this->_parseListeners) as $listener)
             {
                 $ctx->exitRule($listener);
                 $listener->exitEveryRule($ctx);
-            });
+            }
         }
     }
 
-    function getTokenFactory()
+    function getTokenFactory() : TokenFactory
     {
-        return $this->_input->tokenSource->_factory;
+        return $this->_input->tokenSource()->getTokenFactory();
     }
 
     // Tell our token source and error strategy about a new way to create tokens.//
-    function setTokenFactory($factory)
+    function setTokenFactory(TokenFactory $factory)
     {
-        $this->_input->tokenSource->_factory = $factory;
+        $this->_input->tokenSource()->setTokenFactory($factory);
     }
 
     // The ATN with bypass alternatives is expensive to create so we create it lazily.
@@ -304,13 +309,13 @@ abstract class Parser extends Recognizer
         {
             throw new \Exception("The current parser does not support an ATN with bypass alternatives.");
         }
-        $result = $this->bypassAltsAtnCache[$serializedAtn];
+        $result = self::$bypassAltsAtnCache[$serializedAtn];
         if ($result === null)
         {
             $deserializationOptions = new ATNDeserializationOptions();
             $deserializationOptions->generateRuleBypassTransitions = true;
             $result = (new ATNDeserializer($deserializationOptions))->deserialize($serializedAtn);
-            $this->bypassAltsAtnCache[$serializedAtn] = $result;
+            self::$bypassAltsAtnCache[$serializedAtn] = $result;
         }
         return $result;
     }
@@ -330,7 +335,7 @@ abstract class Parser extends Recognizer
         {
             if ($this->getTokenStream() !== null)
             {
-                $tokenSource = $this->getTokenStream()->tokenSource;
+                $tokenSource = $this->getTokenStream()->tokenSource();
                 if ($tokenSource instanceof Lexer)
                 {
                     $lexer = $tokenSource;
@@ -345,23 +350,23 @@ abstract class Parser extends Recognizer
         return $m->compile($pattern, $patternRuleIndex);
     }
 
-    function getInputStream()
+    function getInputStream() : TokenStream
     {
         return $this->getTokenStream();
     }
 
-    function setInputStream(InputStream $input)
+    function setInputStream(TokenStream $input) : void
     {
         $this->setTokenStream($input);
     }
 
-    function getTokenStream() : InputStream
+    function getTokenStream() : TokenStream
     {
         return $this->_input;
     }
 
     // Set the token stream and reset the parser.//
-    function setTokenStream(InputStream $input)
+    function setTokenStream(TokenStream $input)
     {
         $this->_input = null;
         $this->reset();
@@ -416,7 +421,7 @@ abstract class Parser extends Recognizer
             $this->getInputStream()->consume();
         }
         $hasListener = $this->_parseListeners !== null && $this->_parseListeners->length > 0;
-        if ($this->buildParseTrees || $hasListener)
+        if ($this->_buildParseTrees || $hasListener)
         {
             if ($this->_errHandler->inErrorRecoveryMode($this))
             {
@@ -463,7 +468,7 @@ abstract class Parser extends Recognizer
         $this->state = $state;
         $this->_ctx = $localctx;
         $this->_ctx->start = $this->_input->LT(1);
-        if ($this->buildParseTrees)
+        if ($this->_buildParseTrees)
         {
             $this->addContextToParseTree();
         }
@@ -490,7 +495,7 @@ abstract class Parser extends Recognizer
         $localctx->setAltNumber($altNum);
         // if we have new localctx, make sure we replace existing ctx
         // that is previous child of parse tree
-        if ($this->buildParseTrees && $this->_ctx !== $localctx)
+        if ($this->_buildParseTrees && $this->_ctx !== $localctx)
         {
             if ($this->_ctx->parentCtx !== null)
             {
@@ -538,7 +543,7 @@ abstract class Parser extends Recognizer
 
         $this->_ctx = $localctx;
         $this->_ctx->start = $previous->start;
-        if ($this->buildParseTrees)
+        if ($this->_buildParseTrees)
         {
             $this->_ctx->addChild($previous);
         }
@@ -568,7 +573,7 @@ abstract class Parser extends Recognizer
         }
         // hook into tree
         $retCtx->parentCtx = $parentCtx;
-        if ($this->buildParseTrees && $parentCtx !== null)
+        if ($this->_buildParseTrees && $parentCtx !== null)
         {
             // add return ctx into invoking rule's tree
             $parentCtx->addChild($retCtx);

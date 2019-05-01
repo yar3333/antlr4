@@ -3,6 +3,7 @@
 namespace Antlr4\Atn\Semanticcontexts;
 
 use Antlr4\Recognizer;
+use Antlr4\RuleContext;
 use Antlr4\Utils\Hash;
 
 class SemanticContextPredicate extends SemanticContext
@@ -22,7 +23,7 @@ class SemanticContextPredicate extends SemanticContext
      */
     public $isCtxDependent;
 
-    function __construct($ruleIndex = null, $predIndex = null, $isCtxDependent = null)
+    function __construct(int $ruleIndex = null, int $predIndex = null, bool $isCtxDependent = null)
     {
         parent::__construct();
 
@@ -36,7 +37,7 @@ class SemanticContextPredicate extends SemanticContext
      * @param $outerContext
      * @return bool
      */
-    function evaluate(Recognizer $parser, $outerContext)
+    function eval(Recognizer $parser, RuleContext $outerContext)
     {
         $localctx = $this->isCtxDependent ? $outerContext : null;
         return $parser->sempred($localctx, $this->ruleIndex, $this->predIndex);
@@ -47,7 +48,7 @@ class SemanticContextPredicate extends SemanticContext
         $hash->update($this->ruleIndex, $this->predIndex, $this->isCtxDependent);
     }
 
-    function equals($other)
+    function equals($other) : bool
     {
         if ($this === $other)
         {

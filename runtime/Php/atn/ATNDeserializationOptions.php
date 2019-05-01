@@ -21,13 +21,13 @@ class ATNDeserializationOptions
     {
         if (!isset(self::$defaultOptions))
         {
-            self::$defaultOptions = new ATNDeserializationOptions(null);
+            self::$defaultOptions = new ATNDeserializationOptions();
             self::$defaultOptions->readOnly = true;
         }
         return self::$defaultOptions;
     }
 
-    function __construct(?ATNDeserializationOptions $copyFrom)
+    function __construct(ATNDeserializationOptions $copyFrom=null)
     {
         $this->readOnly = false;
         $this->verifyATN = !isset($copyFrom) ? true : $copyFrom->verifyATN;

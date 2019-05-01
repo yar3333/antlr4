@@ -738,7 +738,7 @@ class ATNDeserializer
         }
     }
 
-    function stateFactory($type, $ruleIndex)
+    function stateFactory(int $type, int $ruleIndex)
     {
         if ($this->stateFactories === null)
         {
@@ -758,19 +758,20 @@ class ATNDeserializer
             $sf[ATNState::LOOP_END] = function() { return new \Antlr4\Atn\States\LoopEndState(); };
             $this->stateFactories = $sf;
         }
+
         if ($type > count($this->stateFactories) || $this->stateFactories[$type] === null)
         {
             throw new \Exception("The specified state type " . $type . " is not valid.");
         }
-        else
+
+        $s = $this->stateFactories[$type]();
+        if ($s)
         {
-            $s = $this->stateFactories[$type]();
-            if ($s!==null)
-            {
-                $s->ruleIndex = $ruleIndex;
-                return $s;
-            }
+            $s->ruleIndex = $ruleIndex;
+            return $s;
         }
+
+        return null;
     }
 
     function lexerActionFactory($type, $data1, $data2)

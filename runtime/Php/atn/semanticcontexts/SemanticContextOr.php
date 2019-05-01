@@ -4,6 +4,10 @@ namespace Antlr4\Atn\Semanticcontexts;
 
 use Antlr4\Atn\Semanticcontexts\PrecedencePredicate;
 use Antlr4\Atn\Semanticcontexts\SemanticContext;
+use Antlr4\Parser;
+use Antlr4\Recognizer;
+use Antlr4\RuleContext;
+use Antlr4\Utils\Hash;
 use Antlr4\Utils\Set;
 
 // A semantic context which is true whenever none of the contained contexts is false.
@@ -65,7 +69,7 @@ class SemanticContextOr extends SemanticContext
         }
     }
 
-    function updateHashCode($hash)
+    function updateHashCode(Hash $hash) : void
     {
         $hash->update($this->opnds, "OR");
     }
@@ -76,11 +80,11 @@ class SemanticContextOr extends SemanticContext
      * @param $outerContext
      * @return bool
      */
-    function evaluate($parser, $outerContext)
+    function eval(Recognizer $parser, RuleContext $outerContext) : bool
     {
         foreach ($this->opnds as $opnd)
         {
-            if ($opnd->evaluate($parser, $outerContext)) return true;
+            if ($opnd->eval($parser, $outerContext)) return true;
         }
         return false;
     }

@@ -15,8 +15,8 @@ use \Antlr4\Error\Listeners\ProxyErrorListener;
 
 abstract class Recognizer
 {
-    static $tokenTypeMapCache = [];
-    static $ruleIndexMapCache = [];
+    private static $tokenTypeMapCache = [];
+    private static $ruleIndexMapCache = [];
 
     /**
      * @var ErrorListener[]
@@ -61,42 +61,63 @@ abstract class Recognizer
         $this->_listeners = [];
     }
 
-    function getTokenTypeMap() : array
+	/**
+	 * Get the vocabulary used by the recognizer.
+	 *
+	 * @return Vocabulary A {@link Vocabulary} instance providing information about the
+	 * vocabulary used by the grammar.
+	 */
+	function getVocabulary() : Vocabulary
     {
-        $tokenNames = $this->getTokenNames();
-        if ($tokenNames === null) throw new \Exception("The current recognizer does not provide a list of token names.");
+		return VocabularyImpl::fromTokenNames($this->getTokenNames());
+	}
 
-        $result = self::$tokenTypeMapCache[$tokenNames];
-        if(!isset($result))
-        {
-            //$result = $tokenNames->reduce(function($o, $k, $i) { $o[$k] = $i; });
-            $result = []; foreach ($tokenNames as $i => $k) $result[$k] = $i;
-
-            $result->EOF = Token::EOF;
-            self::$tokenTypeMapCache[$tokenNames] = $result;
-        }
-        return $result;
-    }
-
-    // Get a map from rule names to rule indexes.
-    //
-    // <p>Used for XPath and tree pattern compilation.</p>
-    function getRuleIndexMap()
+	function getTokenTypeMap() : array
     {
-        $ruleNames = $this->ruleNames;
-        if ($ruleNames===null)
-        {
-            throw new \Exception("The current recognizer does not provide a list of rule names.");
+		$vocabulary = $this->getVocabulary();
+
+        $result = self::$tokenTypeMapCache[spl_object_hash($vocabulary)];
+        if ($result == null) {
+            $result = []; //new HashMap<String, Integer>();
+            for ($i = 0; $i <= $this->getATN()->maxTokenType; $i++)
+            {
+                $literalName = $vocabulary->getLiteralName($i);
+                if ($literalName != null) {
+                    $result->put($literalName, $i);
+                }
+
+                $symbolicName = $vocabulary->getSymbolicName($i);
+                if ($symbolicName != null) {
+                    $result->put($symbolicName, $i);
+                }
+            }
+
+            $result->put("EOF", Token::EOF);
+            self::$tokenTypeMapCache[spl_object_hash($vocabulary)] = $result;
         }
-        $result = self::$ruleIndexMapCache[$ruleNames];
-        if(!isset($result))
-        {
-            //$result = $ruleNames->reduce(function($o, $k, $i) { $o[$k] = $i; });
-            $result = []; foreach ($ruleNames as $i => $k) $result[$k] = $i;
-            self::$ruleIndexMapCache[$ruleNames] = $result;
-        }
+
         return $result;
-    }
+	}
+
+
+	/**
+	 * Get a map from rule names to rule indexes.
+	 *
+	 * <p>Used for XPath and tree pattern compilation.</p>
+	 */
+	function getRuleIndexMap() : array
+    {
+		$ruleNames = $this->getRuleNames();
+		if ($ruleNames == null) throw new \Exception("The current recognizer does not provide a list of rule names.");
+
+        $result = self::$ruleIndexMapCache[spl_object_hash($ruleNames)];
+        if ($result === null) {
+            $result = $ruleNames;
+            self::$ruleIndexMapCache[spl_object_hash($ruleNames)] = $result;
+        }
+
+        return $result;
+	}
 
     function getTokenType($tokenName) : int
     {
@@ -179,9 +200,26 @@ abstract class Recognizer
     function getInterpreter() : ATNSimulator { return $this->_interp; }
 
     /**
+     * If this recognizer was generated, it will have a serialized ATN
+     * representation of the grammar.
+     *
+     * <p>For interpreters, we don't know their serialized ATN despite having
+     * created the interpreter from it.</p>
+     */
+    function getSerializedATN() : string
+    {
+        throw new \Exception("there is no serialized ATN");
+    }
+
+    /**
      * @return string[]
      */
     abstract function getTokenNames() : array;
+
+    /**
+     * @return \ArrayObject
+     */
+    abstract function getRuleNames() : \ArrayObject;
 
     abstract function getATN() : ATN;
 }

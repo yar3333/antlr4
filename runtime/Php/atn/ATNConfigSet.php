@@ -192,8 +192,8 @@ class ATNConfigSet
         return $preds;
     }
 
-    function getItems() { return $this->configs; }
-    function getItem(int $index) { return $this->configs[$index]; }
+    function items() { return $this->configs; }
+    function item(int $index) { return $this->configs[$index]; }
 
     function optimizeConfigs($interpreter)
     {

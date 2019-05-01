@@ -2,7 +2,8 @@
 
 namespace Antlr4\Atn\Transitions;
 
-use Antlr4\PrecedencePredicate;
+
+use Antlr4\Atn\Semanticcontexts\PrecedencePredicate;
 
 class PrecedencePredicateTransition extends AbstractPredicateTransition
 {
@@ -19,12 +20,12 @@ class PrecedencePredicateTransition extends AbstractPredicateTransition
         $this->isEpsilon = true;
     }
 
-    function matches($symbol, $minVocabSymbol, $maxVocabSymbol)
+    function matches(int $symbol, int $minVocabSymbol, int $maxVocabSymbol) : bool
     {
         return false;
     }
 
-    function getPredicate()
+    function getPredicate() : PrecedencePredicate
     {
         return new PrecedencePredicate($this->precedence);
     }

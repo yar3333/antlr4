@@ -2,7 +2,7 @@
 
 namespace Antlr4\Atn\Transitions;
 
-use Antlr4\Predicate;
+use Antlr4\Atn\Semanticcontexts\SemanticContextPredicate;
 
 class PredicateTransition extends AbstractPredicateTransition
 {
@@ -35,14 +35,14 @@ class PredicateTransition extends AbstractPredicateTransition
         $this->isEpsilon = true;
     }
 
-    function matches($symbol, $minVocabSymbol, $maxVocabSymbol)
+    function matches(int $symbol, int $minVocabSymbol, int $maxVocabSymbol) : bool
     {
         return false;
     }
 
-    function getPredicate()
+    function getPredicate() : SemanticContextPredicate
     {
-        return new Predicate($this->ruleIndex, $this->predIndex, $this->isCtxDependent);
+        return new SemanticContextPredicate($this->ruleIndex, $this->predIndex, $this->isCtxDependent);
     }
 
     function __toString()

@@ -1,50 +1,45 @@
 <?php
-
-namespace Antlr4;
-
-//
 /* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
-///
 
-//
-// This class extends {@link BufferedTokenStream} with functionality to filter
-// token streams to tokens on a particular channel (tokens where
-// {@link Token//getChannel} returns a particular value).
-//
-// <p>
-// This token stream provides access to all tokens by index or when calling
-// methods like {@link //getText}. The channel filtering is only used for code
-// accessing tokens via the lookahead methods {@link //LA}, {@link //LT}, and
-// {@link //LB}.</p>
-//
-// <p>
-// By default, tokens are placed on the default channel
-// ({@link Token//DEFAULT_CHANNEL}), but may be reassigned by using the
-// {@code ->channel(HIDDEN)} lexer command, or by using an embedded action to
-// call {@link Lexer//setChannel}.
-// </p>
-//
-// <p>
-// Note: lexer rules which use the {@code ->skip} lexer command or call
-// {@link Lexer//skip} do not produce tokens at all, so input text matched by
-// such a rule will not be available as part of the token stream, regardless of
-// channel.</p>
-///
+namespace Antlr4;
 
-use Antlr4\Token; //('./Token').Token;
-use Antlr4\BufferedTokenStream; //('./BufferedTokenStream').BufferedTokenStream;
-
-class  CommonTokenStream extends BufferedTokenStream
+/**
+ * This class extends {@link BufferedTokenStream} with functionality to filter
+ * token streams to tokens on a particular channel (tokens where
+ * {@link Token#getChannel} returns a particular value).
+ *
+ * <p>
+ * This token stream provides access to all tokens by index or when calling
+ * methods like {@link #getText}. The channel filtering is only used for code
+ * accessing tokens via the lookahead methods {@link #LA}, {@link #LT}, and
+ * {@link #LB}.</p>
+ *
+ * <p>
+ * By default, tokens are placed on the default channel
+ * ({@link Token#DEFAULT_CHANNEL}), but may be reassigned by using the
+ * {@code ->channel(HIDDEN)} lexer command, or by using an embedded action to
+ * call {@link Lexer#setChannel}.
+ * </p>
+ *
+ * <p>
+ * Note: lexer rules which use the {@code ->skip} lexer command or call
+ * {@link Lexer#skip} do not produce tokens at all, so input text matched by
+ * such a rule will not be available as part of the token stream, regardless of
+ * channel.</p>we
+ */
+class CommonTokenStream extends BufferedTokenStream
 {
+    /**
+     * @var int
+     */
     public $channel;
 
-    function __construct($lexer, $channel)
+    function __construct(TokenSource $tokenSource, int $channel=Token::DEFAULT_CHANNEL)
     {
-        parent::__construct($this, $lexer);
-        $this->channel = $channel===undefined ? Token::DEFAULT_CHANNEL : $channel;
+        parent::__construct($tokenSource);
     }
 
     function adjustSeekIndex($i)
@@ -52,7 +47,7 @@ class  CommonTokenStream extends BufferedTokenStream
         return $this->nextTokenOnChannel($i, $this->channel);
     }
 
-    function LB($k)
+    function LB($k) : Token
     {
         if ($k===0 || $this->index-$k<0)
         {
@@ -74,7 +69,7 @@ class  CommonTokenStream extends BufferedTokenStream
         return $this->tokens[$i];
     }
 
-    function LT($k)
+    function LT(int $k) : Token
     {
         $this->lazyInit();
         if ($k === 0)
@@ -100,22 +95,15 @@ class  CommonTokenStream extends BufferedTokenStream
         return $this->tokens[$i];
     }
 
-    // Count EOF just once.///
+    // Count EOF just once.
     function getNumberOfOnChannelTokens()
     {
         $n = 0;
         $this->fill();
-        for ($i=0; $i<$this->tokens->length; $i++)
+        foreach ($this->tokens as $t)
         {
-            $t = $this->tokens[$i];
-            if( $t->channel===$this->channel)
-            {
-                $n += 1;
-            }
-            if( $t->type===Token::EOF)
-            {
-                break;
-            }
+            if ( $t->channel===$this->channel) $n += 1;
+            if ($t->type===Token::EOF) break;
         }
         return $n;
     }
