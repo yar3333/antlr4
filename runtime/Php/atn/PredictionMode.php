@@ -187,7 +187,7 @@ class PredictionMode
                 for ($i=0;$i<$configs->items->length;$i++)
                 {
                     $c = $configs->items[$i];
-                    $c = new ATNConfig((object)[ 'semanticContext'=>SemanticContext::NONE ], $c);
+                    $c = new ATNConfig((object)[ 'semanticContext'=>SemanticContext::NONE() ], $c);
                     $dup->add($c);
                 }
                 $configs = $dup;
@@ -210,7 +210,7 @@ class PredictionMode
     // {@link RuleStopState}, otherwise {@code false}
     static function hasConfigInRuleStopState(ATNConfigSet $configs)
     {
-        foreach ($configs->getItems() as $c)
+        foreach ($configs->items() as $c)
         {
             if ($c->state instanceof RuleStopState) return true;
         }
@@ -454,7 +454,7 @@ class PredictionMode
     static function getUniqueAlt($altsets)
     {
         $all = self::getAlts($altsets);
-        if ($all->getLength() === 1)
+        if ($all->length() === 1)
         {
             return $all->minValue();
         }
@@ -490,7 +490,7 @@ class PredictionMode
         $configToAlts = new Map();
         $configToAlts->hashFunction = function($cfg) { Utils::hashStuff($cfg->state->stateNumber, $cfg->context); };
         $configToAlts->equalsFunction = function($c1, $c2) { return $c1->state->stateNumber == $c2->state->stateNumber && $c1->context->equals($c2->context); };
-        foreach ($configs->getItems() as $cfg)
+        foreach ($configs->items() as $cfg)
         {
             $alts = $configToAlts->get($cfg);
             if ($alts === null)
@@ -512,7 +512,7 @@ class PredictionMode
     static function getStateToAltMap(ATNConfigSet $configs)
     {
         $m = new AltDict();
-        foreach ($configs->getItems() as $c)
+        foreach ($configs->items() as $c)
         {
             $alts = $m->get($c->state);
             if ($alts === null)

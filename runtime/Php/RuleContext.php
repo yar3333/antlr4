@@ -6,7 +6,12 @@
 
 namespace Antlr4;
 
-use Antlr4\Tree\RuleNode; //('./tree/Tree').RuleNode;
+use Antlr4\Atn\ATN;
+use Antlr4\Tree\ParseTree;
+use Antlr4\Tree\RuleNode;
+use Antlr4\Tree\Tree;
+use Antlr4\Tree\Trees;
+use Antlr4\Utils\Utils; //('./tree/Tree').RuleNode;
 //use Antlr4\INVALID_INTERVAL; //('./tree/Tree').INVALID_INTERVAL;
 //use Antlr4\INVALID_ALT_NUMBER; //('./atn/ATN').INVALID_ALT_NUMBER;
 
@@ -29,22 +34,27 @@ use Antlr4\Tree\RuleNode; //('./tree/Tree').RuleNode;
 //  ParserRuleContext.
 //
 //  @see ParserRuleContext
-class RuleContext extends RuleNode
+class RuleContext implements RuleNode
 {
+    /**
+     * @var RuleContext
+     */
     public $parentCtx;
+
+    /**
+     * @var int
+     */
     public $invokingState;
 
-    function __construct($parent, $invokingState)
+    function __construct(RuleContext $parent, int $invokingState)
     {
-        parent::__construct();
-
         // What context invoked this rule?
         $this->parentCtx = $parent;
 
         // What state invoked the rule associated with this context?
         // The "return address" is the followState of invokingState
         // If parent is null, this should be -1.
-        $this->invokingState = $invokingState || -1;
+        $this->invokingState = $invokingState !== null ? $invokingState : -1;
     }
 
     function depth()
@@ -68,12 +78,12 @@ class RuleContext extends RuleNode
 
     // satisfy the ParseTree / SyntaxTree interface
 
-    function getSourceInterval()
+    function getSourceInterval() : Interval
     {
-        return Tree::INVALID_INTERVAL;
+        return Interval::INVALID();
     }
 
-    function getRuleContext()
+    function getRuleContext() : RuleContext
     {
         return $this;
     }
@@ -89,7 +99,7 @@ class RuleContext extends RuleNode
     // Since tokens on hidden channels (e.g. whitespace or comments) are not
     // added to the parse trees, they will not appear in the output of this
     // method.
-    function getText()
+    function getText() : string
     {
         if ($this->getChildCount() === 0)
         {
@@ -97,7 +107,7 @@ class RuleContext extends RuleNode
         }
         else
         {
-            return implode("", array_map(function($child) { return $child->getText(); }, $this->children));
+            return implode("", Utils::arrayMap($this->children(), function(RuleNode $child) { return $child->getText(); }));
         }
     }
 
@@ -121,9 +131,14 @@ class RuleContext extends RuleNode
         return null;
     }
 
-    function getChildCount()
+    function getChildCount() : int
     {
         return 0;
+    }
+
+    function children() : array
+    {
+        return [];
     }
 
     function accept($visitor)
@@ -133,7 +148,13 @@ class RuleContext extends RuleNode
 
     // Print out a whole tree, not just a node, in LISP format
     // (root child1 .. childN). Print just a node if this is a leaf.
-    function toStringTree($ruleNames, $recog)
+
+    /**
+     * @param array $ruleNames
+     * @param Parser $recog
+     * @return string
+     */
+    function toStringTreeWithRuleNames(array $ruleNames, $recog) : string
     {
         return Trees::toStringTree($this, $ruleNames, $recog);
     }
@@ -142,6 +163,8 @@ class RuleContext extends RuleNode
     {
         return $this->toString(null,  null);
     }
+
+    function getRuleIndex() : int { return -1; }
 
     function toString(array $ruleNames, RuleContext $stop) : string
     {
@@ -158,7 +181,7 @@ class RuleContext extends RuleNode
             }
             else
             {
-                $ri = $p->ruleIndex;
+                $ri = $p->getRuleIndex();
                 $ruleName = ($ri >= 0 && $ri < count($ruleNames)) ? $ruleNames[$ri] : (string)$ri;
                 $s .= $ruleName;
             }
@@ -171,4 +194,11 @@ class RuleContext extends RuleNode
         $s .= "]";
         return $s;
     }
+
+    /**
+     * @return ParseTree
+     */
+    function getParent() { return $this->parentCtx; }
+
+    function setParent(RuleContext $ctx): void { $this->parentCtx = $ctx; }
 }

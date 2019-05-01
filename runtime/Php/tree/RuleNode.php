@@ -2,11 +2,14 @@
 
 namespace Antlr4\Tree;
 
-class RuleNode extends ParseTree
+use Antlr4\RuleContext;
+
+interface RuleNode extends ParseTree
 {
-    function __construct()
-    {
-        parent::__construct();
-        return $this;
-    }
+    function getRuleContext() : RuleContext;
+
+    /**
+     * @return RuleNode[]
+     */
+    function children() : array;
 }

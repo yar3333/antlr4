@@ -6,6 +6,7 @@
 
 namespace Antlr4\Atn;
 
+use Antlr4\Atn\States\ATNState;
 use \Antlr4\LL1Analyzer;
 use \Antlr4\IntervalSet;
 use \Antlr4\Token;
@@ -18,6 +19,9 @@ class ATN
 
     public $maxTokenType;
 
+    /**
+     * @var ATNState[]
+     */
     public $states;
 
     public $decisionToState;
@@ -112,7 +116,7 @@ class ATN
         }
     }
 
-    function addState( $state)
+    function addState(ATNState $state)
     {
         if ($state !== null)
         {

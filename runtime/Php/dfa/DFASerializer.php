@@ -1,18 +1,15 @@
 <?php
-
-namespace Antlr4\Dfa;
-
 /* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
-// A DFA walker that knows how to dump them to serialized strings.#/
-
+namespace Antlr4\Dfa;
 
 use Antlr4\Utils\Utils;
 
-class DFASerializer extends
+// A DFA walker that knows how to dump them to serialized strings.
+class DFASerializer
 {
     /**
      * @var DFA

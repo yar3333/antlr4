@@ -48,11 +48,13 @@ class Map
     function put($key, $value)
     {
         $hashKey = "hash_" . $this->hashFunction->call($key);
-        if (isset($this->data[$hashKey])) {
+        if (isset($this->data[$hashKey]))
+        {
             $entries = $this->data[$hashKey];
-            for ($i = 0; $i < count($entries); $i++) {
-                $entry = $entries[$i];
-                if ($this->equalsFunction->call($key, $entry['key'])) {
+            foreach ($entries as $entry)
+            {
+                if ($this->equalsFunction->call($key, $entry['key']))
+                {
                     $oldValue = $entry['value'];
                     $entry['value'] = $value;
                     return $oldValue;
@@ -60,7 +62,9 @@ class Map
             }
             array_push($entries, ['key' => $key, 'value' => $value]);
             return $value;
-        } else {
+        }
+        else
+        {
             $this->data[$hashKey] = [['key' => $key, 'value' => $value]];
             return $value;
         }
@@ -69,9 +73,11 @@ class Map
     function containsKey($key)
     {
         $hashKey = "hash_" . $this->hashFunction->call($key);
-        if (isset($this->data[$hashKey])) {
+        if (isset($this->data[$hashKey]))
+        {
             $entries = $this->data[$hashKey];
-            foreach ($entries as $entry) {
+            foreach ($entries as $entry)
+            {
                 if ($this->equalsFunction->call($key, $entry['key'])) return true;
             }
         }
@@ -81,9 +87,11 @@ class Map
     function get($key)
     {
         $hashKey = "hash_" . $this->hashFunction->call($key);
-        if (isset($this->data[$hashKey])) {
+        if (isset($this->data[$hashKey]))
+        {
             $entries = $this->data[$hashKey];
-            foreach ($entries as $entry) {
+            foreach ($entries as $entry)
+            {
                 if ($this->equalsFunction->call($key, $entry['key'])) return $entry['value'];
             }
         }
@@ -93,8 +101,10 @@ class Map
     function entries()
     {
         $l = [];
-        foreach ($this->data as $key => $value) {
-            if (strpos($key, "hash_") === 0) {
+        foreach ($this->data as $key => $value)
+        {
+            if (strpos($key, "hash_") === 0)
+            {
                 $l = array_merge($l, $value);
             }
         }
@@ -103,24 +113,22 @@ class Map
 
     function getKeys(): array
     {
-        return array_map(function ($e) {
-            return $e['key'];
-        }, $this->entries());
+        return Utils::arrayMap($this->entries(), function ($e) { return $e['key']; });
     }
 
     function getValues(): array
     {
-        return array_map(function ($e) {
-            return $e['value'];
-        }, $this->entries());
+        return Utils::arrayMap($this->entries(), function ($e) { return $e['value']; });
     }
 
 
     function __toString()
     {
-        $ss = array_map(function ($entry) {
-            return '{' . $entry['key'] . ':' . $entry['value'] . '}';
-        }, $this->entries());
+        $ss = [];
+        foreach ($this->entries() as $entry)
+        {
+            $ss[] = '{' . $entry['key'] . ':' . $entry['value'] . '}';
+        }
         return '[' . implode(", ", $ss) . ']';
     }
 }

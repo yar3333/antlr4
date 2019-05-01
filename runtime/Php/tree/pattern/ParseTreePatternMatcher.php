@@ -1,10 +1,22 @@
 <?php
+/*
+ * Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+ * Use of this file is governed by the BSD 3-clause license that
+ * can be found in the LICENSE.txt file in the project root.
+ */
 
-namespace Antlr4\Tree\Pattern;
+namespace org\antlr\v4\runtime\tree\pattern;
 
-
+use Antlr4\CommonTokenStream;
+use Antlr4\Error\Exceptions\ParseCancellationException;
+use Antlr4\Error\Exceptions\RecognitionException;
 use Antlr4\Lexer;
 use Antlr4\Parser;
+use Antlr4\Token;
+use Antlr4\Tree\ParseTree;
+use Antlr4\Tree\Pattern\CannotInvokeStartRule;
+use Antlr4\Tree\Pattern\StartRuleDoesNotConsumeFullPattern;
+use Antlr4\Utils\MultiMap;
 
 /**
  * A tree pattern matching mechanism for ANTLR {@link ParseTree}s.
@@ -67,417 +79,569 @@ class ParseTreePatternMatcher
 {
 	/**
 	 * This is the backing field for {@link #getLexer()}.
-     * @var Lexer
-     */
+	 * @var Lexer
+	 */
 	private $lexer;
-
+	
 	/**
 	 * This is the backing field for {@link #getParser()}.
-     * @var Parser
+	 * @var Parser
 	 */
 	private $parser;
-
+	
+	/**
+	 * @var string
+	 */
 	protected $start = "<";
-	protected $stop = ">";
-	protected $escape = "\\"; // e.g., \< and \> must escape BOTH!
 
+	/**
+	 * @var string
+	 */
+	protected $stop = ">";
+
+	/**
+	 * @var string
+	 */
+	protected $escape = "\\"; // e.g., \< and \> must escape BOTH!
+	
 	/**
 	 * Constructs a {@link ParseTreePatternMatcher} or from a {@link Lexer} and
 	 * {@link Parser} object. The lexer input stream is altered for tokenizing
 	 * the tree patterns. The parser is used as a convenient mechanism to get
 	 * the grammar name, plus token, rule names.
-     *
-     * @param Lexer $lexer
-     * @param Parser $parser
-     */
+	 * @param Lexer $lexer 
+	 * @param Parser $parser 
+	 */
 	public function __construct(Lexer $lexer, Parser $parser)
-    {
+	{
 		$this->lexer = $lexer;
 		$this->parser = $parser;
 	}
-
+	
 	/**
 	 * Set the delimiters used for marking rule and token tags within concrete
 	 * syntax used by the tree pattern parser.
 	 *
-	 * @param string start The start delimiter.
-	 * @param string stop The stop delimiter.
-	 * @param string escapeLeft The escape sequence to use for escaping a start or stop delimiter.
+	 * @param string $start  The start delimiter.
+	 * @param string $stop The stop delimiter.
+	 * @param string $escapeLeft  The escape sequence to use for escaping a start or stop delimiter.
      * @throws \Exception
-     */
-	function setDelimiters(string $start, string $stop, string $escapeLeft) : void
-    {
+	 */
+	public function setDelimiters(string $start, string $stop, string $escapeLeft) : void
+	{
 		if (!$start) {
 			throw new \Exception("start cannot be null or empty");
 		}
-
-		if (!$stop) {
+		
+		if (!$stop)
+		{
 			throw new \Exception("stop cannot be null or empty");
 		}
-
+		
 		$this->start = $start;
 		$this->stop = $stop;
 		$this->escape = $escapeLeft;
 	}
-
-	/** Does {@code pattern} matched as rule {@code patternRuleIndex} match {@code tree}? */
-	function matches(ParseTree $tree, string $pattern, int $patternRuleIndex) : bool
-    {
+	/** Does {@code pattern} matched as rule {@code patternRuleIndex} match {@code tree}?
+	 * @param ParseTree $tree 
+	 * @param string $pattern 
+	 * @param int $patternRuleIndex 
+	 * @return bool
+	 */
+	public function matchesEx(ParseTree $tree, string $pattern, int $patternRuleIndex) : bool
+	{
+		/** @var ParseTreePattern $p */
 		$p = $this->compile($pattern, $patternRuleIndex);
 		return $this->matches($tree, $p);
 	}
-
-	/** Does {@code pattern} matched as rule patternRuleIndex match tree? Pass in a
-	 *  compiled pattern instead of a string representation of a tree pattern.
+	
+	/**
+	 * Does {@code pattern} matched as rule patternRuleIndex match tree? Pass in a
+	 * compiled pattern instead of a string representation of a tree pattern.
+	 * @param ParseTree $tree 
+	 * @param ParseTreePattern $pattern 
+	 * @return bool
 	 */
-	public boolean matches(ParseTree tree, ParseTreePattern pattern)
-    {
-		MultiMap<String, ParseTree> labels = new MultiMap<String, ParseTree>();
-		ParseTree mismatchedNode = matchImpl(tree, pattern.getPatternTree(), labels);
-		return mismatchedNode == null;
+	public function matches(ParseTree $tree, ParseTreePattern $pattern) : bool
+	{
+		/** @var MultiMap $labels */
+		$labels = new MultiMap();
+		/** @var ParseTree $mismatchedNode */
+		$mismatchedNode = $this->matchImpl($tree, $pattern->getPatternTree(), $labels);
+		return $mismatchedNode === null;
 	}
-
+	
 	/**
 	 * Compare {@code pattern} matched as rule {@code patternRuleIndex} against
 	 * {@code tree} and return a {@link ParseTreeMatch} object that contains the
 	 * matched elements, or the node at which the match failed.
+	 * @param ParseTree $tree 
+	 * @param string $pattern 
+	 * @param int $patternRuleIndex 
+	 * @return ParseTreeMatch
+     * @throws \Exception
 	 */
-	public ParseTreeMatch match(ParseTree tree, String pattern, int patternRuleIndex) {
-		ParseTreePattern p = compile(pattern, patternRuleIndex);
-		return match(tree, p);
+	public function matchWithEx(ParseTree $tree, string $pattern, int $patternRuleIndex) : ParseTreeMatch
+	{
+		/** @var ParseTreePattern $p */
+		$p = $this->compile($pattern, $patternRuleIndex);
+		return $this->match($tree, $p);
 	}
-
+	
 	/**
 	 * Compare {@code pattern} matched against {@code tree} and return a
 	 * {@link ParseTreeMatch} object that contains the matched elements, or the
 	 * node at which the match failed. Pass in a compiled pattern instead of a
 	 * string representation of a tree pattern.
+	 * @param ParseTree $tree
+	 * @param ParseTreePattern $pattern 
+	 * @return ParseTreeMatch
+     * @throws \Exception
 	 */
-
-	public ParseTreeMatch match(ParseTree tree, ParseTreePattern pattern) {
-		MultiMap<String, ParseTree> labels = new MultiMap<String, ParseTree>();
-		ParseTree mismatchedNode = matchImpl(tree, pattern.getPatternTree(), labels);
-		return new ParseTreeMatch(tree, pattern, labels, mismatchedNode);
+	public function match(ParseTree $tree, ParseTreePattern $pattern) : ParseTreeMatch
+	{
+		/** @var MultiMap $labels */
+		$labels = new MultiMap();
+		/** @var ParseTree $mismatchedNode */
+		$mismatchedNode = $this->matchImpl($tree, $pattern->getPatternTree(), $labels);
+		return new ParseTreeMatch($tree, $pattern, $labels, $mismatchedNode);
 	}
-
+	
 	/**
 	 * For repeated use of a tree pattern, compile it to a
 	 * {@link ParseTreePattern} using this method.
+	 * @param string $pattern 
+	 * @param int $patternRuleIndex 
+	 * @return ParseTreePattern
 	 */
-	public ParseTreePattern compile(String pattern, int patternRuleIndex) {
-		List<? extends Token> tokenList = tokenize(pattern);
-		ListTokenSource tokenSrc = new ListTokenSource(tokenList);
-		CommonTokenStream tokens = new CommonTokenStream(tokenSrc);
-
-		ParserInterpreter parserInterp = new ParserInterpreter(parser.getGrammarFileName(),
-															   parser.getVocabulary(),
-															   Arrays.asList(parser.getRuleNames()),
-															   parser.getATNWithBypassAlts(),
-															   tokens);
-
-		ParseTree tree = null;
-		try {
-			parserInterp.setErrorHandler(new BailErrorStrategy());
-			tree = parserInterp.parse(patternRuleIndex);
+	public function compile(string $pattern, int $patternRuleIndex) : ParseTreePattern
+	{
+		/** @var array $tokenList */
+		$tokenList = $this->tokenize($pattern);
+		/** @var ListTokenSource $tokenSrc */
+		$tokenSrc = new ListTokenSource($tokenList);
+		/** @var CommonTokenStream $tokens */
+		$tokens = new CommonTokenStream($tokenSrc);
+		
+		/** @var ParserInterpreter $parserInterp */
+		$parserInterp = new ParserInterpreter($this->parser->getGrammarFileName(),
+															   $this->parser->getVocabulary(),
+															   $this->parser->getRuleNames(),
+															   $this->parser->getATNWithBypassAlts(),
+															   $tokens);
+		
+		/** @var ParseTree $tree */
+		$tree = null;
+		try
+		{
+			$parserInterp->setErrorHandler(new BailErrorStrategy());
+			$tree = $parserInterp->parse($patternRuleIndex);
 //			System.out.println("pattern tree = "+tree.toStringTree(parserInterp));
 		}
-		catch (ParseCancellationException e) {
-			throw (RecognitionException)e.getCause();
+		catch (ParseCancellationException $e)
+		{
+			throw $e->getCause();
 		}
-		catch (RecognitionException re) {
-			throw re;
+		catch (RecognitionException $re)
+		{
+			throw $re;
 		}
-		catch (Exception e) {
-			throw new CannotInvokeStartRule(e);
+		catch (\Exception $e)
+		{
+			throw new CannotInvokeStartRule($e);
 		}
-
+		
 		// Make sure tree pattern compilation checks for a complete parse
-		if ( tokens.LA(1)!=Token.EOF ) {
+		if ( $tokens->LA(1)!==Token::EOF)
+		{
 			throw new StartRuleDoesNotConsumeFullPattern();
 		}
-
-		return new ParseTreePattern(this, pattern, patternRuleIndex, tree);
+		
+		return new ParseTreePattern($this, $pattern, $patternRuleIndex, $tree);
 	}
-
+	
 	/**
 	 * Used to convert the tree pattern string into a series of tokens. The
 	 * input stream is reset.
 	 */
-
-	public Lexer getLexer() {
-		return lexer;
+	
+	/**
+	 * @return Lexer
+	 */
+	public function getLexer() : Lexer
+	{
+		return $this->lexer;
 	}
-
+	
 	/**
 	 * Used to collect to the grammar file name, token names, rule names for
 	 * used to parse the pattern into a parse tree.
 	 */
-
-	public Parser getParser() {
-		return parser;
+	
+	/**
+	 * @return Parser
+	 */
+	public function getParser() : Parser
+	{
+		return $this->parser;
 	}
-
+	
 	// ---- SUPPORT CODE ----
-
+	
 	/**
 	 * Recursively walk {@code tree} against {@code patternTree}, filling
 	 * {@code match.}{@link ParseTreeMatch#labels labels}.
 	 *
-	 * @return the first node encountered in {@code tree} which does not match
+	 * @param ParseTree $tree
+	 * @param ParseTree $patternTree
+	 * @param MultiMap $labels
+	 * @return ParseTree The first node encountered in {@code tree} which does not match
 	 * a corresponding node in {@code patternTree}, or {@code null} if the match
 	 * was successful. The specific node returned depends on the matching
 	 * algorithm used by the implementation, and may be overridden.
 	 */
-
-	protected ParseTree matchImpl(ParseTree tree,
-								  ParseTree patternTree,
-								  MultiMap<String, ParseTree> labels)
-	{
-		if (tree == null) {
-			throw new IllegalArgumentException("tree cannot be null");
+	protected function matchImpl(ParseTree $tree, ParseTree $patternTree, MultiMap $labels) : ParseTree
+    {
+		if ($tree === null) {
+			throw new \Exception("tree cannot be null");
 		}
-
-		if (patternTree == null) {
-			throw new IllegalArgumentException("patternTree cannot be null");
+		
+		if ($patternTree === null)
+		{
+			throw new \Exception("patternTree cannot be null");
 		}
-
+		
 		// x and <ID>, x and y, or x and x; or could be mismatched types
-		if ( tree instanceof TerminalNode && patternTree instanceof TerminalNode ) {
-			TerminalNode t1 = (TerminalNode)tree;
-			TerminalNode t2 = (TerminalNode)patternTree;
-			ParseTree mismatchedNode = null;
+		if ( $tree instanceof TerminalNode && patternTree instanceof TerminalNode)
+		{
+			/** @var TerminalNode $t1 */
+			$t1 = (TerminalNode)$tree;
+			/** @var TerminalNode $t2 */
+			$t2 = (TerminalNode)patternTree;
+			/** @var ParseTree $mismatchedNode */
+			$mismatchedNode = null;
 			// both are tokens and they have same type
-			if ( t1.getSymbol().getType() == t2.getSymbol().getType() ) {
-				if ( t2.getSymbol() instanceof TokenTagToken ) { // x and <ID>
-					TokenTagToken tokenTagToken = (TokenTagToken)t2.getSymbol();
+			if ( $t1->getSymbol()->getType() === $t2->getSymbol()->getType())
+			{
+				if ( $t2->getSymbol() instanceof TokenTagToken) { // x and <ID>
+					/** @var TokenTagToken $tokenTagToken */
+					tokenTagToken = (TokenTagToken)$t2->getSymbol();
 					// track label->list-of-nodes for both token name and label (if any)
-					labels.map(tokenTagToken.getTokenName(), tree);
-					if ( tokenTagToken.getLabel()!=null ) {
-						labels.map(tokenTagToken.getLabel(), tree);
+					$labels->map(tokenTagToken->getTokenName(), $tree);
+					if ( tokenTagToken->getLabel()!==null)
+					{
+						$labels->map(tokenTagToken->getLabel(), $tree);
 					}
 				}
-				else if ( t1.getText().equals(t2.getText()) ) {
+				else if ( $t1->getText()->equals($t2->getText()))
+				{
 					// x and x
 				}
-				else {
+				else
+				{
 					// x and y
-					if (mismatchedNode == null) {
-						mismatchedNode = t1;
+					if ($mismatchedNode === null)
+					{
+						$mismatchedNode = $t1;
 					}
 				}
 			}
-			else {
-				if (mismatchedNode == null) {
-					mismatchedNode = t1;
+			else
+			{
+				if ($mismatchedNode === null) {
+					$mismatchedNode = $t1;
 				}
 			}
-
-			return mismatchedNode;
+			
+			return $mismatchedNode;
 		}
-
-		if ( tree instanceof ParserRuleContext && patternTree instanceof ParserRuleContext ) {
-			ParserRuleContext r1 = (ParserRuleContext)tree;
-			ParserRuleContext r2 = (ParserRuleContext)patternTree;
-			ParseTree mismatchedNode = null;
+		
+		if ( $tree instanceof ParserRuleContext && patternTree instanceof ParserRuleContext)
+		{
+			/** @var ParserRuleContext $r1 */
+			$r1 = (ParserRuleContext)$tree;
+			/** @var ParserRuleContext $r2 */
+			$r2 = (ParserRuleContext)patternTree;
+			/** @var ParseTree $mismatchedNode */
+			$mismatchedNode = null;
 			// (expr ...) and <expr>
-			RuleTagToken ruleTagToken = getRuleTagToken(r2);
-			if ( ruleTagToken!=null ) {
-				ParseTreeMatch m = null;
-				if ( r1.getRuleContext().getRuleIndex() == r2.getRuleContext().getRuleIndex() ) {
+			/** @var RuleTagToken $ruleTagToken */
+			ruleTagToken = getRuleTagToken($r2);
+			if ( ruleTagToken!==null)
+			{
+				/** @var ParseTreeMatch $m */
+				$m = null;
+				if ( $r1->getRuleContext()->getRuleIndex() === $r2->getRuleContext()->getRuleIndex())
+				{
 					// track label->list-of-nodes for both rule name and label (if any)
-					labels.map(ruleTagToken.getRuleName(), tree);
-					if ( ruleTagToken.getLabel()!=null ) {
-						labels.map(ruleTagToken.getLabel(), tree);
+					$labels->map(ruleTagToken->getRuleName(), $tree);
+					if ( ruleTagToken->getLabel()!==null)
+					{
+						$labels->map(ruleTagToken->getLabel(), $tree);
 					}
 				}
-				else {
-					if (mismatchedNode == null) {
-						mismatchedNode = r1;
+				else
+				{
+					if ($mismatchedNode === null) {
+						$mismatchedNode = $r1;
 					}
 				}
-
-				return mismatchedNode;
+				
+				return $mismatchedNode;
 			}
-
+			
 			// (expr ...) and (expr ...)
-			if ( r1.getChildCount()!=r2.getChildCount() ) {
-				if (mismatchedNode == null) {
-					mismatchedNode = r1;
+			if ( $r1->getChildCount()!==$r2->getChildCount())
+			{
+				if ($mismatchedNode === null) {
+					$mismatchedNode = $r1;
 				}
-
-				return mismatchedNode;
+				
+				return $mismatchedNode;
 			}
-
-			int n = r1.getChildCount();
-			for (int i = 0; i<n; i++) {
-				ParseTree childMatch = matchImpl(r1.getChild(i), patternTree.getChild(i), labels);
-				if ( childMatch != null ) {
-					return childMatch;
+			
+			/** @var int $n */
+			$n = $r1->getChildCount();
+			for ($i = 0; $i<$n; $i++)
+			{
+				/** @var ParseTree $childMatch */
+				$childMatch = matchImpl($r1->getChild($i), patternTree->getChild($i), $labels);
+				if ( $childMatch !== null)
+				{
+					return $childMatch;
 				}
 			}
-
-			return mismatchedNode;
+			
+			return $mismatchedNode;
 		}
-
+		
 		// if nodes aren't both tokens or both rule nodes, can't match
-		return tree;
+		return $tree;
 	}
-
-	/** Is {@code t} {@code (expr <expr>)} subtree? */
-	protected RuleTagToken getRuleTagToken(ParseTree t) {
-		if ( t instanceof RuleNode ) {
-			RuleNode r = (RuleNode)t;
-			if ( r.getChildCount()==1 && r.getChild(0) instanceof TerminalNode ) {
-				TerminalNode c = (TerminalNode)r.getChild(0);
-				if ( c.getSymbol() instanceof RuleTagToken ) {
+	/** Is {@code t} {@code (expr <expr>)} subtree?
+	 * @param ParseTree $t 
+	 * @return RuleTagToken
+	 */
+	protected function getRuleTagToken(ParseTree $t) : RuleTagToken
+	{
+		if ( $t instanceof RuleNode) {
+			/** @var RuleNode $r */
+			$r = (RuleNode)$t;
+			if ( $r->getChildCount()===1 && $r->getChild(0) instanceof TerminalNode)
+			{
+				/** @var TerminalNode $c */
+				$c = (TerminalNode)$r->getChild(0);
+				if ( $c->getSymbol() instanceof RuleTagToken)
+				{
 //					System.out.println("rule tag subtree "+t.toStringTree(parser));
-					return (RuleTagToken)c.getSymbol();
+					return (RuleTagToken)$c->getSymbol();
 				}
 			}
 		}
 		return null;
 	}
-
-	public List<? extends Token> tokenize(String pattern) {
+	
+	/**
+	 * @param string $pattern 
+	 * @return array
+	 */
+	public function tokenize(string $pattern) : array
+	{
 		// split pattern into chunks: sea (raw input) and islands (<ID>, <expr>)
-		List<Chunk> chunks = split(pattern);
-
+		/** @var Chunk[] $chunks */
+		$chunks = split($pattern);
+		
 		// create token stream from text and tags
-		List<Token> tokens = new ArrayList<Token>();
-		for (Chunk chunk : chunks) {
-			if ( chunk instanceof TagChunk ) {
-				TagChunk tagChunk = (TagChunk)chunk;
+		/** @var Token[] $tokens */
+		$tokens = new ArrayList<Token>();
+		foreach ($chunks as $chunk)
+		{
+			if ($chunk instanceof TagChunk) {
+				/** @var TagChunk $tagChunk */
+				$tagChunk = (TagChunk)$chunk;
 				// add special rule token or conjure up new token from name
-				if ( Character.isUpperCase(tagChunk.getTag().charAt(0)) ) {
-					Integer ttype = parser.getTokenType(tagChunk.getTag());
-					if ( ttype==Token.INVALID_TYPE ) {
-						throw new IllegalArgumentException("Unknown token "+tagChunk.getTag()+" in pattern: "+pattern);
+				if ( Character::isUpperCase($tagChunk->getTag()->charAt(0)))
+				{
+					/** @var Integer $ttype */
+					$ttype = $parser->getTokenType($tagChunk->getTag());
+					if ( $ttype===Token::INVALID_TYPE)
+					{
+						throw new IllegalArgumentException("Unknown token "+tagChunk.getTag()+" in pattern: "+$pattern);
 					}
-					TokenTagToken t = new TokenTagToken(tagChunk.getTag(), ttype, tagChunk.getLabel());
-					tokens.add(t);
+					/** @var TokenTagToken $t */
+					$t = new TokenTagToken($tagChunk->getTag(), $ttype, $tagChunk->getLabel());
+					$tokens->add($t);
 				}
-				else if ( Character.isLowerCase(tagChunk.getTag().charAt(0)) ) {
-					int ruleIndex = parser.getRuleIndex(tagChunk.getTag());
-					if ( ruleIndex==-1 ) {
-						throw new IllegalArgumentException("Unknown rule "+tagChunk.getTag()+" in pattern: "+pattern);
+				else if ( Character::isLowerCase($tagChunk->getTag()->charAt(0)))
+				{
+					/** @var int $ruleIndex */
+					$ruleIndex = $parser->getRuleIndex($tagChunk->getTag());
+					if ( $ruleIndex===-1)
+					{
+						throw new IllegalArgumentException("Unknown rule "+tagChunk.getTag()+" in pattern: "+$pattern);
 					}
-					int ruleImaginaryTokenType = parser.getATNWithBypassAlts().ruleToTokenType[ruleIndex];
-					tokens.add(new RuleTagToken(tagChunk.getTag(), ruleImaginaryTokenType, tagChunk.getLabel()));
+					/** @var int $ruleImaginaryTokenType */
+					ruleImaginaryTokenType = $parser->getATNWithBypassAlts()->ruleToTokenType[$ruleIndex];
+					$tokens->add(new RuleTagToken($tagChunk->getTag(), ruleImaginaryTokenType, $tagChunk->getLabel()));
 				}
-				else {
-					throw new IllegalArgumentException("invalid tag: "+tagChunk.getTag()+" in pattern: "+pattern);
+				else
+				{
+					throw new IllegalArgumentException("invalid tag: "+tagChunk.getTag()+" in pattern: "+$pattern);
 				}
 			}
-			else {
-				TextChunk textChunk = (TextChunk)chunk;
-				ANTLRInputStream in = new ANTLRInputStream(textChunk.getText());
-				lexer.setInputStream(in);
-				Token t = lexer.nextToken();
-				while ( t.getType()!=Token.EOF ) {
-					tokens.add(t);
-					t = lexer.nextToken();
+			else
+			{
+				/** @var TextChunk $textChunk */
+				$textChunk = (TextChunk)$chunk;
+				/** @var ANTLRInputStream $in */
+				$in = new ANTLRInputStream($textChunk->getText());
+				$lexer->setInputStream($in);
+				/** @var Token $t */
+				$t = $lexer->nextToken();
+				while ( $t->getType()!==Token::EOF)
+				{
+					$tokens->add($t);
+					$t = $lexer->nextToken();
 				}
 			}
 		}
 
 //		System.out.println("tokens="+tokens);
-		return tokens;
+		return $tokens;
 	}
-
-	/** Split {@code <ID> = <e:expr> ;} into 4 chunks for tokenizing by {@link #tokenize}. */
-	public List<Chunk> split(String pattern) {
-		int p = 0;
-		int n = pattern.length();
-		List<Chunk> chunks = new ArrayList<Chunk>();
-		StringBuilder buf = new StringBuilder();
+	/** Split {@code <ID> = <e:expr> ;} into 4 chunks for tokenizing by {@link #tokenize}.
+	 * @param string $pattern 
+	 * @return Chunk[]
+	 */
+	public function split(string $pattern) : array
+	{
+		/** @var int $p */
+		$p = 0;
+		/** @var int $n */
+		$n = $pattern->length();
+		/** @var Chunk[] $chunks */
+		$chunks = new ArrayList<Chunk>();
+		/** @var StringBuilder $buf */
+		$buf = new StringBuilder();
 		// find all start and stop indexes first, then collect
-		List<Integer> starts = new ArrayList<Integer>();
-		List<Integer> stops = new ArrayList<Integer>();
-		while ( p<n ) {
-			if ( p == pattern.indexOf(escape+start,p) ) {
-				p += escape.length() + start.length();
+		/** @var Integer[] $starts */
+		$starts = new ArrayList<Integer>();
+		/** @var Integer[] $stops */
+		$stops = new ArrayList<Integer>();
+		while ( $p<$n)
+		{
+			if ( $p === $pattern->indexOf($escape+$start,$p)) {
+				$p += $escape->length() + $start->length();
 			}
-			else if ( p == pattern.indexOf(escape+stop,p) ) {
-				p += escape.length() + stop.length();
+			else if ( $p === $pattern->indexOf($escape+$stop,$p))
+			{
+				$p += $escape->length() + $stop->length();
 			}
-			else if ( p == pattern.indexOf(start,p) ) {
-				starts.add(p);
-				p += start.length();
+			else if ( $p === $pattern->indexOf($start,$p))
+			{
+				$starts->add($p);
+				$p += $start->length();
 			}
-			else if ( p == pattern.indexOf(stop,p) ) {
-				stops.add(p);
-				p += stop.length();
+			else if ( $p === $pattern->indexOf($stop,$p))
+			{
+				$stops->add($p);
+				$p += $stop->length();
 			}
-			else {
-				p++;
+			else
+			{
+				$p++;
 			}
 		}
 
 //		System.out.println("");
 //		System.out.println(starts);
 //		System.out.println(stops);
-		if ( starts.size() > stops.size() ) {
-			throw new IllegalArgumentException("unterminated tag in pattern: "+pattern);
+		if ( $starts->size() > $stops->size())
+		{
+			throw new IllegalArgumentException("unterminated tag in pattern: "+$pattern);
 		}
-
-		if ( starts.size() < stops.size() ) {
-			throw new IllegalArgumentException("missing start tag in pattern: "+pattern);
+		
+		if ( $starts->size() < $stops->size())
+		{
+			throw new IllegalArgumentException("missing start tag in pattern: "+$pattern);
 		}
-
-		int ntags = starts.size();
-		for (int i=0; i<ntags; i++) {
-			if ( starts.get(i)>=stops.get(i) ) {
-				throw new IllegalArgumentException("tag delimiters out of order in pattern: "+pattern);
+		
+		/** @var int $ntags */
+		$ntags = $starts->size();
+		for ($i=0; $i<$ntags; $i++)
+		{
+			if ( $starts->get($i)>=$stops->get($i)) {
+				throw new IllegalArgumentException("tag delimiters out of order in pattern: "+$pattern);
 			}
 		}
-
+		
 		// collect into chunks now
-		if ( ntags==0 ) {
-			String text = pattern.substring(0, n);
-			chunks.add(new TextChunk(text));
+		if ( $ntags===0)
+		{
+			/** @var string $text */
+			$text = $pattern->substring(0, $n);
+			$chunks->add(new TextChunk($text));
 		}
-
-		if ( ntags>0 && starts.get(0)>0 ) { // copy text up to first tag into chunks
-			String text = pattern.substring(0, starts.get(0));
-			chunks.add(new TextChunk(text));
+		
+		if ( $ntags>0 && $starts->get(0)>0) { // copy text up to first tag into chunks
+			/** @var string $text */
+			$text = $pattern->substring(0, $starts->get(0));
+			$chunks->add(new TextChunk($text));
 		}
-		for (int i=0; i<ntags; i++) {
+		for ($i=0; $i<$ntags; $i++)
+		{
 			// copy inside of <tag>
-			String tag = pattern.substring(starts.get(i) + start.length(), stops.get(i));
-			String ruleOrToken = tag;
-			String label = null;
-			int colon = tag.indexOf(':');
-			if ( colon >= 0 ) {
-				label = tag.substring(0,colon);
-				ruleOrToken = tag.substring(colon+1, tag.length());
+			/** @var string $tag */
+			$tag = $pattern->substring($starts->get($i) + $start->length(), $stops->get($i));
+			/** @var string $ruleOrToken */
+			ruleOrToken = $tag;
+			/** @var string $label */
+			$label = null;
+			/** @var int $colon */
+			$colon = $tag->indexOf(':');
+			if ( $colon >= 0)
+			{
+				$label = $tag->substring(0,$colon);
+				ruleOrToken = $tag->substring($colon+1, $tag->length());
 			}
-			chunks.add(new TagChunk(label, ruleOrToken));
-			if ( i+1 < ntags ) {
+			$chunks->add(new TagChunk($label, ruleOrToken));
+			if ( $i+1 < $ntags)
+			{
 				// copy from end of <tag> to start of next
-				String text = pattern.substring(stops.get(i) + stop.length(), starts.get(i + 1));
-				chunks.add(new TextChunk(text));
+				/** @var string $text */
+				$text = $pattern->substring($stops->get($i) + $stop->length(), $starts->get($i + 1));
+				$chunks->add(new TextChunk($text));
 			}
 		}
-		if ( ntags>0 ) {
-			int afterLastTag = stops.get(ntags - 1) + stop.length();
-			if ( afterLastTag < n ) { // copy text from end of last tag to end
-				String text = pattern.substring(afterLastTag, n);
-				chunks.add(new TextChunk(text));
+		if ( $ntags>0)
+		{
+			/** @var int $afterLastTag */
+			afterLastTag = $stops->get($ntags - 1) + $stop->length();
+			if ( afterLastTag < $n) { // copy text from end of last tag to end
+				/** @var string $text */
+				$text = $pattern->substring(afterLastTag, $n);
+				$chunks->add(new TextChunk($text));
 			}
 		}
-
+		
 		// strip out the escape sequences from text chunks but not tags
-		for (int i = 0; i < chunks.size(); i++) {
-			Chunk c = chunks.get(i);
-			if ( c instanceof TextChunk ) {
-				TextChunk tc = (TextChunk)c;
-				String unescaped = tc.getText().replace(escape, "");
-				if (unescaped.length() < tc.getText().length()) {
-					chunks.set(i, new TextChunk(unescaped));
+		for ($i = 0; $i < $chunks->size(); $i++)
+		{
+			/** @var Chunk $c */
+			$c = $chunks->get($i);
+			if ( $c instanceof TextChunk)
+			{
+				/** @var TextChunk $tc */
+				$tc = (TextChunk)$c;
+				/** @var string $unescaped */
+				$unescaped = $tc->getText()->replace($escape, "");
+				if ($unescaped->length() < $tc->getText()->length())
+				{
+					$chunks->set($i, new TextChunk($unescaped));
 				}
 			}
 		}
-
-		return chunks;
+		
+		return $chunks;
 	}
 }

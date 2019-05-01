@@ -6,48 +6,41 @@
 
 namespace Antlr4\Atn;
 
-use Antlr4\Token; //('./../Token').Token;
-//use Antlr4\ATN; //('./ATN').ATN;
-use Antlr4\Atn\ATNType; //('./ATNType').ATNType;
+use Antlr4\Atn\Actions\LexerActionType;
+use Antlr4\Atn\Actions\LexerChannelAction;
+use Antlr4\Atn\Actions\LexerCustomAction;
+use Antlr4\Atn\Actions\LexerModeAction;
+use Antlr4\Atn\Actions\LexerMoreAction;
+use Antlr4\Atn\Actions\LexerPopModeAction;
+use Antlr4\Atn\Actions\LexerPushModeAction;
+use Antlr4\Atn\Actions\LexerSkipAction;
+use Antlr4\Atn\Actions\LexerTypeAction;
 use Antlr4\Atn\States\ATNState;
-
-use \Antlr4\Atn\Transitions\Transition;
-
-use Antlr4\IntervalSet; //('./../IntervalSet').IntervalSet;
-use Antlr4\Interval; //('./../IntervalSet').Interval;
-use \Antlr4\Atn\ATNDeserializationOptions;
-use \Antlr4\LexerActions; //('./LexerAction');
-use \Antlr4\Utils\Utils;
-
-// This is the earliest supported serialized UUID.
-// stick to serialized version for now, we don't need a UUID instance
-const BASE_SERIALIZED_UUID = "AADB8D7E-AEEF-4415-AD2B-8204D6CF042E";
-
-//
-// This UUID indicates the serialized ATN contains two sets of
-// IntervalSets, where the second set's values are encoded as
-// 32-bit integers to support the full Unicode SMP range up to U+10FFFF.
-//
-const ADDED_UNICODE_SMP = "59627784-3BE5-417A-B9EB-8131A7286089";
-
-// This list contains all of the currently supported UUIDs, ordered by when
-// the feature first appeared in this branch.
-const SUPPORTED_UUIDS = [ BASE_SERIALIZED_UUID, ADDED_UNICODE_SMP ];
-
-const SERIALIZED_VERSION = 3;
-
-// This is the current serialized UUID.
-const SERIALIZED_UUID = ADDED_UNICODE_SMP;
-
-function initArray($length, $value)
-{
-    $tmp = [];
-	for ($i = 0; $i < $length; $i++) $tmp[] = $value;
-	return $tmp;
-}
+use Antlr4\Atn\Transitions\Transition;
+use Antlr4\Token;
 
 class ATNDeserializer
 {
+    // This is the earliest supported serialized UUID.
+    // stick to serialized version for now, we don't need a UUID instance
+    const BASE_SERIALIZED_UUID = "AADB8D7E-AEEF-4415-AD2B-8204D6CF042E";
+
+    //
+    // This UUID indicates the serialized ATN contains two sets of
+    // IntervalSets, where the second set's values are encoded as
+    // 32-bit integers to support the full Unicode SMP range up to U+10FFFF.
+    //
+    const ADDED_UNICODE_SMP = "59627784-3BE5-417A-B9EB-8131A7286089";
+
+    // This list contains all of the currently supported UUIDs, ordered by when
+    // the feature first appeared in this branch.
+    const SUPPORTED_UUIDS = [ BASE_SERIALIZED_UUID, ADDED_UNICODE_SMP ];
+
+    const SERIALIZED_VERSION = 3;
+
+    // This is the current serialized UUID.
+    const SERIALIZED_UUID = ADDED_UNICODE_SMP;
+
     /**
      * @var ATNDeserializationOptions
      */
@@ -443,7 +436,7 @@ class ATNDeserializer
         }
     }
 
-    function generateRuleBypassTransition($atn, $idx)
+    function generateRuleBypassTransition(ATN $atn, $idx)
     {
         $bypassStart = new \Antlr4\Atn\States\BasicBlockStartState();
         $bypassStart->ruleIndex = $idx;
@@ -465,9 +458,8 @@ class ATNDeserializer
         {
             // wrap from the beginning of the rule to the StarLoopEntryState
             $endState = null;
-            for($i=0; $i<$atn->states->length; $i++)
+            foreach ($atn->states as $state)
             {
-                $state = $atn->states[$i];
                 if ($this->stateIsEndStateFor($state, $idx))
                 {
                     $endState = $state;
@@ -485,14 +477,12 @@ class ATNDeserializer
             $endState = $atn->ruleToStopState[$idx];
         }
 
-        // all non-excluded transitions that currently target end state need to
-        // target blockEnd instead
-        for ($i=0; $i<$atn->states->length; $i++)
+        // all non-excluded transitions that currently target end state need to target blockEnd instead
+        // TODO:looks like a bug
+        foreach ($atn->states as $state)
         {
-            $state = $atn->states[$i];
-            for($j=0; $j<count($this->transitions); $j++)
+            foreach ($state->transitions as $transition)
             {
-                $transition = $state->transitions[$j];
                 if ($transition === $excludeTransition)
                 {
                     continue;
@@ -782,10 +772,10 @@ class ATNDeserializer
             $af[LexerActionType::CHANNEL] = function($data1, $data2) { return new LexerChannelAction($data1); };
             $af[LexerActionType::CUSTOM] = function($data1, $data2) { return new LexerCustomAction($data1, $data2); };
             $af[LexerActionType::MODE] = function($data1, $data2) { return new LexerModeAction($data1); };
-            $af[LexerActionType::MORE] = function($data1, $data2) { return LexerMoreAction::INSTANCE; };
-            $af[LexerActionType::POP_MODE] = function($data1, $data2) { return LexerPopModeAction::INSTANCE; };
+            $af[LexerActionType::MORE] = function($data1, $data2) { return LexerMoreAction::INSTANCE(); };
+            $af[LexerActionType::POP_MODE] = function($data1, $data2) { return LexerPopModeAction::INSTANCE(); };
             $af[LexerActionType::PUSH_MODE] = function($data1, $data2) { return new LexerPushModeAction($data1); };
-            $af[LexerActionType::SKIP] = function($data1, $data2) { return LexerSkipAction::INSTANCE; };
+            $af[LexerActionType::SKIP] = function($data1, $data2) { return LexerSkipAction::INSTANCE(); };
             $af[LexerActionType::TYPE] = function($data1, $data2) { return new LexerTypeAction($data1); };
             $this->actionFactories = $af;
         }
@@ -797,5 +787,12 @@ class ATNDeserializer
         {
             return $this->actionFactories[$type]($data1, $data2);
         }
+    }
+
+    static function initArray($length, $value)
+    {
+        $tmp = [];
+        for ($i = 0; $i < $length; $i++) $tmp[] = $value;
+        return $tmp;
     }
 }

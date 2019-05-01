@@ -7,7 +7,10 @@ use Antlr4\RuleContext;
 
 interface ParseTree extends SyntaxTree
 {
-    function getParent() : ParseTree;
+    /**
+     * @return ParseTree
+     */
+    function getParent();
 
     /**
      * @param int $i

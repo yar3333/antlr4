@@ -2,37 +2,43 @@
 
 namespace Antlr4\Tree;
 
-class ParseTreeVisitor
+use Antlr4\Utils\Utils;
+
+abstract class ParseTreeVisitor
 {
-    function __construct()
+    function __construct() {}
+
+    function visitOne(ParseTree $ctx) : object
     {
+        return $ctx->accept($this);
     }
 
-    function visit($ctx)
+    /**
+     * @param ParseTree[] $ctx
+     * @return object[]
+     */
+    function visitMany(array $ctx) : array
     {
-        if (is_array($ctx)) {
-            return $ctx->map(function ($child) {
-                return $child->accept($this);
-            }, $this);
-        } else {
-            return $ctx->accept($this);
-        }
+        return Utils::arrayMap($ctx, function(ParseTree $child) { return $child->accept($this); });
     }
 
-    function visitChildren($ctx)
+    /**
+     * @param RuleNode $ctx
+     * @return object[]
+     */
+    function visitChildren(RuleNode $ctx) : array
     {
-        if ($ctx->children) {
-            return $this->visit($ctx->children);
-        } else {
-            return null;
-        }
+        if (!$ctx->children()) return null;
+        return $this->visitMany($ctx->children());
     }
 
-    function visitTerminal($node)
+    function visitTerminal(TerminalNode $node) : object
     {
+        return null;
     }
 
-    function visitErrorNode($node)
+    function visitErrorNode(ErrorNode $node) : object
     {
+        return null;
     }
 }

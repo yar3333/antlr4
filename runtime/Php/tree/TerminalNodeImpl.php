@@ -3,17 +3,23 @@
 namespace Antlr4\Tree;
 
 use Antlr4\Interval;
+use Antlr4\RuleContext;
 use Antlr4\Token;
 
-class TerminalNodeImpl extends TerminalNode
+class TerminalNodeImpl implements TerminalNode
 {
+    /**
+     * @var ParseTree
+     */
     public $parentCtx;
+
+    /**
+     * @var Token
+     */
     public $symbol;
 
     function __construct($symbol)
     {
-        parent::__construct();
-
         $this->parentCtx = null;
         $this->symbol = $symbol;
     }
@@ -23,12 +29,17 @@ class TerminalNodeImpl extends TerminalNode
         return null;
     }
 
-    function getSymbol()
+    function getSymbol() : Token
     {
         return $this->symbol;
     }
 
-    function getParent()
+    function setParent(RuleContext $parent) : void
+    {
+        $this->parentCtx = $parent;
+    }
+
+    function getParent() : ParseTree
     {
         return $this->parentCtx;
     }
@@ -38,7 +49,7 @@ class TerminalNodeImpl extends TerminalNode
         return $this->symbol;
     }
 
-    function getSourceInterval()
+    function getSourceInterval() : Interval
     {
         if ($this->symbol === null) {
             return new Interval(-1, -2);
@@ -47,19 +58,19 @@ class TerminalNodeImpl extends TerminalNode
         return new Interval($tokenIndex, $tokenIndex);
     }
 
-    function getChildCount()
+    function getChildCount() : int
     {
         return 0;
     }
 
-    function accept($visitor)
+    function accept(ParseTreeVisitor $visitor)
     {
         return $visitor->visitTerminal($this);
     }
 
-    function getText()
+    function getText() : string
     {
-        return $this->symbol->text;
+        return $this->symbol->getText();
     }
 
     function __toString()
@@ -67,7 +78,7 @@ class TerminalNodeImpl extends TerminalNode
         if ($this->symbol->type === Token::EOF) {
             return "<EOF>";
         } else {
-            return $this->symbol->text;
+            return $this->symbol->getText();
         }
     }
 }

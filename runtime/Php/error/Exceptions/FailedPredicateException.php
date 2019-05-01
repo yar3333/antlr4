@@ -11,6 +11,16 @@ use Antlr4\Parser;
 // prediction.
 class FailedPredicateException extends RecognitionException
 {
+    /**
+     * @var int
+     */
+    public $ruleIndex;
+
+    /**
+     * @var int
+     */
+    public $predicateIndex;
+
     function __construct(Parser $recognizer, $predicate, $message)
     {
         parent::__construct((object)[
@@ -19,7 +29,7 @@ class FailedPredicateException extends RecognitionException
             'input' => $recognizer->getInputStream(),
             'ctx' => $recognizer->_ctx
         ]);
-        $s = $recognizer->_interp->atn->states[$recognizer->getState()];
+        $s = $recognizer->getInterpreter()->atn->states[$recognizer->getState()];
         $trans = $s->transitions[0];
         if ($trans instanceof PredicateTransition) {
             $this->ruleIndex = $trans->ruleIndex;
