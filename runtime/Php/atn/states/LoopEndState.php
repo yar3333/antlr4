@@ -4,6 +4,9 @@ namespace Antlr4\Atn\States;
 
 class LoopEndState extends ATNState
 {
+    /**
+     * @var ATNState
+     */
     public $loopBackState;
 
     function __construct()

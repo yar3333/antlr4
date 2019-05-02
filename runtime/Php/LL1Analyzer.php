@@ -51,7 +51,7 @@ class LL1Analyzer
             $look[$alt] = new IntervalSet();
             $lookBusy = new Set();
             $seeThruPreds = false;// fail to get lookahead upon pred
-            $this->_LOOK($s->transition($alt)->target, null, PredictionContext::EMPTY, $look[$alt], $lookBusy, new BitSet(), $seeThruPreds, false);
+            $this->_LOOK($s->transition($alt)->target, null, PredictionContext::EMPTY(), $look[$alt], $lookBusy, new BitSet(), $seeThruPreds, false);
             // Wipe out lookahead for this alternative if we found nothing
             // or we had a predicate when we !seeThruPreds
             if ($look[$alt]->length===0 || $look[$alt]->contains(LL1Analyzer::HIT_PRED))
@@ -80,7 +80,7 @@ class LL1Analyzer
     // @return The set of tokens that can follow {@code s} in the ATN in the
     // specified {@code ctx}.
     ///
-    function LOOK($s, $stopState, $ctx)
+    function LOOK(ATNState $s, ATNState $stopState, RuleContext$ctx) : IntervalSet
     {
         $r = new IntervalSet();
         $seeThruPreds = true;// ignore preds; get all lookahead
@@ -107,7 +107,7 @@ class LL1Analyzer
     // @param calledRuleStack A set used for preventing left recursion in the ATN from causing a stack overflow. Outside code should pass {@code new BitSet()} for this argument.
     // @param seeThruPreds {@code true} to true semantic predicates as implicitly {@code true} and "see through them", otherwise {@code false} to treat semantic predicates as opaque and add {@link //HIT_PRED} to the result if one is encountered.
     // @param addEOF Add {@link Token//EOF} to the result if the end of the outermost context is reached. This parameter has no effect if {@code ctx} is {@code null}.
-    function _LOOK(ATNState $s, ATNState $stopState, PredictionContext $ctx, IntervalSet $look, Set $lookBusy, BitSet $calledRuleStack, $seeThruPreds, $addEOF)
+    function _LOOK(ATNState $s, ATNState $stopState, PredictionContext $ctx, IntervalSet $look, Set $lookBusy, BitSet $calledRuleStack, bool $seeThruPreds, bool $addEOF)
     {
         $c = new ATNConfig((object)[ 'state'=>$s, 'alt'=>0, 'context'=>$ctx ], null);
 
@@ -140,7 +140,7 @@ class LL1Analyzer
                 $look->addOne(Token::EOF);
                 return;
             }
-            if ($ctx !== PredictionContext::EMPTY)
+            if ($ctx !== PredictionContext::EMPTY())
             {
                 // run thru all possible stack tops in ctx
                 for($i=0; $i<$ctx->getLength(); $i++)

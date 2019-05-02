@@ -32,9 +32,10 @@ interface Tree
     /**
      * If there are children, get the {@code i}th value indexed from 0.
      * @param int $i
+     * @param mixed $type
      * @return Tree
      */
-    function getChild(int $i);
+    function getChild(int $i, $type=null);
 
     /** How many children are there? If there is none, then this
      *  node represents a leaf node.

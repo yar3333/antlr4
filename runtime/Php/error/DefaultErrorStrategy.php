@@ -14,7 +14,7 @@ use Antlr4\Token;
 
 // This is the default implementation of {@link ANTLRErrorStrategy} used for
 // error reporting and recovery in ANTLR parsers.
-class DefaultErrorStrategy extends ErrorStrategy
+class DefaultErrorStrategy implements ErrorStrategy
 {
     /**
      * @var bool
@@ -33,8 +33,6 @@ class DefaultErrorStrategy extends ErrorStrategy
 
     function __construct()
     {
-        parent::__construct();
-
         // Indicates whether the error strategy is currently "recovering from an
         // error". This is used to suppress reporting multiple error messages while
         // attempting to recover from a detected syntax error.
@@ -54,9 +52,9 @@ class DefaultErrorStrategy extends ErrorStrategy
     /**
      * <p>The default implementation simply calls {@link //endErrorCondition} to
      * ensure that the handler is not in error recovery mode.</p>
-     * @param Recognizer $recognizer
+     * @param Parser $recognizer
      */
-    function reset($recognizer)
+    function reset(Parser $recognizer) : void
     {
         $this->endErrorCondition($recognizer);
     }
@@ -70,7 +68,7 @@ class DefaultErrorStrategy extends ErrorStrategy
         $this->errorRecoveryMode = true;
     }
 
-    function inErrorRecoveryMode($recognizer)
+    function inErrorRecoveryMode(Parser $recognizer) : bool
     {
         return $this->errorRecoveryMode;
     }
@@ -91,7 +89,7 @@ class DefaultErrorStrategy extends ErrorStrategy
      * <p>The default implementation simply calls {@link //endErrorCondition}.</p>
      * @param $recognizer
      */
-    function reportMatch($recognizer)
+    function reportMatch(Parser $recognizer) : void
     {
         $this->endErrorCondition($recognizer);
     }
@@ -117,7 +115,7 @@ class DefaultErrorStrategy extends ErrorStrategy
      * @param Parser $recognizer
      * @param RecognitionException $e
      */
-    function reportError($recognizer, $e)
+    function reportError(Parser $recognizer, RecognitionException $e) : void
     {
         // if we've already reported an error and have not matched a token
         // yet successfully, don't report any errors.
@@ -152,9 +150,9 @@ class DefaultErrorStrategy extends ErrorStrategy
      * @param Parser $recognizer
      * @param RecognitionException $e
      */
-    function recover($recognizer, $e)
+    function recover(Parser $recognizer, RecognitionException $e) : void
     {
-        if ($this->lastErrorIndex === $recognizer->getInputStream()->getIndex() &&
+        if ($this->lastErrorIndex === $recognizer->getInputStream()->index() &&
             $this->lastErrorStates && array_search($recognizer->getState(), $this->lastErrorStates) !== false)
         {
             // uh oh, another error at same token index and previously-visited
@@ -163,7 +161,7 @@ class DefaultErrorStrategy extends ErrorStrategy
             // at least to prevent an infinite loop; this is a failsafe.
             $recognizer->consume();
         }
-        $this->lastErrorIndex = $recognizer->_input->getIndex();
+        $this->lastErrorIndex = $recognizer->_input->index();
         if ($this->lastErrorStates === null) {
             $this->lastErrorStates = [];
         }
@@ -220,7 +218,7 @@ class DefaultErrorStrategy extends ErrorStrategy
      * @param Parser $recognizer
      * @throws InputMismatchException
      */
-    function sync($recognizer)
+    function sync(Parser $recognizer) : void
     {
         // If already recovering, don't try to sync
         if ($this->inErrorRecoveryMode($recognizer)) return;
@@ -274,7 +272,7 @@ class DefaultErrorStrategy extends ErrorStrategy
                 $input = "<EOF>";
             } else {
                 // TODO: BUGFIXED
-                $input = $tokens->getText($e->startToken->tokenIndex, $e->offendingToken->tokenIndex);
+                $input = $tokens->getTextByTokens($e->startToken->tokenIndex, $e->offendingToken->tokenIndex);
             }
         } else {
             $input = "<unknown input>";
@@ -298,7 +296,7 @@ class DefaultErrorStrategy extends ErrorStrategy
      */
     function reportInputMismatch($recognizer, $e)
     {
-        $msg = "mismatched input " . $this->getTokenErrorDisplay($e->offendingToken) . " expecting " . $e->getExpectedTokens()->toString($recognizer->literalNames, $recognizer->symbolicNames);
+        $msg = "mismatched input " . $this->getTokenErrorDisplay($e->offendingToken) . " expecting " . $e->getExpectedTokens()->toString($recognizer->getVocabulary());
         $recognizer->notifyErrorListeners($msg, $e->offendingToken, $e);
     }
 
@@ -343,7 +341,7 @@ class DefaultErrorStrategy extends ErrorStrategy
         $t = $recognizer->getCurrentToken();
         $tokenName = $this->getTokenErrorDisplay($t);
         $expecting = $this->getExpectedTokens($recognizer);
-        $msg = "extraneous input " . tokenName . " expecting " .
+        $msg = "extraneous input " . $tokenName . " expecting " .
             $expecting->toString($recognizer->literalNames, $recognizer->symbolicNames);
         $recognizer->notifyErrorListeners($msg, $t, null);
     }
@@ -362,17 +360,15 @@ class DefaultErrorStrategy extends ErrorStrategy
     // enter error recovery mode, followed by calling
     // {@link Parser//notifyErrorListeners}.</p>
     //
-    // @param recognizer the parser instance
-    function reportMissingToken($recognizer)
+    // @param Parser $recognizer the parser instance
+    function reportMissingToken(Parser $recognizer)
     {
-        if ($this->inErrorRecoveryMode($recognizer)) {
-            return;
-        }
+        if ($this->inErrorRecoveryMode($recognizer)) return;
+
         $this->beginErrorCondition($recognizer);
         $t = $recognizer->getCurrentToken();
         $expecting = $this->getExpectedTokens($recognizer);
-        $msg = "missing " . $expecting->toString($recognizer->literalNames, $recognizer->symbolicNames) +
-            " at " . $this->getTokenErrorDisplay($t);
+        $msg = "missing " . $expecting->toString($recognizer->literalNames, $recognizer->symbolicNames) . " at " . $this->getTokenErrorDisplay($t);
         $recognizer->notifyErrorListeners($msg, $t, null);
     }
 
@@ -424,7 +420,13 @@ class DefaultErrorStrategy extends ErrorStrategy
     // call {@link //recoverInline}. To recover, it sees that {@code LA(1)==';'}
     // is in the set of tokens that can follow the {@code ')'} token reference
     // in rule {@code atom}. It can assume that you forgot the {@code ')'}.
-    function recoverInline($recognizer)
+
+    /**
+     * @param Parser $recognizer
+     * @return Token
+     * @throws InputMismatchException
+     */
+    function recoverInline(Parser $recognizer) : Token
     {
         // SINGLE TOKEN DELETION
         $matchedSymbol = $this->singleTokenDeletion($recognizer);
@@ -458,15 +460,15 @@ class DefaultErrorStrategy extends ErrorStrategy
     // @param recognizer the parser instance
     // @return {@code true} if single-token insertion is a viable recovery
     // strategy for the current mismatched input, otherwise {@code false}
-    function singleTokenInsertion($recognizer)
+    function singleTokenInsertion(Parser $recognizer) : bool
     {
-        $currentSymbolType = $recognizer->getTokenStream() . LA(1);
+        $currentSymbolType = $recognizer->getTokenStream()->LA(1);
         // if current token is consistent with what could come after current
         // ATN state, then we know we're missing a token; error recovery
         // is free to conjure up and insert the missing token
-        $atn = $recognizer->_interp->atn;
-        $currentState = $atn->states[$recognizer->state];
-        $next = $currentState->transitions[0] . $target;
+        $atn = $recognizer->getInterpreter()->atn;
+        $currentState = $atn->states[$recognizer->getState()];
+        $next = $currentState->transitions[0]->target;
         $expectingAtLL2 = $atn->nextTokens($next, $recognizer->_ctx);
         if ($expectingAtLL2->contains($currentSymbolType)) {
             $this->reportMissingToken($recognizer);
@@ -493,7 +495,7 @@ class DefaultErrorStrategy extends ErrorStrategy
     // @return the successfully matched {@link Token} instance if single-token
     // deletion successfully recovers from the mismatched input, otherwise
     // {@code null}
-    function singleTokenDeletion($recognizer)
+    function singleTokenDeletion(Parser $recognizer) : ?Token
     {
         $nextTokenType = $recognizer->getTokenStream()->LA(2);
         $expecting = $this->getExpectedTokens($recognizer);
@@ -508,9 +510,9 @@ class DefaultErrorStrategy extends ErrorStrategy
             $matchedSymbol = $recognizer->getCurrentToken();
             $this->reportMatch($recognizer);// we know current token is correct
             return $matchedSymbol;
-        } else {
-            return null;
         }
+
+        return null;
     }
 
     // Conjure up a missing token during error recovery.
@@ -546,9 +548,7 @@ class DefaultErrorStrategy extends ErrorStrategy
         if ($current->type === Token::EOF && $lookback !== null) {
             $current = $lookback;
         }
-        return $recognizer->getTokenFactory()->create($current->source,
-                $expectedTokenType, $tokenText, Token::DEFAULT_CHANNEL,
-                -1, -1, $current->line, $current->column);
+        return $recognizer->getTokenFactory()->create($current->source, $expectedTokenType, $tokenText, Token::DEFAULT_CHANNEL, -1, -1, $current->line, $current->column);
     }
 
     function getExpectedTokens(Parser $recognizer)
@@ -581,10 +581,10 @@ class DefaultErrorStrategy extends ErrorStrategy
 
     function escapeWSAndQuote($s)
     {
-        $s = $s->replace(/\$n / $g,"\\n");
-        $s = $s->replace(/\$r / $g,"\\r");
-        $s = $s->replace(/\$t / $g,"\\t");
-        return "'" + s + "'";
+        $s = preg_replace('/\n/g', "\\n", $s);
+        $s = preg_replace('/\r/g', "\\r", $s);
+        $s = preg_replace('/\t/g', "\\t", $s);
+        return "'" . $s . "'";
     }
 
     // Compute the error recovery set for the current rule. During

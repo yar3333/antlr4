@@ -76,6 +76,8 @@ class Utils
 
     static function standardEqualsFunction(object $a, object $b)
     {
+        if ($a === null && $b === null) return true;
+        if ($a === null || $b === null) return false;
         return $a->equals($b);
     }
 

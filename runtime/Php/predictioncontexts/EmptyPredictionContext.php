@@ -4,13 +4,6 @@ namespace Antlr4\Predictioncontexts;
 
 class EmptyPredictionContext extends SingletonPredictionContext
 {
-    private static $_EMPTY;
-
-    public static function EMPTY()
-    {
-        return self::$_EMPTY ? self::$_EMPTY : (self::$_EMPTY = new EmptyPredictionContext());
-    }
-
     function __construct()
     {
         parent::__construct(null, PredictionContext::EMPTY_RETURN_STATE);
@@ -21,7 +14,7 @@ class EmptyPredictionContext extends SingletonPredictionContext
         return true;
     }
 
-    function getParent(int $index): PredictionContext
+    function getParent(int $index=null) : PredictionContext
     {
         return null;
     }
@@ -31,7 +24,7 @@ class EmptyPredictionContext extends SingletonPredictionContext
         return $this->returnState;
     }
 
-    function equals($other)
+    function equals($other) : bool
     {
         return $this === $other;
     }

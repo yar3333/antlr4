@@ -9,11 +9,8 @@ namespace Antlr4;
 use Antlr4\Atn\ATN;
 use Antlr4\Tree\ParseTree;
 use Antlr4\Tree\RuleNode;
-use Antlr4\Tree\Tree;
 use Antlr4\Tree\Trees;
 use Antlr4\Utils\Utils; //('./tree/Tree').RuleNode;
-//use Antlr4\INVALID_INTERVAL; //('./tree/Tree').INVALID_INTERVAL;
-//use Antlr4\INVALID_ALT_NUMBER; //('./atn/ATN').INVALID_ALT_NUMBER;
 
 //  A rule context is a record of a single rule invocation. It knows
 //  which context invoked it, if any. If there is no parent context, then
@@ -36,17 +33,20 @@ use Antlr4\Utils\Utils; //('./tree/Tree').RuleNode;
 //  @see ParserRuleContext
 class RuleContext implements RuleNode
 {
+    private static $_EMPTY;
+    public static function EMPTY() : ParserRuleContext { return self::$_EMPTY ? self::$_EMPTY : (self::$_EMPTY = new ParserRuleContext()); }
+
     /**
      * @var RuleContext
      */
-    public $parentCtx;
+    protected $parentCtx;
 
     /**
      * @var int
      */
     public $invokingState;
 
-    function __construct(RuleContext $parent, int $invokingState)
+    function __construct(RuleContext $parent, int $invokingState=null)
     {
         // What context invoked this rule?
         $this->parentCtx = $parent;
@@ -126,7 +126,7 @@ class RuleContext implements RuleNode
     // option contextSuperClass.
     function setAltNumber($altNumber) {}
 
-    function getChild($i)
+    function getChild(int $i, $type=null)
     {
         return null;
     }
@@ -201,4 +201,9 @@ class RuleContext implements RuleNode
     function getParent() { return $this->parentCtx; }
 
     function setParent(RuleContext $ctx): void { $this->parentCtx = $ctx; }
+
+    function toStringTree(Parser $recog = null): string
+    {
+        return Trees::toStringTree($this, null, $recog);
+    }
 }

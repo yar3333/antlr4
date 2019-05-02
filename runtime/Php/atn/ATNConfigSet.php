@@ -184,7 +184,7 @@ class ATNConfigSet
         for ($i = 0; $i < count($this->configs); $i++)
         {
             $c = $this->configs[$i]->semanticContext;
-            if ($c !== SemanticContext::NONE)
+            if ($c !== SemanticContext::NONE())
             {
                 array_push($preds, $c->semanticContext);
             }
@@ -195,19 +195,13 @@ class ATNConfigSet
     function items() { return $this->configs; }
     function item(int $index) { return $this->configs[$index]; }
 
-    function optimizeConfigs($interpreter)
+    function optimizeConfigs(ATNSimulator $interpreter)
     {
-        if ($this->readOnly)
+        if ($this->readOnly) throw new \Exception("This set is readonly");
+        if ($this->configLookup->isEmpty()) return;
+
+        foreach ($this->configs as $config)
         {
-            throw new \Exception("This set is readonly");
-        }
-        if ($this->configLookup->getLength() === 0)
-        {
-            return;
-        }
-        for ($i = 0; $i < count($this->configs); $i++)
-        {
-            $config = $this->configs[$i];
             $config->context = $interpreter->getCachedContext($config->context);
         }
     }
@@ -265,7 +259,7 @@ class ATNConfigSet
         return count($this->configs) === 0;
     }
 
-    function contains($item)
+    function contains(object $item) : bool
     {
         if ($this->configLookup === null)
         {
@@ -274,13 +268,9 @@ class ATNConfigSet
         return $this->configLookup->contains($item);
     }
 
-    function containsFast($item)
+    function containsFast(ATNConfig $item) : bool
     {
-        if ($this->configLookup === null)
-        {
-            throw new \Exception("This method is not implemented for readonly sets.");
-        }
-        return $this->configLookup->containsFast($item);
+        return $this->contains($item);
     }
 
     function clear()

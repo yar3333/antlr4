@@ -176,7 +176,7 @@ class ATNConfig
         return
             "(" . $this->state . "," . $this->alt .
                 ($this->context!==null ? ",[" . $this->context . "]" : "") .
-                ($this->semanticContext !== SemanticContext::NONE ? "," . $this->semanticContext : "") .
+                ($this->semanticContext !== SemanticContext::NONE() ? "," . $this->semanticContext : "") .
                 ($this->reachesIntoOuterContext>0 ? ",up=" . $this->reachesIntoOuterContext : "") .
             ")";
     }

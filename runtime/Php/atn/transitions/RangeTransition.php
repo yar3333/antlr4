@@ -38,7 +38,7 @@ class RangeTransition extends Transition
     }
 
     /* RangeTransition */
-    function matches($symbol, $minVocabSymbol, $maxVocabSymbol)
+    function matches(int $symbol, int $minVocabSymbol, int $maxVocabSymbol) : bool
     {
         return $symbol >= $this->start && $symbol <= $this->stop;
     }

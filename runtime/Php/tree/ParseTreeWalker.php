@@ -2,49 +2,50 @@
 
 namespace Antlr4\Tree;
 
+use Antlr4\ParserRuleContext;
+
 class ParseTreeWalker
 {
-    private static $_DEFAULT;
+    private static $DEFAULT;
+    static function DEFAULT(): ParseTreeWalker { return self::$DEFAULT ? self::$DEFAULT : (self::$DEFAULT = new ParseTreeWalker()); }
 
-    static function DEFAULT(): ParseTreeWalker
+    function walk(ParseTreeListener $listener, ParseTree $t)
     {
-        return self::$_DEFAULT ? self::$_DEFAULT : (self::$_DEFAULT = new ParseTreeWalker());
-    }
-
-    function __construct($token)
-    {
-    }
-
-    function walk($listener, $t)
-    {
-        $errorNode = $t instanceof ErrorNode || (method_exists($t, 'isErrorNode') && $t->isErrorNode());
-        if ($errorNode) {
-            $listener->visitErrorNode($t);
-        } else if ($t instanceof TerminalNode) {
-            $listener->visitTerminal($t);
-        } else {
-            $this->enterRule($listener, $t);
-            for ($i = 0; $i < $t->getChildCount(); $i++) {
-                $child = $t->getChild($i);
-                $this->walk($listener, $child);
-            }
-            $this->exitRule($listener, $t);
+		if ( $t instanceof ErrorNode) {
+			$listener->visitErrorNode($t);
+			return;
+		}
+		else if ( $t instanceof TerminalNode)
+		{
+			$listener->visitTerminal($t);
+			return;
+		}
+		/** @var RuleNode $r */
+		$r = $t;
+        $this->enterRule($listener, $r);
+        $n = $r->getChildCount();
+        for ($i = 0; $i<$n; $i++)
+        {
+            $this->walk($listener, $r->getChild($i));
         }
+		$this->exitRule($listener, $r);
     }
 
     // The discovery of a rule node, involves sending two events: the generic
     // {@link ParseTreeListener//enterEveryRule} and a
     // {@link RuleContext}-specific event. First we trigger the generic and then
     // the rule specific. We to them in reverse order upon finishing the node.
-    function enterRule($listener, $r)
+    function enterRule(ParseTreeListener $listener, RuleNode $r)
     {
+        /** @var ParserRuleContext $ctx */
         $ctx = $r->getRuleContext();
         $listener->enterEveryRule($ctx);
         $ctx->enterRule($listener);
     }
 
-    function exitRule($listener, $r)
+    function exitRule(ParseTreeListener $listener, RuleNode $r)
     {
+        /** @var ParserRuleContext $ctx */
         $ctx = $r->getRuleContext();
         $ctx->exitRule($listener);
         $listener->exitEveryRule($ctx);

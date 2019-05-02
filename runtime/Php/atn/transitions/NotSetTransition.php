@@ -13,7 +13,7 @@ class NotSetTransition extends SetTransition
         $this->serializationType = Transition::NOT_SET;
     }
 
-    function matches($symbol, $minVocabSymbol, $maxVocabSymbol)
+    function matches(int $symbol, int $minVocabSymbol, int $maxVocabSymbol) : bool
     {
         return $symbol >= $minVocabSymbol && $symbol <= $maxVocabSymbol &&
             !parent::matches($symbol, $minVocabSymbol, $maxVocabSymbol);

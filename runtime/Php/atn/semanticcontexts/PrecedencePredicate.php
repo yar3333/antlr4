@@ -2,7 +2,6 @@
 
 namespace Antlr4\Atn\Semanticcontexts;
 
-use Antlr4\Atn\Semanticcontexts\SemanticContext;
 use Antlr4\Recognizer;
 use Antlr4\Utils\Set;
 
@@ -20,7 +19,7 @@ class PrecedencePredicate extends SemanticContext
         $this->precedence = !isset($precedence) ? 0 : $precedence;
     }
 
-    function evaluate(Recognizer $parser, $outerContext)
+    function eval(Recognizer $parser, $outerContext)
     {
         return $parser->precpred($outerContext, $this->precedence);
     }

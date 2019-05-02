@@ -2,41 +2,41 @@
 
 namespace Antlr4\Predictioncontexts;
 
+use Antlr4\Utils\Map;
+
 class PredictionContextCache
 {
     /**
-     * @var array
+     * @var Map
      */
     private $cache;
 
     function __construct()
     {
-        $this->cache = [];
+        $this->cache = new Map();
     }
 
     // Add a context to the cache and return it. If the context already exists,
     // return that one instead and do not add a new context to the cache.
     // Protect shared cache from unsafe thread access.
-    function add($ctx)
+    function add(PredictionContext $ctx) : PredictionContext
     {
-        if ($ctx === PredictionContext::EMPTY) {
-            return PredictionContext::EMPTY;
-        }
-        $existing = $this->cache[$ctx] || null;
+        if ($ctx === PredictionContext::EMPTY()) return PredictionContext::EMPTY();
+        $existing = $this->cache->get($ctx);
         if ($existing !== null) {
             return $existing;
         }
-        $this->cache[$ctx] = $ctx;
+        $this->cache->put($ctx, $ctx);
         return $ctx;
     }
 
-    function get($ctx)
+    function get($ctx) : PredictionContext
     {
-        return $this->cache[$ctx] || null;
+        return $this->cache->get($ctx);
     }
 
-    function getLength()
+    function size()
     {
-        return count($this->cache);
+        return $this->cache->size();
     }
 }

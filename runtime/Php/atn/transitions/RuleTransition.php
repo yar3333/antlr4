@@ -22,7 +22,7 @@ class RuleTransition extends Transition
         $this->isEpsilon = true;
     }
 
-    function matches($symbol, $minVocabSymbol, $maxVocabSymbol)
+    function matches(int $symbol, int $minVocabSymbol, int $maxVocabSymbol) : bool
     {
         return false;
     }

@@ -34,7 +34,7 @@ class Map
         });
     }
 
-    function getLength()
+    function size()
     {
         $l = 0;
         foreach ($this->data as $hashKey => $v) {
@@ -111,12 +111,12 @@ class Map
         return $l;
     }
 
-    function getKeys(): array
+    function keys(): array
     {
         return Utils::arrayMap($this->entries(), function ($e) { return $e['key']; });
     }
 
-    function getValues(): array
+    function values(): array
     {
         return Utils::arrayMap($this->entries(), function ($e) { return $e['value']; });
     }

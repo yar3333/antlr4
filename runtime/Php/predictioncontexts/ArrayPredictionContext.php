@@ -37,6 +37,11 @@ class ArrayPredictionContext extends PredictionContext
         $this->returnStates = $returnStates;
     }
 
+    public static function fromOne(SingletonPredictionContext $a)
+    {
+        return new ArrayPredictionContext([$a->getParent()], [$a->returnState]);
+    }
+
     function isEmpty()
     {
         // since EMPTY_RETURN_STATE can only appear in the last position, we don't need to verify that size==1
@@ -48,7 +53,7 @@ class ArrayPredictionContext extends PredictionContext
         return count($this->returnStates);
     }
 
-    function getParent($index)
+    function getParent(int $index=null) : PredictionContext
     {
         return $this->parents[$index];
     }
@@ -56,6 +61,14 @@ class ArrayPredictionContext extends PredictionContext
     function getReturnState(int $index): int
     {
         return $this->returnStates[$index];
+    }
+
+    /**
+     * @return int[]
+     */
+    function getReturnStates() : array
+    {
+        return $this->returnStates;
     }
 
     function equals($other) : bool

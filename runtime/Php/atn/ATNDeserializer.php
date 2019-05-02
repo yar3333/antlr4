@@ -16,8 +16,13 @@ use Antlr4\Atn\Actions\LexerPushModeAction;
 use Antlr4\Atn\Actions\LexerSkipAction;
 use Antlr4\Atn\Actions\LexerTypeAction;
 use Antlr4\Atn\States\ATNState;
+use Antlr4\Atn\States\LoopEndState;
+use Antlr4\Atn\States\RuleStopState;
+use Antlr4\Atn\States\StarLoopEntryState;
 use Antlr4\Atn\Transitions\Transition;
+use Antlr4\IntervalSet;
 use Antlr4\Token;
+use Antlr4\Utils\Utils;
 
 class ATNDeserializer
 {
@@ -34,12 +39,12 @@ class ATNDeserializer
 
     // This list contains all of the currently supported UUIDs, ordered by when
     // the feature first appeared in this branch.
-    const SUPPORTED_UUIDS = [ BASE_SERIALIZED_UUID, ADDED_UNICODE_SMP ];
+    const SUPPORTED_UUIDS = [ self::BASE_SERIALIZED_UUID, self::ADDED_UNICODE_SMP ];
 
     const SERIALIZED_VERSION = 3;
 
     // This is the current serialized UUID.
-    const SERIALIZED_UUID = ADDED_UNICODE_SMP;
+    const SERIALIZED_UUID = self::ADDED_UNICODE_SMP;
 
     /**
      * @var ATNDeserializationOptions
@@ -65,11 +70,16 @@ class ATNDeserializer
      */
     public $pos;
 
+    /**
+     * @var string
+     */
+    public $uuid;
+
     function __construct(ATNDeserializationOptions $options)
     {
         if (!isset($options))
         {
-            $options = ATNDeserializationOptions::defaultOptions;
+            $options = ATNDeserializationOptions::defaultOptions();
         }
         $this->deserializationOptions = $options;
         $this->stateFactories = null;
@@ -91,13 +101,13 @@ class ATNDeserializer
     // introduced; otherwise, {@code false}.
     function isFeatureSupported($feature, $actualUuid)
     {
-        $idx1 = array_search($feature, SUPPORTED_UUIDS);
+        $idx1 = array_search($feature, self::SUPPORTED_UUIDS);
         if ($idx1 === false) return false;
-        $idx2 = array_search($actualUuid, SUPPORTED_UUIDS);
+        $idx2 = array_search($actualUuid, self::SUPPORTED_UUIDS);
         return $idx2 >= $idx1;
     }
 
-    function deserialize($data)
+    function deserialize(string $data) : ATN
     {
         $this->reset($data);
         $this->checkVersion();
@@ -109,14 +119,14 @@ class ATNDeserializer
         $sets = [];
 
         // First, deserialize sets with 16-bit arguments <= U+FFFF.
-        $this->readSets($atn, $sets, $this->readInt->bind($this));
+        $this->readSets($atn, $sets, $this->readInt()->bind($this));
 
         // Next, if the ATN was serialized with the Unicode SMP feature,
         // deserialize sets with 32-bit arguments <= U+10FFFF.
 
-        if ($this->isFeatureSupported(ADDED_UNICODE_SMP, $this->uuid))
+        if ($this->isFeatureSupported(self::ADDED_UNICODE_SMP, $this->uuid))
         {
-            $this->readSets($atn, $sets, $this->readInt32->bind($this));
+            $this->readSets($atn, $sets, function() { return $this->readInt32(); });
         }
         $this->readEdges($atn, $sets);
         $this->readDecisions($atn);
@@ -151,18 +161,18 @@ class ATNDeserializer
     function checkVersion()
     {
         $version = $this->readInt();
-        if ( $version !== SERIALIZED_VERSION )
+        if ( $version !== self::SERIALIZED_VERSION )
         {
-            throw new \Exception("Could not deserialize ATN with version " . $version . " (expected " . SERIALIZED_VERSION . ").");
+            throw new \Exception("Could not deserialize ATN with version " . $version . " (expected " . self::SERIALIZED_VERSION . ").");
         }
     }
 
     function checkUUID()
     {
         $uuid = $this->readUUID();
-        if (array_search($uuid, SUPPORTED_UUIDS) === false)
+        if (array_search($uuid, self::SUPPORTED_UUIDS) === false)
         {
-            throw new \Exception("Could not deserialize ATN with UUID: " . $uuid . " (expected " . SERIALIZED_UUID . " or a legacy UUID).");
+            throw new \Exception("Could not deserialize ATN with UUID: " . $uuid . " (expected " . self::SERIALIZED_UUID . " or a legacy UUID).");
         }
         $this->uuid = $uuid;
     }
@@ -174,7 +184,7 @@ class ATNDeserializer
         return new ATN($grammarType, $maxTokenType);
     }
 
-    function readStates($atn)
+    function readStates(ATN $atn)
     {
         $loopBackStateNumbers = [];
         $endStateNumbers = [];
@@ -236,14 +246,14 @@ class ATNDeserializer
         }
     }
 
-    function readRules($atn)
+    function readRules(ATN $atn)
     {
         $nrules = $this->readInt();
         if ($atn->grammarType === ATNType::LEXER )
         {
-            $atn->ruleToTokenType = initArray($nrules, 0);
+            $atn->ruleToTokenType = self::initArray($nrules, 0);
         }
-        $atn->ruleToStartState = initArray($nrules, 0);
+        $atn->ruleToStartState = self::initArray($nrules, 0);
         for ($i=0; $i<$nrules; $i++)
         {
             $s = $this->readInt();
@@ -259,10 +269,9 @@ class ATNDeserializer
                 $atn->ruleToTokenType[$i] = $tokenType;
             }
         }
-        $atn->ruleToStopState = initArray($nrules, 0);
-        for ($i=0; $i<$atn->states->length; $i++)
+        $atn->ruleToStopState = self::initArray($nrules, 0);
+        foreach ($atn->states as $state)
         {
-            $state = $atn->states[$i];
             if (!($state instanceof \Antlr4\Atn\States\RuleStopState))
             {
                 continue;
@@ -304,7 +313,7 @@ class ATNDeserializer
         }
     }
 
-    function readEdges($atn, $sets)
+    function readEdges(ATN $atn, $sets)
     {
         $nedges = $this->readInt();
         for ($i=0; $i<$nedges; $i++)
@@ -321,16 +330,12 @@ class ATNDeserializer
         }
 
         // edges for rule stop states can be derived, so they aren't serialized
-        for ($i=0; $i<$atn->states->length; $i++)
+        foreach ($atn->states as $state)
         {
-            $state = $atn->states[$i];
-            for ($j=0; $j<count($this->transitions); $j++)
+            foreach ($this->transitions as $t)
             {
-                $t = $state->transitions[$j];
-                if (!($t instanceof \Antlr4\Atn\Transitions\RuleTransition))
-                {
-                    continue;
-                }
+                if (!($t instanceof \Antlr4\Atn\Transitions\RuleTransition)) continue;
+
                 $outermostPrecedenceReturn = -1;
                 if ($atn->ruleToStartState[$t->target->ruleIndex]->isPrecedenceRule)
                 {
@@ -403,7 +408,7 @@ class ATNDeserializer
         if ($atn->grammarType === ATNType::LEXER)
         {
             $count = $this->readInt();
-            $atn->lexerActions = initArray($count, null);
+            $atn->lexerActions = self::initArray($count, null);
             for ($i=0; $i<$count; $i++)
             {
                 $actionType = $this->readInt();
@@ -423,9 +428,9 @@ class ATNDeserializer
         }
     }
 
-    function generateRuleBypassTransitions($atn)
+    function generateRuleBypassTransitions(ATN $atn)
     {
-        $count = $atn->ruleToStartState->length;
+        $count = count($atn->ruleToStartState);
         for ($i=0; $i<$count; $i++)
         {
             $atn->ruleToTokenType[$i] = $atn->maxTokenType + $i + 1;
@@ -436,7 +441,7 @@ class ATNDeserializer
         }
     }
 
-    function generateRuleBypassTransition(ATN $atn, $idx)
+    function generateRuleBypassTransition(ATN $atn, int $idx)
     {
         $bypassStart = new \Antlr4\Atn\States\BasicBlockStartState();
         $bypassStart->ruleIndex = $idx;
@@ -463,6 +468,7 @@ class ATNDeserializer
                 if ($this->stateIsEndStateFor($state, $idx))
                 {
                     $endState = $state;
+                    /** @var LoopEndState  $state */
                     $excludeTransition = $state->loopBackState->transitions[0];
                     break;
                 }
@@ -496,11 +502,11 @@ class ATNDeserializer
 
         // all transitions leaving the rule start state need to leave blockStart instead
         $ruleToStartState = $atn->ruleToStartState[$idx];
-        $count = $ruleToStartState->transitions->length;
+        $count = count($ruleToStartState->transitions);
         while ($count > 0)
         {
             $bypassStart->addTransition($ruleToStartState->transitions[$count-1]);
-            $ruleToStartState->transitions = $ruleToStartState->transitions->slice(-1);
+            $ruleToStartState->transitions = array_slice($ruleToStartState->transitions, -1);
         }
         // link the new states
         $atn->ruleToStartState[$idx]->addTransition(new \Antlr4\Atn\Transitions\EpsilonTransition($bypassStart));
@@ -512,29 +518,24 @@ class ATNDeserializer
         $bypassStart->addTransition(new \Antlr4\Atn\Transitions\EpsilonTransition($matchState));
     }
 
-    function stateIsEndStateFor($state, $idx)
+    function stateIsEndStateFor(ATNState $state, int $idx) : ?ATNState
     {
-        if ( $state->ruleIndex !== $idx)
+        if ($state->ruleIndex !== $idx) return null;
+
+        if (!($state instanceof StarLoopEntryState))
         {
             return null;
         }
-        if (!( $state instanceof \Antlr4\Atn\States\StarLoopEntryState))
-        {
-            return null;
-        }
+
         $maybeLoopEndState = $state->transitions[count($this->transitions) - 1]->target;
-        if (!( $maybeLoopEndState instanceof \Antlr4\Atn\States\LoopEndState))
-        {
-            return null;
-        }
-        if ($maybeLoopEndState->epsilonOnlyTransitions && ($maybeLoopEndState->transitions[0]->target instanceof \Antlr4\Atn\States\RuleStopState))
+        if (!( $maybeLoopEndState instanceof LoopEndState)) return null;
+
+        if ($maybeLoopEndState->epsilonOnlyTransitions && ($maybeLoopEndState->transitions[0]->target instanceof RuleStopState))
         {
             return $state;
         }
-        else
-        {
-            return null;
-        }
+
+        return null;
     }
 
     //
@@ -675,7 +676,7 @@ class ATNDeserializer
         return $bth;
     }
 
-    function readUUID()
+    function readUUID() : string
     {
         $byteToHex = $this->createByteToHex();
 
@@ -698,6 +699,18 @@ class ATNDeserializer
             $byteToHex[$bb[14]] . $byteToHex[$bb[15]];
     }
 
+    /**
+     * @param ATN $atn
+     * @param int $type
+     * @param $src
+     * @param int $trg
+     * @param $arg1
+     * @param $arg2
+     * @param $arg3
+     * @param IntervalSet[] $sets
+     * @return Transitions\ActionTransition|Transitions\AtomTransition|Transitions\EpsilonTransition|Transitions\NotSetTransition|Transitions\PrecedencePredicateTransition|Transitions\PredicateTransition|Transitions\RangeTransition|Transitions\RuleTransition|Transitions\SetTransition|Transitions\WildcardTransition
+     * @throws \Exception
+     */
     function edgeFactory($atn, $type, $src, $trg, $arg1, $arg2, $arg3, $sets)
     {
         $target = $atn->states[$trg];

@@ -8,6 +8,8 @@
 namespace Antlr4;
 
 // This default implementation of {@link TokenFactory} creates {@link CommonToken} objects.
+use Antlr4\Utils\Pair;
+
 class TokenFactory
 {
     function __construct() {}
@@ -50,19 +52,36 @@ class CommonTokenFactory extends TokenFactory
     private static $DEFAULT;
     public static function DEFAULT() { return self::$DEFAULT ? self::$DEFAULT : (self::$DEFAULT = new CommonTokenFactory(null)); }
 
-    function create($source, $type, $text, $channel, $start, $stop, $line, $column)
+
+    /**
+     * @param Pair<TokenSource, CharStream> $source
+     * @param int $type
+     * @param string $text
+     * @param int $channel
+     * @param int $start
+     * @param int $stop
+     * @param int $line
+     * @param int $column
+     * @return CommonToken
+     */
+    function create(Pair $source, int $type, string $text, int $channel, int $start, int $stop, int $line, int $column) : CommonToken
     {
         $t = new CommonToken($source, $type, $channel, $start, $stop);
+
         $t->line = $line;
         $t->column = $column;
+
         if ($text !==null)
         {
-            $t->text = $text;
+            $t->setText($text);
         }
-        else if ($this->copyText && $source[1] !==null)
+        else if ($this->copyText && $source->b !==null)
         {
-            $t->setText($source[1]->getText($start,$stop));
+            /** @var CharStream $b */
+            $b = $source->b;
+            $t->setText($b->getText(new Interval($start, $stop)));
         }
+
         return $t;
     }
 

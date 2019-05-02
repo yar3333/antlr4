@@ -14,9 +14,10 @@ interface ParseTree extends SyntaxTree
 
     /**
      * @param int $i
+     * @param mixed $type
      * @return ParseTree
      */
-    function getChild(int $i);
+    function getChild(int $i, $type=null);
 
     /** Set the parent for this node.
      *

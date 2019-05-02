@@ -10,7 +10,7 @@ use Antlr4\Utils\Hash;
 class SingletonPredictionContext extends PredictionContext
 {
     /**
-     * @var self
+     * @var PredictionContext
      */
     public $parentCtx;
 
@@ -19,7 +19,7 @@ class SingletonPredictionContext extends PredictionContext
      */
     public $returnState;
 
-    function __construct(self $parent, int $returnState)
+    function __construct(PredictionContext $parent, int $returnState)
     {
         $hashCode = 0;
         if ($parent !== null) {
@@ -34,14 +34,11 @@ class SingletonPredictionContext extends PredictionContext
         $this->returnState = $returnState;
     }
 
-    static function create($parent, $returnState)
+    static function create(PredictionContext $parent, int $returnState) : PredictionContext
     {
-        if ($returnState === PredictionContext::EMPTY_RETURN_STATE && $parent === null) {
-            // someone can pass in the bits of an array ctx that mean $
-            return PredictionContext::EMPTY;
-        } else {
-            return new SingletonPredictionContext($parent, $returnState);
-        }
+        // someone can pass in the bits of an array ctx that mean $
+        if ($returnState === PredictionContext::EMPTY_RETURN_STATE && !$parent) return PredictionContext::EMPTY();
+        return new SingletonPredictionContext($parent, $returnState);
     }
 
     function getLength(): int
@@ -49,7 +46,7 @@ class SingletonPredictionContext extends PredictionContext
         return 1;
     }
 
-    function getParent(int $index): PredictionContext
+    function getParent(int $index=null): PredictionContext
     {
         return $this->parentCtx;
     }
@@ -59,19 +56,22 @@ class SingletonPredictionContext extends PredictionContext
         return $this->returnState;
     }
 
-    function equals(?PredictionContext $other)
+    /**
+     * @return int[]
+     */
+    function getReturnStates(): array
     {
-        if ($this === $other) {
-            return true;
-        } else if (!($other instanceof SingletonPredictionContext)) {
-            return false;
-        } else if ($this->hashCode() !== $other->hashCode()) {
-            return false;// can't be same if hash is different
-        } else {
-            if ($this->returnState !== $other->returnState) return false;
-            else if ($this->parentCtx == null) return $other->parentCtx == null;
-            else return $this->parentCtx->equals($other->parentCtx);
-        }
+        return  [ $this->returnState ];
+    }
+
+    function equals($other) : bool
+    {
+        if ($this === $other) return true;
+        if (!($other instanceof SingletonPredictionContext)) return false;
+        if ($this->hashCode() !== $other->hashCode()) return false; // can't be same if hash is different
+        if ($this->returnState !== $other->returnState) return false;
+        if ($this->parentCtx == null) return $other->parentCtx == null;
+        return $this->parentCtx->equals($other->parentCtx);
     }
 
     function __toString()

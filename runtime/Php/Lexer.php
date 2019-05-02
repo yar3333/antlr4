@@ -9,6 +9,7 @@ namespace Antlr4;
 use Antlr4\Atn\LexerATNSimulator;
 use Antlr4\Error\Exceptions\LexerNoViableAltException;
 use Antlr4\Error\Exceptions\RecognitionException;
+use Antlr4\Utils\Pair;
 use Antlr4\Utils\Utils;
 
 // A lexer is recognizer that draws input symbols from a character stream.
@@ -30,15 +31,24 @@ abstract class Lexer extends Recognizer
      */
     public $_input;
 
+    /**
+     * @var TokenFactory
+     */
     public $_factory;
 
-    public $_tokenFactorySourcePair;
+    /**
+     * @var Pair<TokenSource, CharStream>
+     */
+    protected $_tokenFactorySourcePair;
 
     /**
      * @var LexerATNSimulator
      */
     public $_interp;
 
+    /**
+     * @var Token
+     */
     public $_token;
 
     public $_tokenStartCharIndex;
@@ -59,7 +69,7 @@ abstract class Lexer extends Recognizer
 
     public $_text;
 
-    function __construct($input)
+    function __construct(InputStream $input)
     {
         parent::__construct();
 
@@ -132,10 +142,7 @@ abstract class Lexer extends Recognizer
     // Return a token from this source; i.e., match a token on the char stream.
     function nextToken()
     {
-        if ($this->_input === null)
-        {
-            throw new \Exception("nextToken requires a non-null input stream.");
-        }
+        if ($this->_input === null) throw new \Exception("nextToken requires a non-null input stream.");
 
         // Mark start location in char stream so unbuffered streams are
         // guaranteed at least have text of current token
@@ -209,6 +216,8 @@ abstract class Lexer extends Recognizer
             // unbuffered char stream will keep buffering
             $this->_input->release($tokenStartMarker);
         }
+
+        return null;
     }
 
     // Instruct the lexer to skip creating a token for current lexer rule

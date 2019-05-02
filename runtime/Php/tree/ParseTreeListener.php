@@ -2,25 +2,15 @@
 
 namespace Antlr4\Tree;
 
-class ParseTreeListener
+use Antlr4\ParserRuleContext;
+
+interface ParseTreeListener
 {
-    function __construct()
-    {
-    }
+    function visitTerminal(TerminalNode $node) : void;
 
-    function visitTerminal($node)
-    {
-    }
+    function visitErrorNode(ErrorNode $node) : void;
 
-    function visitErrorNode($node)
-    {
-    }
+    function enterEveryRule(ParserRuleContext $ctx) : void;
 
-    function enterEveryRule($node)
-    {
-    }
-
-    function exitEveryRule($node)
-    {
-    }
+    function exitEveryRule(ParserRuleContext $nctx) : void;
 }

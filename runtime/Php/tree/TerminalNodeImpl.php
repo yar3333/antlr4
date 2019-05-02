@@ -3,6 +3,7 @@
 namespace Antlr4\Tree;
 
 use Antlr4\Interval;
+use Antlr4\Parser;
 use Antlr4\RuleContext;
 use Antlr4\Token;
 
@@ -24,7 +25,7 @@ class TerminalNodeImpl implements TerminalNode
         $this->symbol = $symbol;
     }
 
-    function getChild($i)
+    function getChild(int $i, $type=null)
     {
         return null;
     }
@@ -73,12 +74,14 @@ class TerminalNodeImpl implements TerminalNode
         return $this->symbol->getText();
     }
 
+    public function toStringTree(Parser $parser = null): string
+    {
+        return (string)$this;
+    }
+
     function __toString()
     {
-        if ($this->symbol->type === Token::EOF) {
-            return "<EOF>";
-        } else {
-            return $this->symbol->getText();
-        }
+        if ($this->symbol->type === Token::EOF) return "<EOF>";
+        return $this->symbol->getText();
     }
 }

@@ -28,7 +28,7 @@ use Antlr4\Predictioncontexts\PredictionContext;
 //  whacked after each adaptivePredict(). It cost a little bit
 //  more time I think and doesn't save on the overall footprint
 //  so it's not worth the complexity.</p>
-class ATNSimulator
+abstract class ATNSimulator
 {
     private static $_ERROR;
     public static function ERROR() { return self::$_ERROR ? self::$_ERROR : (self::$_ERROR = new DFAState(0x7FFFFFFF, new ATNConfigSet())); }
@@ -59,4 +59,6 @@ class ATNSimulator
         }
         return PredictionContext::getCachedPredictionContext($context, $this->sharedContextCache, []);
     }
+
+    abstract function reset() : void;
 }

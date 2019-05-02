@@ -6,17 +6,29 @@
 
 namespace Antlr4\Atn;
 
+use Antlr4\Atn\Actions\LexerAction;
 use Antlr4\Atn\States\ATNState;
+use Antlr4\Atn\States\DecisionState;
+use Antlr4\Atn\States\RuleStartState;
+use Antlr4\Atn\States\RuleStopState;
+use Antlr4\Atn\States\TokensStartState;
 use \Antlr4\LL1Analyzer;
 use \Antlr4\IntervalSet;
+use Antlr4\RuleContext;
 use \Antlr4\Token;
 
 class ATN
 {
     const INVALID_ALT_NUMBER = 0;
 
+    /**
+     * @var ATNType
+     */
     public $grammarType;
 
+    /**
+     * @var int
+     */
     public $maxTokenType;
 
     /**
@@ -24,10 +36,19 @@ class ATN
      */
     public $states;
 
+    /**
+     * @var DecisionState[]
+     */
     public $decisionToState;
 
+    /**
+     * @var RuleStartState[]
+     */
     public $ruleToStartState;
 
+    /**
+     * @var RuleStopState[]
+     */
     public $ruleToStopState;
 
     /**
@@ -35,13 +56,22 @@ class ATN
      */
     public $modeNameToStartState;
 
+    /**
+     * @var int[]
+     */
     public $ruleToTokenType;
 
+    /**
+     * @var LexerAction[]
+     */
     public $lexerActions;
 
+    /**
+     * @var TokensStartState[]
+     */
     public $modeToStartState;
 
-    function __construct($grammarType , $maxTokenType)
+    function __construct(ATNType $grammarType, int $maxTokenType)
     {
         // Used for runtime deserialization of ATNs from strings
         // The type of the ATN.
@@ -84,7 +114,7 @@ class ATN
     //  If {@code ctx} is null, the set of tokens will not include what can follow
     //  the rule surrounding {@code s}. In other words, the set will be
     //  restricted to tokens reachable staying within {@code s}'s rule.
-    function nextTokensInContext($s, $ctx)
+    private function nextTokensInContext(ATNState $s, RuleContext $ctx) : IntervalSet
     {
         $anal = new LL1Analyzer($this);
         return $anal->LOOK($s, null, $ctx);
@@ -93,7 +123,7 @@ class ATN
     // Compute the set of valid tokens that can occur starting in {@code s} and
     // staying in same rule. {@link Token//EPSILON} is in set if we reach end of
     // rule.
-    function nextTokensNoContext($s)
+    private function nextTokensNoContext(ATNState $s) : IntervalSet
     {
         if ($s->nextTokenWithinRule !== null )
         {
@@ -104,7 +134,7 @@ class ATN
         return $s->nextTokenWithinRule;
     }
 
-    function nextTokens($s, $ctx=null) : IntervalSet
+    function nextTokens(ATNState $s, RuleContext $ctx=null) : IntervalSet
     {
         if (!isset($ctx))
         {
@@ -131,7 +161,7 @@ class ATN
         $this->states[$state->stateNumber] = null;// just free mem, don't shift states in list
     }
 
-    function defineDecisionState( $s)
+    function defineDecisionState(DecisionState $s)
     {
         array_push($this->decisionToState, $s);
         $s->decision = count($this->decisionToState)-1;
@@ -164,7 +194,7 @@ class ATN
     // @param context the full parse context
     // @return The set of potentially valid input symbols which could follow the specified state in the specified context.
     // @throws IllegalArgumentException if the ATN does not contain a state with number {@code stateNumber}
-    function getExpectedTokens($stateNumber, $ctx)
+    function getExpectedTokens($stateNumber, $ctx) : IntervalSet
     {
         if ($stateNumber < 0 || $stateNumber >= count($this->states))
         {

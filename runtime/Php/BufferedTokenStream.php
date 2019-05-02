@@ -10,7 +10,7 @@ use Antlr4\Utils\Set;
 
 class BufferedTokenStream implements TokenStream
 {
-    public $tokenSource;
+    protected $tokenSource;
 
     /**
      * @var Token[]
@@ -438,7 +438,7 @@ class BufferedTokenStream implements TokenStream
         while ($this->fetch(1000) === 1000) continue;
     }
 
-    function getTokenSource(): TokenSource { return $this->tokenSource; }
+    function tokenSource(): TokenSource { return $this->tokenSource; }
 
     function index() : int { return $this->index; }
 

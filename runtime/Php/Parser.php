@@ -9,7 +9,14 @@ namespace Antlr4;
 use Antlr4\Atn\ATN;
 use Antlr4\Atn\ATNDeserializationOptions;
 use Antlr4\Atn\ATNDeserializer;
+use Antlr4\Atn\ParserATNSimulator;
 use Antlr4\Error\DefaultErrorStrategy;
+use Antlr4\Tree\ErrorNode;
+use Antlr4\Tree\ErrorNodeImpl;
+use Antlr4\Tree\ParseTreeListener;
+use Antlr4\Tree\TerminalNode;
+use Antlr4\Tree\TerminalNodeImpl;
+use Antlr4\Utils\Printer;
 
 abstract class Parser extends Recognizer
 {
@@ -48,11 +55,16 @@ abstract class Parser extends Recognizer
     public $_tracer;
 
     /**
-     * @var ParserTraceListener[]
+     * @var ParseTreeListener[]
      */
     public $_parseListeners;
 
     public $_syntaxErrors;
+
+    /**
+     * @var Printer
+     */
+    public $printer;
 
     function __construct(TokenStream $input)
     {
@@ -108,10 +120,10 @@ abstract class Parser extends Recognizer
         $this->setTrace(false);
         $this->_precedenceStack = [];
         array_push($this->_precedenceStack, 0);
-        if ($this->_interp !== null)
-        {
-            $this->_interp->reset();
-        }
+
+
+        $interpreter = $this->getInterpreter();
+		if ($interpreter) $interpreter->reset();
     }
 
     // Match current input symbol against {@code ttype}. If the symbol type
@@ -328,7 +340,7 @@ abstract class Parser extends Recognizer
     // ParseTreeMatch m = p.match(t);
     // String id = m.get("ID");
     // </pre>
-    function compileParseTreePattern($pattern, $patternRuleIndex, $lexer)
+    /*function compileParseTreePattern($pattern, $patternRuleIndex, $lexer)
     {
         $lexer = $lexer || null;
         if ($lexer === null)
@@ -348,7 +360,7 @@ abstract class Parser extends Recognizer
         }
         $m = new ParseTreePatternMatcher($lexer, $this);
         return $m->compile($pattern, $patternRuleIndex);
-    }
+    }*/
 
     function getInputStream() : TokenStream
     {
@@ -375,7 +387,7 @@ abstract class Parser extends Recognizer
 
     // Match needs to return the current input symbol, which gets put
     // into the label for the associated token ref; e.g., x=ID.
-    function getCurrentToken()
+    function getCurrentToken() : Token
     {
         return $this->_input->LT(1);
     }
@@ -413,69 +425,71 @@ abstract class Parser extends Recognizer
     // added to the parse tree using
     // {@link ParserRuleContext//addErrorNode(Token)}, and
     // {@link ParseTreeListener//visitErrorNode} is called on any parse listeners.
-    function consume()
+    function consume() : Token
     {
-        $o = $this->getCurrentToken();
-        if ($o->type !== Token::EOF)
-        {
-            $this->getInputStream()->consume();
-        }
-        $hasListener = $this->_parseListeners !== null && $this->_parseListeners->length > 0;
-        if ($this->_buildParseTrees || $hasListener)
-        {
-            if ($this->_errHandler->inErrorRecoveryMode($this))
-            {
-                $node = $this->_ctx->addErrorNode($o);
-            }
-            else
-            {
-                $node = $this->_ctx->addTokenNode($o);
-            }
+		$o = $this->getCurrentToken();
+		if ($o->type !== Token::EOF)
+		{
+			$this->getInputStream()->consume();
+		}
 
-            $node->invokingState = $this->state;
-
-            if ($hasListener)
-            {
-                $this->_parseListeners->map(function($listener)
-                {
-                    if ($node instanceof ErrorNode || (isset($node->isErrorNode) && $node->isErrorNode()))
-                    {
-                        $listener->visitErrorNode($node);
-                    }
-                    else if ($node instanceof TerminalNode)
-                    {
-                        $listener->visitTerminal($node);
-                    }
-                });
-            }
-        }
-        return $o;
+		if ($this->_buildParseTrees || $this->_parseListeners)
+		{
+			if ($this->_errHandler->inErrorRecoveryMode($this))
+			{
+				/** @var ErrorNode $node */
+				$node = $this->_ctx->addErrorNode($this->createErrorNode($this->_ctx, $o));
+				if ($this->_parseListeners)
+				{
+					foreach ($this->_parseListeners as $listener)
+					{
+						$listener->visitErrorNode($node);
+					}
+				}
+			}
+			else
+			{
+				/** @var TerminalNode $node */
+				$node = $this->_ctx->addChild($this->createTerminalNode($this->_ctx, $o));
+				if ($this->_parseListeners)
+				{
+					foreach ($this->_parseListeners as $listener)
+					{
+						$listener->visitTerminal($node);
+					}
+				}
+			}
+		}
+		return $o;
     }
 
-    function addContextToParseTree()
+    function createTerminalNode(ParserRuleContext $parent, Token $t) : TerminalNode
     {
-        // add current context to parent if we have a parent
-        if ($this->_ctx->parentCtx !== null)
-        {
-            $this->_ctx->parentCtx->addChild($this->_ctx);
-        }
+		return new TerminalNodeImpl($t);
+	}
+
+	function createErrorNode(ParserRuleContext $parent, Token $t) : ErrorNode
+    {
+		return new ErrorNodeImpl($t);
+	}
+
+    protected function addContextToParseTree()
+    {
+        /** @var ParserRuleContext $parent */
+        $parent = $this->_ctx->getParent();
+		// add current context to parent if we have a parent
+		if ($parent) $parent->addChild($this->_ctx);
     }
 
     // Always called by generated parsers upon entry to a rule. Access field
     // {@link //_ctx} get the current context.
-    function enterRule($localctx, $state, $ruleIndex)
+    function enterRule(ParserRuleContext $localctx, int $state, int $ruleIndex) : void
     {
-        $this->state = $state;
+        $this->setState($state);
         $this->_ctx = $localctx;
         $this->_ctx->start = $this->_input->LT(1);
-        if ($this->_buildParseTrees)
-        {
-            $this->addContextToParseTree();
-        }
-        if ($this->_parseListeners !== null)
-        {
-            $this->triggerEnterRuleEvent();
-        }
+        if ($this->_buildParseTrees) $this->addContextToParseTree();
+        if ($this->_parseListeners !== null) $this->triggerEnterRuleEvent();
     }
 
     function exitRule()
@@ -486,21 +500,23 @@ abstract class Parser extends Recognizer
         {
             $this->triggerExitRuleEvent();
         }
-        $this->state = $this->_ctx->invokingState;
-        $this->_ctx = $this->_ctx->parentCtx;
+        $this->setState($this->_ctx->invokingState);
+        $this->_ctx = $this->_ctx->getParent();
     }
 
-    function enterOuterAlt($localctx, $altNum)
+    function enterOuterAlt(ParserRuleContext $localctx, int $altNum)
     {
         $localctx->setAltNumber($altNum);
         // if we have new localctx, make sure we replace existing ctx
         // that is previous child of parse tree
         if ($this->_buildParseTrees && $this->_ctx !== $localctx)
         {
-            if ($this->_ctx->parentCtx !== null)
+            /** @var ParserRuleContext $parent */
+            $parent = $this->_ctx->getParent();
+            if ($parent)
             {
-                $this->_ctx->parentCtx->removeLastChild();
-                $this->_ctx->parentCtx->addChild($localctx);
+                $parent->removeLastChild();
+                $parent->addChild($localctx);
             }
         }
         $this->_ctx = $localctx;
@@ -523,7 +539,7 @@ abstract class Parser extends Recognizer
 
     function enterRecursionRule($localctx, $state, $ruleIndex, $precedence)
     {
-        $this->state = $state;
+        $this->setState($state);
         array_push($this->_precedenceStack, $precedence);
         $this->_ctx = $localctx;
         $this->_ctx->start = $this->_input->LT(1);
@@ -534,10 +550,10 @@ abstract class Parser extends Recognizer
     }
 
     // Like {@link //enterRule} but for recursive rules.
-    function pushNewRecursionContext($localctx, $state, $ruleIndex)
+    function pushNewRecursionContext(ParserRuleContext $localctx, int $state, int $ruleIndex)
     {
         $previous = $this->_ctx;
-        $previous->parentCtx = $localctx;
+        $previous->setParent($localctx);
         $previous->invokingState = $state;
         $previous->stop = $this->_input->LT(-1);
 
@@ -553,7 +569,7 @@ abstract class Parser extends Recognizer
         }
     }
 
-    function unrollRecursionContexts($parentCtx)
+    function unrollRecursionContexts(ParserRuleContext $parentCtx)
     {
         array_pop($this->_precedenceStack);
         $this->_ctx->stop = $this->_input->LT(-1);
@@ -564,7 +580,7 @@ abstract class Parser extends Recognizer
             while ($this->_ctx !== $parentCtx)
             {
                 $this->triggerExitRuleEvent();
-                $this->_ctx = $this->_ctx->parentCtx;
+                $this->_ctx = $this->_ctx->getParent();
             }
         }
         else
@@ -572,8 +588,8 @@ abstract class Parser extends Recognizer
             $this->_ctx = $parentCtx;
         }
         // hook into tree
-        $retCtx->parentCtx = $parentCtx;
-        if ($this->_buildParseTrees && $parentCtx !== null)
+        $retCtx->setParent($parentCtx);
+        if ($this->_buildParseTrees && $parentCtx)
         {
             // add return ctx into invoking rule's tree
             $parentCtx->addChild($retCtx);
@@ -583,23 +599,20 @@ abstract class Parser extends Recognizer
     function getInvokingContext($ruleIndex)
     {
         $ctx = $this->_ctx;
-        while ($ctx !== null)
+        while ($ctx)
         {
-            if ($ctx->ruleIndex === $ruleIndex)
-            {
-                return $ctx;
-            }
-            $ctx = $ctx->parentCtx;
+            if ($ctx->ruleIndex === $ruleIndex) return $ctx;
+            $ctx = $ctx->getParent();
         }
         return null;
     }
 
-    function precpred($localctx, $precedence)
+    function precpred(RuleContext $localctx, int $precedence) : bool
     {
         return $precedence >= $this->_precedenceStack[count($this->_precedenceStack) - 1];
     }
 
-    function inContext($context)
+    function inContext($context) : bool
     {
         // TODO: useful in parser?
         return false;
@@ -621,7 +634,7 @@ abstract class Parser extends Recognizer
     {
         $atn = $this->_interp->atn;
         $ctx = $this->_ctx;
-        $s = $atn->states[$this->state];
+        $s = $atn->states[$this->getState()];
         $following = $atn->nextTokens($s);
         if ($following->contains($symbol))
         {
@@ -640,7 +653,7 @@ abstract class Parser extends Recognizer
             {
                 return true;
             }
-            $ctx = $ctx->parentCtx;
+            $ctx = $ctx->getParent();
         }
         if ($following->contains(Token::EPSILON) && $symbol === Token::EOF)
         {
@@ -659,13 +672,13 @@ abstract class Parser extends Recognizer
     // @see ATN//getExpectedTokens(int, RuleContext)
     function getExpectedTokens()
     {
-        return $this->_interp->atn->getExpectedTokens($this->state, $this->_ctx);
+        return $this->_interp->atn->getExpectedTokens($this->getState(), $this->_ctx);
     }
 
     function getExpectedTokensWithinCurrentRule()
     {
         $atn = $this->_interp->atn;
-        $s = $atn->states[$this->state];
+        $s = $atn->states[$this->getState()];
         return $atn->nextTokens($s);
     }
 
@@ -709,7 +722,7 @@ abstract class Parser extends Recognizer
             {
                 array_push($stack, $this->ruleNames[$ruleIndex]);
             }
-            $p = $p->parentCtx;
+            $p = $p->getParent();
         }
         return $stack;
     }
@@ -717,39 +730,28 @@ abstract class Parser extends Recognizer
     // For debugging and other purposes.
     function getDFAStrings()
     {
-        return $this->_interp->decisionToDFA->toString();
+        return "[" . implode(", ", $this->getInterpreter()->decisionToDFA) . "]";
     }
 
     // For debugging and other purposes.
     function dumpDFA()
     {
         $seenOne = false;
-        for ($i = 0; $i < $this->_interp->decisionToDFA->length; $i++)
+        foreach ($this->getInterpreter()->decisionToDFA as $dfa)
         {
-            $dfa = $this->_interp->decisionToDFA[$i];
-            if ($dfa->states->length > 0)
+            if (!$dfa->states()->isEmpty())
             {
-                if ($seenOne)
-                {
-                    //$console->log();
-                }
-                $this->printer->println("Decision " + dfa.decision + ":");
-                $this->printer->print($dfa->toString($this->literalNames, $this->symbolicNames));
+                if ($seenOne) $this->printer->println();
+                $this->printer->println("Decision " . $dfa->decision . ":");
+                $this->printer->print($dfa->toString($this->getVocabulary()));
                 $seenOne = true;
             }
         }
     }
 
-/*
-"			printer = function() {\r\n" +
-"				this.println = function(s) { document.getElementById('output') += s + '\\n'; }\r\n" +
-"				this.print = function(s) { document.getElementById('output') += s; }\r\n" +
-"			};\r\n" +
-*/
-
     function getSourceName()
     {
-        return $this->_input->sourceName;
+        return $this->_input->getSourceName();
     }
 
     // During a parse is sometimes useful to listen in on the rule entry and exit
@@ -776,4 +778,17 @@ abstract class Parser extends Recognizer
     {
         $this->notifyErrorListeners($this->getCurrentToken(), $msg, null);
     }
+
+	function getContext() : ParserRuleContext { return $this->_ctx;	}
+	function setContext(ParserRuleContext $ctx) : void { $this->_ctx = $ctx; }
+
+    /**
+     * @return ParserATNSimulator
+     */
+	function getInterpreter()
+    {
+	    /** @var ParserATNSimulator $r */
+	    $r = $this->_interp;
+	    return $r;
+	}
 }

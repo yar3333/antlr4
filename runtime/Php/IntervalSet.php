@@ -48,42 +48,55 @@ class IntervalSet
         $this->addInterval(new Interval($l, $h + 1));
     }
 
-    function addInterval(Interval $v) : void
+    protected function addInterval(Interval $addition) : void
     {
-        if ($this->intervals === null)
-        {
-            $this->intervals = [];
-            array_push($this->intervals, $v);
-        }
-        else
-        {
-            // find insert pos
-            for ($k = 0; $k < count($this->intervals); $k++)
-            {
-                $i = $this->intervals[$k];
-                // distinct range -> insert
-                if ($v->stop < $i->start)
-                {
-                    array_splice($this->intervals, $k, 0, $v);
-                    return;
-                }
-                // contiguous range -> adjust
-                else if ($v->stop === $i->start)
-                {
-                    $this->intervals[$k]->start = $v->start;
-                    return;
-                }
-                // overlapping range -> adjust and reduce
-                else if ($v->start <= $i->stop)
-                {
-                    $this->intervals[$k] = new Interval(min($i->start, $v->start), max($i->stop, $v->stop));
-                    $this->reduce($k);
-                    return;
-                }
-            }
-            // greater than any existing
-            array_push($this->intervals, $v);
-        }
+        if ($this->readOnly) throw new \Exception("can't alter readonly IntervalSet");
+		//System.out.println("add "+addition+" to "+intervals.toString());
+		if ($addition->stop < $addition->start)
+		{
+			return;
+		}
+		// find position in list
+		// Use iterators as we modify list in place
+		for ($i = 0; $i < count($this->intervals);)
+		{
+			/** @var Interval $r */
+			$r = $this->intervals[$i];
+
+			if ($addition->equals($r)) return;
+
+			if ($addition->adjacent($r) || !$addition->disjoint($r))
+			{
+				// next to each other, make a single larger interval
+				$bigger = $addition->union($r);
+				$this->intervals[$i] = $bigger;
+				// make sure we didn't just create an interval that
+				// should be merged with next interval in list
+                $i++;
+				while ($i < count($this->intervals))
+				{
+					$next = $this->intervals[$i];
+					if (!$bigger->adjacent($next) && $bigger->disjoint($next)) break;
+
+					// if we bump up against or overlap next, merge
+                    array_splice($this->intervals, $i, 1); // remove this one
+                    $i--; // move backwards to what we just set
+					$this->intervals[$i] = $bigger->union($next); // set to 3 merged ones
+					$i++; // first call to next after previous duplicates the result
+				}
+				return;
+			}
+
+			if ($addition->startsBeforeDisjoint($r))
+			{
+				// insert before r
+				array_splice($this->intervals, $i, 0, $addition);
+				return;
+			}
+			// if disjoint and after r, a future iteration will handle it
+		}
+		// ok, must be after last interval (and disjoint from last interval) just add it
+		$this->intervals[] = $addition;
     }
 
     function addSet(IntervalSet $other)
@@ -149,7 +162,7 @@ class IntervalSet
         }
     }
 
-    function getLength()
+    function size()
     {
         $len = 0;
         foreach ($this->intervals as $i) $len += $i->getLength();
@@ -246,118 +259,88 @@ class IntervalSet
 
     function __toString()
     {
-        return $this->toString(null, null, false);
+        return $this->toStringChars(false);
     }
 
-    function toString($literalNames, $symbolicNames, $elemsAreChar)
+    function toStringChars(bool $elemAreChar)
     {
-        $literalNames = $literalNames || null;
-        $symbolicNames = $symbolicNames || null;
-        $elemsAreChar = $elemsAreChar || false;
-        if ($this->intervals === null)
-        {
-            return "{}";
-        }
-        else if($literalNames!==null || $symbolicNames!==null)
-        {
-            return $this->toTokenString($literalNames, $symbolicNames);
-        }
-        else if($elemsAreChar)
-        {
-            return $this->toCharString();
-        }
-        else
-        {
-            return $this->toIndexString();
-        }
+		if (!$this->intervals) return "{}";
+
+        $buf = "";
+
+		if ($this->size()>1)
+		{
+			$buf .= "{";
+		}
+		$iter = new \ArrayIterator($this->intervals);
+		while ($iter->valid())
+		{
+		    /** @var Interval $I */
+			$I = $iter->current(); $iter->next();
+			$a = $I->start;
+			$b = $I->stop;
+			if ($a===$b)
+			{
+				if ($a===Token::EOF) $buf .= "<EOF>";
+				else if ($elemAreChar) $buf .= "'" . Utils::fromCodePoint($a) . "'";
+				else $buf .= $a;
+			}
+			else
+			{
+				if ($elemAreChar) $buf .= "'" . Utils::fromCodePoint($a) . "'..'" . Utils::fromCodePoint($b) . "'";
+				else              $buf .= $a .  ".." . $b;
+			}
+
+			if ($iter->valid())
+			{
+				$buf .= ", ";
+			}
+		}
+		if ($this->size() > 1)
+		{
+			$buf .= "}";
+		}
+		return $buf;
     }
 
-    function toCharString()
+    function toStringVocabulary(Vocabulary $vocabulary)
     {
-        $names = [];
-        for ($i = 0; $i < count($this->intervals); $i++)
-        {
-            $v = $this->intervals[$i];
-            if($v->stop===$v->start+1)
-            {
-                if ( $v->start===Token::EOF )
-                {
-                    array_push($names, "<EOF>");
-                }
-                else
-                {
-                    array_push($names, "'" . Utils::fromCharCode($v->start) . "'");
-                }
-            }
-            else
-            {
-                array_push($names, "'" . Utils::fromCharCode($v->start) . "'..'" . Utils::fromCharCode($v->stop-1) . "'");
-            }
-        }
-        if (count($names) > 1)
-        {
-            return "{" . implode(", ", $names) . "}";
-        }
-        else
-        {
-            return $names[0];
-        }
+		$buf = "";
+		if (!$this->intervals) return "{}";
+
+		if ($this->size() > 1)
+		{
+			$buf .= "{";
+		}
+		$iter = new \ArrayIterator($this->intervals);
+		while ($iter->valid())
+		{
+			/** @var Interval $I */
+			$I = $iter->current(); $iter->next();
+			$a = $I->start;
+			$b = $I->stop;
+			if ($a===$b)
+			{
+				$buf .= $this->elementName($vocabulary, $a);
+			}
+			else
+			{
+				for ($i=$a; $i<=$b; $i++) {
+					if ($i > $a) $buf .= ", ";
+                    $buf .= $this->elementName($vocabulary, $i);
+				}
+			}
+			if ($iter->valid()) $buf .= ", ";
+		}
+		if ($this->size() > 1)
+		{
+			$buf .= "}";
+		}
+
+        return $buf;
     }
 
-
-    function toIndexString()
-    {
-        $names = [];
-        for ($i = 0; $i < count($this->intervals); $i++)
-        {
-            $v = $this->intervals[$i];
-            if ($v->stop===$v->start+1)
-            {
-                if ($v->start===Token::EOF )
-                {
-                    array_push($names, "<EOF>");
-                }
-                else
-                {
-                    array_push($names, $v->start);
-                }
-            }
-            else
-            {
-                array_push($names, $v->start . ".." . ($v->stop - 1));
-            }
-        }
-        if (count($names) > 1)
-        {
-            return "{" . implode(", ", $names) . "}";
-        }
-        else
-        {
-            return $names[0];
-        }
-    }
-
-    function toTokenString($literalNames, $symbolicNames)
-    {
-        $names = [];
-        foreach ($this->intervals as $v)
-        {
-            for ($j = $v->start; $j < $v->stop; $j++)
-            {
-                array_push($names, $this->elementName($literalNames, $symbolicNames, $j));
-            }
-        }
-        if (count($names) > 1)
-        {
-            return "{" . implode(", ", $names) . "}";
-        }
-        else
-        {
-            return $names[0];
-        }
-    }
-
-    function elementName($literalNames, $symbolicNames, $a)
+    function elementName(Vocabulary $vocabulary, int $a)
     {
         if ($a === Token::EOF)
         {
@@ -369,7 +352,14 @@ class IntervalSet
         }
         else
         {
-            return $literalNames[$a] || $symbolicNames[$a];
+            return $vocabulary->getDisplayName($a);
         }
+    }
+
+    static function fromInt(int $a) : IntervalSet
+    {
+		$s = new IntervalSet();
+        $s->addOne($a);
+        return $s;
     }
 }

@@ -343,7 +343,7 @@ class ParserATNSimulator extends ATNSimulator
         $this->mergeCache = null;
     }
 
-    function reset()
+    function reset() : void
     {
     }
 
@@ -1424,7 +1424,7 @@ class ParserATNSimulator extends ATNSimulator
                     {
                         if ($fullCtx)
                         {
-                            $configs->add(new ATNConfig((object)[ 'state'=>$config->state, 'context'=>PredictionContext::EMPTY ], $config), $this->mergeCache);
+                            $configs->add(new ATNConfig((object)[ 'state'=>$config->state, 'context'=>PredictionContext::EMPTY() ], $config), $this->mergeCache);
                             continue;
                         }
                         else
@@ -1577,7 +1577,7 @@ class ParserATNSimulator extends ATNSimulator
             $returnStateNumber = $config->context->getReturnState($i);
             $returnState = $this->atn->states[$returnStateNumber];
             // all states must have single outgoing epsilon edge
-            if ($returnState->transitions->length != 1 || !$returnState->transitions[0]->isEpsilon) return false;
+            if (count($returnState->transitions) != 1 || !$returnState->transitions[0]->isEpsilon) return false;
 
             // Look for prefix op case like 'not expr', (' type ')' expr
             $returnStateTarget = $returnState->transitions[0]->target;
@@ -1587,11 +1587,11 @@ class ParserATNSimulator extends ATNSimulator
             // Look for 'expr op expr' or case where expr's return state is block end
             // of (...)* internal block; the block end points to loop back
             // which points to p but we don't need to check that
-            if ($returnState == $blockEndState) continue;
+            if ($returnState === $blockEndState) continue;
 
             // Look for ternary expr ? expr : expr. The return state points at block end,
             // which points at loop entry state
-            if ($returnStateTarget == $blockEndState) continue;
+            if ($returnStateTarget === $blockEndState) continue;
 
             // Look for complex prefix 'between expr and expr' case where 2nd expr's
             // return state points at block end state of (...)* internal block
@@ -1841,10 +1841,10 @@ class ParserATNSimulator extends ATNSimulator
     // Used for debugging in adaptivePredict around execATN but I cut
     //  it out for clarity now that alg. works well. We can leave this
     //  "dead" code for a bit.
-    function dumpDeadEndConfigs($nvae)
+    function dumpDeadEndConfigs(NoViableAltException $nvae)
     {
         //$console->log("dead end configs: ");
-        $decs = $nvae->getDeadEndConfigs();
+        $decs = $nvae->deadEndConfigs;
         foreach ($decs as $c)
         {
             $trans = "no edges";

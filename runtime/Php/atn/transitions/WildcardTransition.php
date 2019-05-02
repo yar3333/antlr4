@@ -13,7 +13,7 @@ class WildcardTransition extends Transition
         $this->serializationType = Transition::WILDCARD;
     }
 
-    function matches($symbol, $minVocabSymbol, $maxVocabSymbol)
+    function matches(int $symbol, int $minVocabSymbol, int $maxVocabSymbol) : bool
     {
         return $symbol >= $minVocabSymbol && $symbol <= $maxVocabSymbol;
     }

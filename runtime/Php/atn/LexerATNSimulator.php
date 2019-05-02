@@ -6,12 +6,18 @@
 
 namespace Antlr4\Atn;
 
+use Antlr4\Atn\States\ATNState;
+use Antlr4\CharStream;
+use Antlr4\Dfa\DFAState;
 use \Antlr4\InputStream;
+use Antlr4\Predictioncontexts\PredictionContext;
+use Antlr4\Predictioncontexts\SingletonPredictionContext;
 use \Antlr4\Token;
 use \Antlr4\Lexer;
 use \Antlr4\Atn\States\RuleStopState;
 use \Antlr4\Error\Exceptions\LexerNoViableAltException;
 use \Antlr4\Atn\Transitions\Transition;
+use Antlr4\Utils\Utils;
 
 // When we hit an accept state in either the DFA or the ATN, we
 //  have to notify the character stream to start buffering characters
@@ -27,27 +33,6 @@ use \Antlr4\Atn\Transitions\Transition;
 //  back to its previously accepted state, if any. If the ATN succeeds,
 //  then the ATN does the accept and the DFA simulator that invoked it
 //  can simply return the predicted token type.</p>
-class SimState
-{
-    static function resetSimState($sim)
-    {
-        $sim->index = -1;
-        $sim->line = 0;
-        $sim->column = -1;
-        $sim->dfaState = null;
-    }
-
-    function __construct()
-    {
-        self::resetSimState($this);
-        return $this;
-    }
-
-    function reset()
-    {
-        self::resetSimState($this);
-    }
-}
 
 class LexerATNSimulator extends ATNSimulator
 {
@@ -150,7 +135,7 @@ class LexerATNSimulator extends ATNSimulator
         }
     }
 
-    function reset()
+    function reset() : void
     {
         $this->prevAccept->reset();
         $this->startIndex = -1;
@@ -163,7 +148,7 @@ class LexerATNSimulator extends ATNSimulator
     {
         $startState = $this->atn->modeToStartState[$this->mode];
 
-        if (LexerATNSimulator::$debug)
+        if ($this->debug)
         {
             //$console->log("matchATN mode " + this.mode + " start: " . $startState);
         }
@@ -180,7 +165,7 @@ class LexerATNSimulator extends ATNSimulator
 
         $predict = $this->execATN($input, $next);
 
-        if (LexerATNSimulator::$debug)
+        if ($this->debug)
         {
             //$console->log("DFA after matchATN: " . $this->decisionToDFA[$old_mode].toLexerString());
         }
@@ -189,7 +174,7 @@ class LexerATNSimulator extends ATNSimulator
 
     function execATN(InputStream $input, $ds0)
     {
-        if (LexerATNSimulator::$debug)
+        if ($this->debug)
         {
             //$console->log("start state closure=" . $ds0->configs);
         }
@@ -204,7 +189,7 @@ class LexerATNSimulator extends ATNSimulator
         while (true)
         {
             // while more work
-            if (LexerATNSimulator::$debug)
+            if ($this->debug)
             {
                 //$console->log("execATN loop starting closure: " . $s->configs);
             }
@@ -280,7 +265,7 @@ class LexerATNSimulator extends ATNSimulator
         {
             $target = null;
         }
-        if (LexerATNSimulator::$debug && $target !== null)
+        if ($this->debug && $target !== null)
         {
             //$console->log("reuse state " + s.stateNumber + " edge to " . $target->stateNumber);
         }
@@ -304,7 +289,7 @@ class LexerATNSimulator extends ATNSimulator
         // Fill reach starting from closure, following t transitions
         $this->getReachableConfigSet($input, $s->configs, $reach, $t);
 
-        if (count($reach->items) === 0)
+        if (count($reach->items()) === 0)
         {
             // we got nowhere on t from s
             if (!$reach->hasSemanticContext)
@@ -354,7 +339,7 @@ class LexerATNSimulator extends ATNSimulator
             {
                 continue;
             }
-            if (LexerATNSimulator::$debug)
+            if ($this->debug)
             {
                 //$console->log("testing %s at %s\n", $this->getTokenName($t), $cfg->toString($this->recog, true));
             }
@@ -387,7 +372,7 @@ class LexerATNSimulator extends ATNSimulator
 
     function accept(InputStream $input, LexerActionExecutor $lexerActionExecutor, $startIndex, $index, $line, $charPos)
 	{
-        if (LexerATNSimulator::$debug)
+        if ($this->debug)
         {
             //$console->log("ACTION %s\n", $lexerActionExecutor);
         }
@@ -401,7 +386,7 @@ class LexerATNSimulator extends ATNSimulator
         }
     }
 
-    function getReachableTarget($trans, $t)
+    function getReachableTarget(Transition $trans, int $t)
     {
         if ($trans->matches($t, 0, Lexer::MAX_CHAR_VALUE))
         {
@@ -413,11 +398,11 @@ class LexerATNSimulator extends ATNSimulator
         }
     }
 
-    function computeStartState($input, $p)
+    function computeStartState(CharStream $input, ATNState $p)
     {
-        $initialContext = PredictionContext::EMPTY;
+        $initialContext = PredictionContext::EMPTY();
         $configs = new OrderedATNConfigSet();
-        for ($i = 0; $i < $p->transitions->length; $i++)
+        for ($i = 0; $i < count($p->transitions); $i++)
         {
             $target = $p->transitions[$i]->target;
             $cfg = new LexerATNConfig((object)[ 'state'=>$target, 'alt'=>$i+1, 'context'=>$initialContext ], null);
@@ -433,16 +418,16 @@ class LexerATNSimulator extends ATNSimulator
     // this rule would have a lower priority.
     //
     // @return {@code true} if an accept state is reached, otherwise {@code false}.
-    function closure(InputStream $input, ATNConfig $config, ATNConfigSet $configs, $currentAltReachedAcceptState, $speculative, $treatEofAsEpsilon)
+    function closure(CharStream $input, ATNConfig $config, ATNConfigSet $configs, bool $currentAltReachedAcceptState, bool $speculative, bool $treatEofAsEpsilon)
 	{
         $cfg = null;
-        if (LexerATNSimulator::$debug)
+        if ($this->debug)
         {
             //$console->log("closure(" . config.toString($this->>recog, true) . ")");
         }
         if ($config->state instanceof States\RuleStopState)
         {
-            if (LexerATNSimulator::$debug)
+            if ($this->debug)
             {
                 if ($this->recog !== null)
                 {
@@ -462,7 +447,7 @@ class LexerATNSimulator extends ATNSimulator
                 }
                 else
                 {
-                    $configs->add(new LexerATNConfig((object)[ 'state'=>$config->state, 'context'=>PredictionContext::EMPTY ], $config));
+                    $configs->add(new LexerATNConfig((object)[ 'state'=>$config->state, 'context'=>PredictionContext::EMPTY() ], $config));
                     $currentAltReachedAcceptState = true;
                 }
             }
@@ -535,7 +520,7 @@ class LexerATNSimulator extends ATNSimulator
             // states reached by traversing predicates. Since this is when we
             // test them, we cannot cash the DFA state target of ID.
 
-            if (LexerATNSimulator::$debug)
+            if ($this->debug)
             {
                 //$console->log("EVAL rule " + trans.ruleIndex + ":" . $trans->predIndex);
             }
@@ -645,16 +630,8 @@ class LexerATNSimulator extends ATNSimulator
         $settings->dfaState = $dfaState;
     }
 
-    function addDFAEdge($from_, $tk, $to, $cfgs)
+    function addDFAEdge($from_, $tk, $to, ATNConfigSet $cfgs=null)
     {
-        if (!isset($to))
-        {
-            $to = null;
-        }
-        if (!isset($cfgs))
-        {
-            $cfgs = null;
-        }
         if ($to === null && $cfgs !== null)
         {
             // leading to this call, ATNConfigSet.hasSemanticContext is used as a
@@ -683,7 +660,7 @@ class LexerATNSimulator extends ATNSimulator
             // Only track edges within the DFA bounds
             return $to;
         }
-        if (LexerATNSimulator::$debug)
+        if ($this->debug)
         {
             //$console->log("EDGE " + from_ + " -> " + to + " upon " . $tk);
         }

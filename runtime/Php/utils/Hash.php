@@ -8,7 +8,14 @@ namespace Antlr4\Utils;
 
 class Hash
 {
+    /**
+     * @var int
+     */
     public $count;
+
+    /**
+     * @var int
+     */
     public $hash;
 
     function __construct()
@@ -17,15 +24,18 @@ class Hash
         $this->hash = 0;
     }
 
-    function update(...$arguments)
+    function update(...$arguments) : void
     {
-        for ($i = 0; $i < count($arguments); $i++)
+        foreach ($arguments as $value)
         {
-            $value = $arguments[$i];
             if ($value === null) continue;
-            if (is_array($value)) foreach ($value as $v) $this->update($v);
-            else {
-                //$k = 0;
+
+            if (is_array($value))
+            {
+                foreach ($value as $v) $this->update($v);
+            }
+            else
+            {
                 if (is_string($value)) $k = Utils::hashCode($value);
                 else
                 if (is_int($value)) $k = $value;
@@ -33,7 +43,8 @@ class Hash
                 if (is_float($value)) $k = $value;
                 else
                 if (is_bool($value)) $k = $value ? 1 : 0;
-                else {
+                else
+                {
                     $value->updateHashCode($this);
                     continue;
                 }
@@ -42,7 +53,7 @@ class Hash
                 $k = ($k << 15) | ($k >> (32 - 15));
                 $k = $k * 0x1B873593;
 
-                $this->count = $this->count + 1;
+                $this->count++;
 
                 $hash = $this->hash ^ $k;
                 $hash = ($hash << 13) | ($hash >> (32 - 13));

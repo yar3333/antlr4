@@ -76,7 +76,7 @@ class  Token
 
     /**
      * text of the token.
-     * @var 
+     * @var string
      */
     protected $_text;
 
@@ -91,18 +91,17 @@ class  Token
         $this->line = null;// line=1..n of the 1st character
         $this->column = null;// beginning of the line at which it occurs, 0..n-1
         $this->_text = null;// text of the token.
-        return $this;
     }
 
     // Explicitly set the text for this token. If {code text} is not
     // {@code null}, then {@link //getText} will return this value rather than
     // extracting the text from the input.
-    function getText() { return $this->_text; }
+    function getText() : string { return $this->_text; }
 
     // @param text The explicit text of the token, or {@code null} if the text
     // should be obtained from the input along with the start and stop indexes
     // of the token.
-    function setText($text) { $this->_text = $text; }
+    function setText(string $text) : void { $this->_text = $text; }
 
     function getTokenSource()
     {

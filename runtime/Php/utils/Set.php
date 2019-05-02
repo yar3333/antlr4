@@ -6,7 +6,7 @@
 
 namespace Antlr4\Utils;
 
-class Set
+class Set implements \IteratorAggregate
 {
     /**
      * @var array
@@ -30,7 +30,7 @@ class Set
         $this->equalsFunction = isset($equalsFunction) ? $equalsFunction : (function ($a, $b) { return Utils::standardEqualsFunction($a, $b); });
     }
 
-    function getLength()
+    function length()
     {
         $l = 0;
         foreach ($this->data as $key => $value)
@@ -100,8 +100,15 @@ class Set
         return $l;
     }
 
+    function isEmpty() : bool { return !$this->data; }
+
     function __toString()
     {
         return Utils::arrayToString($this->values());
+    }
+
+    function getIterator() : \Iterator
+    {
+        return new \ArrayIterator($this->data);
     }
 }

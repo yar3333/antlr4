@@ -7,7 +7,7 @@ namespace Antlr4;
  * can be found in the LICENSE.txt file in the project root.
  */
 
-//* A rule invocation record for parsing.
+// A rule invocation record for parsing.
 //
 //  Contains all of the information about the current rule not stored in the
 //  RuleContext. It handles parse tree children list, Any ATN state
@@ -29,29 +29,21 @@ namespace Antlr4;
 //  I do not use getters for fields of objects that are used simply to
 //  group values such as this aggregate.  The getters/setters are there to
 //  satisfy the superclass interface.
-
-use Antlr4\RuleContext;
-use Antlr4\Tree\Tree;
-//INVALID_INTERVAL = Tree::INVALID_INTERVAL;
-//TerminalNode = Tree::TerminalNode;
-//TerminalNodeImpl = Tree::TerminalNodeImpl;
-//ErrorNodeImpl = Tree::ErrorNodeImpl;
-use Antlr4\Interval;
+use Antlr4\Tree\ErrorNodeImpl;
+use Antlr4\Tree\TerminalNode;
+use Antlr4\Tree\TerminalNodeImpl;
 
 class ParserRuleContext extends RuleContext
 {
-    private static $EMPTY;
-    public static function EMPTY() : ParserRuleContext { return self::$EMPTY ? self::$EMPTY : (self::$EMPTY = new ParserRuleContext()); }
-
     public $ruleIndex;
     public $children;
     public $start;
     public $stop;
     public $exception;
-    public $parentCtx;
+    protected $parentCtx;
     public $invokingState;
 
-    function __construct($parent, $invokingStateNumber)
+    function __construct(RuleContext $parent=null, int $invokingStateNumber=null)
     {
         parent::__construct($parent, $invokingStateNumber);
 
@@ -142,35 +134,23 @@ class ParserRuleContext extends RuleContext
         return $node;
     }
 
-    function getChild($i, $type)
+    function getChild(int $i, $type=null)
     {
-        $type = $type || null;
         if ($this->children === null || $i < 0 || $i >= count($this->children))
         {
             return null;
         }
-        if ($type === null)
+        if ($type === null) return $this->children[$i];
+
+        foreach ($this->children as $child)
         {
-            return $this->children[$i];
-        }
-        else
-        {
-            foreach ($this->children as $child)
+            if ($child instanceof $type)
             {
-                if($child instanceof $type)
-                {
-                    if($i===0)
-                    {
-                        return $child;
-                    }
-                    else
-                    {
-                        $i -= 1;
-                    }
-                }
+                if ($i===0) return $child;
+                $i -= 1;
             }
-            return null;
         }
+        return null;
     }
 
     function getToken($ttype, $i)
@@ -247,30 +227,28 @@ class ParserRuleContext extends RuleContext
         }
     }
 
-    function getChildCount()
+    function getChildCount() : int
     {
         return !isset($this->children) ? 0 : count($this->children);
     }
 
-    function getSourceInterval()
+    function getSourceInterval() : Interval
     {
         if ($this->start === null || $this->stop === null)
         {
-            return Tree::INVALID_INTERVAL;
+            return Interval::INVALID();
         }
         else
         {
-            return new Interval($this->start->tokenIndex, $this->stop->tokenIndex);
+            return new Interval($this->start->tokenIndex(), $this->stop->tokenIndex());
         }
     }
-}
 
-class InterpreterRuleContext extends  ParserRuleContext
-{
-    function __construct($parent, $invokingStateNumber, $ruleIndex)
+    /**
+     * @return ParserRuleContext
+     */
+    public function getParent()
     {
-        parent::__construct($parent, $invokingStateNumber);
-        $this->ruleIndex = $ruleIndex;
-        return $this;
+        return $this->parentCtx;
     }
 }

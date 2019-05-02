@@ -11,8 +11,7 @@ class LexerDFASerializer extends DFASerializer
         parent::__construct($dfa);
     }
 
-    /* LexerDFASerializer */
-    function getEdgeLabel($i)
+    function getEdgeLabel(int $i) : string
     {
         return "'" . Utils::fromCharCode($i) . "'";
     }

@@ -4,24 +4,23 @@ namespace Antlr4\Atn\Transitions;
 
 use Antlr4\IntervalSet;
 use Antlr4\Token;
-use Antlr4\Utils\Set;
 
 class SetTransition extends Transition
 {
     public $serializationType;
 
     /**
-     * @var Set
+     * @var IntervalSet
      */
     public $label;
 
     // A transition containing a set of values.
-    function __construct($target, $set)
+    function __construct($target, IntervalSet $set)
     {
         parent::__construct($target);
 
         $this->serializationType = Transition::SET;
-        if (isset($set)) {
+        if ($set) {
             $this->label = $set;
         } else {
             $this->label = new IntervalSet();
@@ -29,7 +28,7 @@ class SetTransition extends Transition
         }
     }
 
-    function matches($symbol, $minVocabSymbol, $maxVocabSymbol)
+    function matches(int $symbol, int $minVocabSymbol, int $maxVocabSymbol) : bool
     {
         return mb_strpos($this->label, $symbol) !== false;
     }

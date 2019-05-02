@@ -90,7 +90,7 @@ class SemanticContextAnd extends SemanticContext
 
     // {@inheritDoc}
     // <p>The evaluation of predicates by this context is short-circuiting, but unordered.</p>
-    function evaluate($parser, $outerContext)
+    function eval($parser, $outerContext)
     {
         for ($i = 0; $i < count($this->opnds); $i++)
         {

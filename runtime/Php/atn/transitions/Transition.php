@@ -64,6 +64,11 @@ abstract class Transition
     ];
 
     /**
+     * @var int
+     */
+    public $serializationType;
+
+    /**
      * @var ATNState
      */
     public $target;
@@ -73,13 +78,6 @@ abstract class Transition
      */
     public $isEpsilon;
 
-    /**
-     * @var IntervalSet
-     */
-    public $label;
-
-    public $serializationType;
-
     function __construct(ATNState $target)
     {
         if (!isset($target)) throw new \Exception("target cannot be null.");
@@ -88,9 +86,9 @@ abstract class Transition
 
         // Are we epsilon, action, sempred?
         $this->isEpsilon = false;
-
-        $this->label = null;
     }
+
+    public function label() : IntervalSet { return null; }
 
     abstract function matches(int $symbol, int $minVocabSymbol, int $maxVocabSymbol) : bool;
 }

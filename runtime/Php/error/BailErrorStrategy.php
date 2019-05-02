@@ -31,6 +31,9 @@ namespace Antlr4\Error;
 
 use Antlr4\Error\Exceptions\InputMismatchException;
 use Antlr4\Error\Exceptions\ParseCancellationException;
+use Antlr4\Error\Exceptions\RecognitionException;
+use Antlr4\Parser;
+use Antlr4\Token;
 
 class BailErrorStrategy extends DefaultErrorStrategy
 {
@@ -43,25 +46,35 @@ class BailErrorStrategy extends DefaultErrorStrategy
     // in a {@link ParseCancellationException} so it is not caught by the
     // rule function catches. Use {@link Exception//getCause()} to get the
     // original {@link RecognitionException}.
-    function recover($recognizer, $e)
+    function recover(Parser $recognizer, RecognitionException $e) : void
     {
         $context = $recognizer->_ctx;
         while ($context !== null) {
             $context->exception = $e;
-            $context = $context->parentCtx;
+            $context = $context->getParent();
         }
         throw new ParseCancellationException($e);
     }
 
     // Make sure we don't attempt to recover inline; if the parser
     // successfully recovers, it won't throw an exception.
-    function recoverInline($recognizer)
+    /**
+     * @param Parser $recognizer
+     * @return Token
+     * @throws ParseCancellationException
+     */
+    function recoverInline(Parser $recognizer) : Token
     {
-        $this->recover($recognizer, new InputMismatchException($recognizer));
+		$e = new InputMismatchException($recognizer);
+		for ($context = $recognizer->getContext(); $context != null; $context = $context->getParent())
+		{
+			$context->exception = $e;
+		}
+        throw new ParseCancellationException($e);
     }
 
     // Make sure we don't attempt to recover from problems in subrules.//
-    function sync($recognizer)
+    function sync(Parser $recognizer) : void
     {
         // pass
     }

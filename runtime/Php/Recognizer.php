@@ -183,7 +183,7 @@ abstract class Recognizer
         return true;
     }
 
-    function precpred($localctx , $precedence) : bool
+    function precpred(RuleContext $localctx , int $precedence) : bool
     {
         return true;
     }
@@ -197,7 +197,10 @@ abstract class Recognizer
     function getState() { return $this->_stateNumber; }
     function setState($state) { $this->_stateNumber = $state; }
 
-    function getInterpreter() : ATNSimulator { return $this->_interp; }
+    /**
+     * @return ATNSimulator
+     */
+    function getInterpreter() { return $this->_interp; }
 
     /**
      * If this recognizer was generated, it will have a serialized ATN

@@ -44,4 +44,71 @@ class Interval
     {
         return $this->stop - $this->start;
     }
+
+    function equals($other) : bool
+    {
+        return $this == $other;
+    }
+
+    /** Does this start completely before other? Disjoint
+	 * @param Interval $other
+	 * @return bool
+	 */
+	public function startsBeforeDisjoint(Interval $other) : bool
+	{
+		return $this->start < $other->start && $this->stop < $other->start;
+	}
+	
+	/** Does this start at or before other? Nondisjoint
+	 * @param Interval $other
+	 * @return bool
+	 */
+	public function startsBeforeNonDisjoint(Interval $other) : bool
+	{
+		return $this->start <= $other->start && $this->stop >= $other->start;
+	}
+
+	/** Does this.a start after other.b? May or may not be disjoint
+	 * @param Interval $other
+	 * @return bool
+	 */
+	public function startsAfter(Interval $other) : bool { return $this->start > $other->start; }
+
+	/**
+	 * @param Interval $other
+	 * @return bool
+	 */
+	public function startsAfterDisjoint(Interval $other) : bool
+    {
+		return $this->start > $other->stop;
+	}
+
+	/** Does this start after other? NonDisjoint
+	 * @param Interval $other
+	 * @return bool
+	 */
+	public function startsAfterNonDisjoint(Interval $other) : bool
+	{
+		return $this->start > $other->start && $this->start <= $other->stop; // this.b>=other.b implied
+	}
+
+	function disjoint(Interval $other) : bool
+    {
+		return $this->startsBeforeDisjoint($other) || $this->startsAfterDisjoint($other);
+	}
+
+	function adjacent(Interval $other) : bool
+    {
+		return $this->start == $other->stop + 1 || $this->stop == $other->start - 1;
+	}
+
+	function union(Interval $other) : Interval
+    {
+		return new Interval(min($this->start, $other->start), max($this->stop, $other->b));
+	}
+
+	function intersection(Interval $other) : Interval
+    {
+		return new Interval(max($this->start, $other->a), min($this->stop, $other->b));
+	}
 }

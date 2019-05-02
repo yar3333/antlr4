@@ -7,6 +7,7 @@
 namespace Antlr4\Error\Exceptions;
 
 use \Antlr4\InputStream;
+use Antlr4\IntervalSet;
 use \Antlr4\Parser;
 use Antlr4\Token;
 
@@ -75,7 +76,7 @@ class RecognitionException extends \Exception
     //
     // @return The set of token types that could potentially follow the current
     // state in the ATN, or {@code null} if the information is not available.
-    function getExpectedTokens()
+    function getExpectedTokens() : ?IntervalSet
     {
         if ($this->recognizer!==null)
         {

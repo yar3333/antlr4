@@ -7,6 +7,8 @@
 namespace Antlr4\Dfa;
 
 use Antlr4\Utils\Utils;
+use Antlr4\Vocabulary;
+use Antlr4\VocabularyImpl;
 
 // A DFA walker that knows how to dump them to serialized strings.
 class DFASerializer
@@ -17,81 +19,63 @@ class DFASerializer
     public $dfa;
 
     /**
-     * @var bool
+     * @var Vocabulary
      */
-    public $literalNames;
+    public $vocabulary;
 
-    /**
-     * @var bool
-     */
-    public $symbolicNames;
 
-    function __construct(DFA $dfa, array $literalNames=null, array $symbolicNames=null)
+    function __construct(DFA $dfa, Vocabulary $vocabulary=null)
 	{
         $this->dfa = $dfa;
-        $this->literalNames = $literalNames || [];
-        $this->symbolicNames = $symbolicNames || [];
+        $this->vocabulary = $vocabulary ? $vocabulary : new VocabularyImpl(null , null);
     }
 
     function __toString() 
     {
-       if($this->dfa->s0 === null) 
-       {
-           return null;
-       }
-       $buf = "";
-       $states = $this->dfa->sortedStates();
-       foreach ($states as $s)
-       {
-           if ($s->edges !== null)
-           {
-                $n = count($s->edges);
-                for($j = 0; $j < $n; $j++)
-                {
-                    $t = $s->edges[$j] || null;
-                    if ($t && $t->stateNumber !== 0x7FFFFFFF)
-                    {
-                        $buf = $buf->concat($this->getStateString($s));
-                        $buf = $buf->concat("-");
-                        $buf = $buf->concat($this->getEdgeLabel($j));
-                        $buf = $buf->concat("->");
-                        $buf = $buf->concat($this->getStateString($t));
-                        $buf = $buf->concat('\n');
-                    }
-                }
-           }
-       }
-       return $buf === "" ? null : $buf;
+        if ($this->dfa->s0===null) return null;
+
+		$buf = "";
+
+		/** @var DFAState[] $states */
+		$states = $this->dfa->states();
+
+		foreach ($states as $s)
+		{
+			$n = 0;
+			if ($s->edges!==null) $n = count($s->edges);
+			for ($i=0; $i<$n; $i++)
+			{
+				/** @var DFAState $t */
+				$t = $s->edges[$i];
+				if ($t!==null && $t->stateNumber !== 0x7FFFFFFF)
+				{
+					$buf .= $this->getStateString($s);
+					$label = $this->getEdgeLabel($i);
+					$buf .= "-" . $label . "->" . $this->getStateString($t) . "\n";
+				}
+			}
+		}
+
+		return $buf!=="" ? $buf : null;
     }
     
-    function getEdgeLabel($i) 
+    function getEdgeLabel(int $i) : string
     {
-        if ($i===0) 
-        {
-            return "EOF";
-        }
-        else if($this->literalNames !==null || $this->symbolicNames!==null) 
-        {
-            return $this->literalNames[$i-1] || $this->symbolicNames[$i-1];
-        }
-        else 
-        {
-            return Utils::fromCharCode($i-1);
-        }
+        return $this->vocabulary->getDisplayName($i - 1);
     }
     
-    function getStateString($s) 
+    function getStateString(DFAState $s) : string
     {
         $baseStateStr = ($s->isAcceptState ? ":" : "") . "s" . $s->stateNumber . ($s->requiresFullContext ? "^" : "");
-        if($s->isAcceptState) 
+        if ($s->isAcceptState)
         {
             if ($s->predicates !== null) 
             {
-                return $baseStateStr . "=>" . (string)$s->predicates;
+                return $baseStateStr . "=>" . Utils::arrayToString($s->predicates);
             }
             else 
             {
-                return $baseStateStr . "=>" . (string)$s->prediction;
+                return $baseStateStr . "=>" . $s->prediction;
             }
         }
         else 

@@ -2,9 +2,19 @@
 
 namespace Antlr4;
 
+use Antlr4\Utils\Pair;
+
 class CommonToken extends Token
 {
-    function __construct($source, $type, $channel, $start, $stop)
+    /**
+     * CommonToken constructor.
+     * @param Pair<TokenSource, CharStream> $source
+     * @param int $type
+     * @param int $channel
+     * @param int $start
+     * @param int $stop
+     */
+    function __construct(Pair $source, int $type, int $channel=null, int $start=null, int $stop=null)
     {
         parent::__construct();
 
@@ -14,10 +24,14 @@ class CommonToken extends Token
         $this->start = isset($start) ? $start : -1;
         $this->stop = isset($stop) ? $stop : -1;
         $this->tokenIndex = -1;
-        if ($this->source[0] !== null) {
+
+        if ($this->source[0] !== null)
+        {
             $this->line = $source[0]->line;
             $this->column = $source[0]->column;
-        } else {
+        }
+        else
+        {
             $this->column = -1;
         }
     }
@@ -47,7 +61,7 @@ class CommonToken extends Token
         return $t;
     }
 
-    function getText()
+    function getText() : string
     {
         if ($this->_text !== null) {
             return $this->_text;
@@ -64,7 +78,7 @@ class CommonToken extends Token
         }
     }
 
-    function setText($text)
+    function setText(string $text) : void
     {
         $this->_text = $text;
     }

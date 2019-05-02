@@ -33,7 +33,7 @@ class VocabularyImpl implements Vocabulary
     private $literalNames;
 
     /**
-     * @var strig[]
+     * @var string[]
      */
     private $symbolicNames;
 
