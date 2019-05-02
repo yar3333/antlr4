@@ -8,6 +8,7 @@ namespace Antlr4\Atn;
 
 use \Antlr4\Dfa\DFAState;
 use Antlr4\Predictioncontexts\PredictionContext;
+use Antlr4\Predictioncontexts\PredictionContextUtils;
 
 // The context cache maps all PredictionContext objects that are ==
 //  to a single cached copy. This cache is shared across all contexts
@@ -57,7 +58,7 @@ abstract class ATNSimulator
         {
             return $context;
         }
-        return PredictionContext::getCachedPredictionContext($context, $this->sharedContextCache, []);
+        return PredictionContextUtils::getCachedPredictionContext($context, $this->sharedContextCache, []);
     }
 
     abstract function reset() : void;

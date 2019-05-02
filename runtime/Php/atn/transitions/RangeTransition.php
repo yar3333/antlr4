@@ -2,6 +2,7 @@
 
 namespace Antlr4\Atn\Transitions;
 
+use Antlr4\Interval;
 use Antlr4\IntervalSet;
 use Antlr4\Utils\Utils;
 
@@ -26,16 +27,9 @@ class RangeTransition extends Transition
         $this->serializationType = Transition::RANGE;
         $this->start = $start;
         $this->stop = $stop;
-        $this->label = $this->makeLabel();
     }
 
-    /* RangeTransition */
-    function makeLabel()
-    {
-        $s = new IntervalSet();
-        $s->addRange($this->start, $this->stop);
-        return $s;
-    }
+    function label() : IntervalSet { return IntervalSet::fromRange($this->start, $this->stop); }
 
     /* RangeTransition */
     function matches(int $symbol, int $minVocabSymbol, int $maxVocabSymbol) : bool

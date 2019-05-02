@@ -43,6 +43,11 @@ class Set implements \IteratorAggregate
         return $l;
     }
 
+    function addAll(array $values)
+    {
+        foreach ($values as $v) $this->add($v);
+    }
+
     function add($value)
     {
         $hash = $this->hashFunction->call($value);

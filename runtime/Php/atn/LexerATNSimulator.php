@@ -418,7 +418,7 @@ class LexerATNSimulator extends ATNSimulator
     // this rule would have a lower priority.
     //
     // @return {@code true} if an accept state is reached, otherwise {@code false}.
-    function closure(CharStream $input, ATNConfig $config, ATNConfigSet $configs, bool $currentAltReachedAcceptState, bool $speculative, bool $treatEofAsEpsilon)
+    function closure(CharStream $input, LexerATNConfig $config, ATNConfigSet $configs, bool $currentAltReachedAcceptState, bool $speculative, bool $treatEofAsEpsilon)
 	{
         $cfg = null;
         if ($this->debug)
@@ -474,14 +474,13 @@ class LexerATNSimulator extends ATNSimulator
                 $configs->add($config);
             }
         }
-        for ($j = 0; $j < $config->state->transitions->length; $j++)
+        for ($j = 0; $j < count($config->state->transitions); $j++)
         {
             $trans = $config->state->transitions[$j];
             $cfg = $this->getEpsilonTarget($input, $config, $trans, $configs, $speculative, $treatEofAsEpsilon);
             if ($cfg !== null)
             {
-                $currentAltReachedAcceptState = $this->closure($input, $cfg, $configs,
-                        $currentAltReachedAcceptState, $speculative, $treatEofAsEpsilon);
+                $currentAltReachedAcceptState = $this->closure($input, $cfg, $configs, $currentAltReachedAcceptState, $speculative, $treatEofAsEpsilon);
             }
         }
         return $currentAltReachedAcceptState;
@@ -606,7 +605,7 @@ class LexerATNSimulator extends ATNSimulator
         }
         $savedcolumn = $this->column;
         $savedLine = $this->line;
-        $index = $input->index;
+        $index = $input->getIndex();
         $marker = $input->mark();
         try
         {

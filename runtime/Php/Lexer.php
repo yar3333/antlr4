@@ -296,7 +296,8 @@ abstract class Lexer extends Recognizer
     // /
     function emit()
     {
-        $t = $this->_factory->create(
+        $t = $this->_factory->createEx
+        (
             $this->_tokenFactorySourcePair,
             $this->_type,
             $this->_text,
@@ -314,9 +315,17 @@ abstract class Lexer extends Recognizer
     {
         $cpos = $this->getColumn();
         $lpos = $this->getLine();
-        $eof = $this->_factory->create($this->_tokenFactorySourcePair, Token::EOF,
-                null, Token::DEFAULT_CHANNEL, $this->_input->getIndex(),
-                $this->_input->getIndex() - 1, $lpos, $cpos);
+        $eof = $this->_factory->createEx
+        (
+            $this->_tokenFactorySourcePair,
+            Token::EOF,
+            null,
+            Token::DEFAULT_CHANNEL,
+            $this->_input->getIndex(),
+            $this->_input->getIndex() - 1,
+            $lpos,
+            $cpos
+        );
         $this->emitToken($eof);
         return $eof;
     }

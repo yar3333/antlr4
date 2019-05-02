@@ -14,17 +14,22 @@ class FailedPredicateException extends RecognitionException
     /**
      * @var int
      */
-    public $ruleIndex;
+    private $ruleIndex;
 
     /**
      * @var int
      */
-    public $predicateIndex;
+    private $predicateIndex;
 
-    function __construct(Parser $recognizer, $predicate, $message)
+    /**
+     * @var string
+     */
+    private $predicate;
+
+    function __construct(Parser $recognizer, string $predicate, string $message)
     {
         parent::__construct((object)[
-            'message' => $this->formatMessage($predicate, $message || null),
+            'message' => $this->formatMessage($predicate, $message),
             'recognizer' => $recognizer,
             'input' => $recognizer->getInputStream(),
             'ctx' => $recognizer->_ctx

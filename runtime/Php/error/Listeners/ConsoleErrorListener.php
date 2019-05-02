@@ -2,19 +2,13 @@
 
 namespace Antlr4\Error\Listeners;
 
-class ConsoleErrorListener extends ErrorListener
+use Antlr4\Error\Exceptions\RecognitionException;
+use Antlr4\Recognizer;
+
+class ConsoleErrorListener extends BaseErrorListener
 {
     private static $_INSTANCE;
-
-    public static function INSTANCE(): ConsoleErrorListener
-    {
-        return self::$_INSTANCE ? self::$_INSTANCE : (self::$_INSTANCE = new ConsoleErrorListener());
-    }
-
-    function __construct()
-    {
-        parent::__construct();
-    }
+    static function INSTANCE(): ConsoleErrorListener { return self::$_INSTANCE ? self::$_INSTANCE : (self::$_INSTANCE = new ConsoleErrorListener()); }
 
     // {@inheritDoc}
     //
@@ -26,7 +20,7 @@ class ConsoleErrorListener extends ErrorListener
     // <pre>
     // line <em>line</em>:<em>charPositionInLine</em> <em>msg</em>
     // </pre>
-    function syntaxError($recognizer, $offendingSymbol, $line, $column, $msg, $e)
+	function syntaxError(Recognizer $recognizer, Object $offendingSymbol, int $line, int $charPositionInLine, string $msg, RecognitionException $e) : void
     {
         //$console->error("line " + line + ":" + column + " " . $msg);
     }

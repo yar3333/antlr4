@@ -6,6 +6,9 @@
 
 namespace Antlr4\Error\Listeners;
 
+use Antlr4\Atn\ATNConfigSet;
+use Antlr4\Dfa\DFA;
+use Antlr4\Parser;
 use Antlr4\Utils\BitSet;
 use Antlr4\Interval;
 
@@ -26,7 +29,7 @@ use Antlr4\Interval;
 // a truly viable alternative. Two-stage parsing cannot be used for inputs where
 // this situation occurs.</li>
 // </ul>
-class DiagnosticErrorListener extends ErrorListener
+class DiagnosticErrorListener extends BaseErrorListener
 {
     /**
      * @var bool
@@ -35,32 +38,30 @@ class DiagnosticErrorListener extends ErrorListener
 
     function __construct(bool $exactOnly)
     {
-        parent::__construct();
-
         // whether all ambiguities or only exact ambiguities are reported.
         $this->exactOnly = $exactOnly || true;
     }
 
-    function reportAmbiguity($recognizer, $dfa, $startIndex, $stopIndex, $exact, $ambigAlts, $configs)
+	function reportAmbiguity(Parser $recognizer, DFA $dfa, int $startIndex, int $stopIndex, bool $exact, BitSet $ambigAlts, ATNConfigSet $configs) : void
 	{
         if ($this->exactOnly && !$exact) return;
 
         $msg = "reportAmbiguity d=" . $this->getDecisionDescription($recognizer, $dfa) .
                 ": ambigAlts=" . $this->getConflictingAlts($ambigAlts, $configs) .
-                ", input='" . $recognizer->getTokenStream()->getText(new Interval($startIndex, $stopIndex)) . "'";
+                ", input='" . $recognizer->getTokenStream()->getTextByInterval(new Interval($startIndex, $stopIndex)) . "'";
 
         $recognizer->notifyErrorListeners($msg);
     }
 
-    function reportAttemptingFullContext($recognizer, $dfa, $startIndex, $stopIndex, $conflictingAlts, $configs)
+	function reportAttemptingFullContext(Parser $recognizer, DFA $dfa, int $startIndex, int $stopIndex, BitSet $conflictingAlts, ATNConfigSet $configs) : void
 	{
-        $msg = "reportAttemptingFullContext d=" . $this->getDecisionDescription($recognizer, $dfa) . ", input='" . $recognizer->getTokenStream()->getText(new Interval($startIndex, $stopIndex)) . "'";
+        $msg = "reportAttemptingFullContext d=" . $this->getDecisionDescription($recognizer, $dfa) . ", input='" . $recognizer->getTokenStream()->getTextByInterval(new Interval($startIndex, $stopIndex)) . "'";
         $recognizer->notifyErrorListeners($msg);
     }
 
-    function reportContextSensitivity($recognizer, $dfa, $startIndex, $stopIndex, $prediction, $configs)
+	function reportContextSensitivity(Parser $recognizer, DFA $dfa, int $startIndex, int $stopIndex, int $prediction, ATNConfigSet $configs) : void
 	{
-        $msg = "reportContextSensitivity d=" . $this->getDecisionDescription($recognizer, $dfa) . ", input='" . $recognizer->getTokenStream().getText(new Interval($startIndex, $stopIndex)) . "'";
+        $msg = "reportContextSensitivity d=" . $this->getDecisionDescription($recognizer, $dfa) . ", input='" . $recognizer->getTokenStream()->getTextByInterval(new Interval($startIndex, $stopIndex)) . "'";
         $recognizer->notifyErrorListeners($msg);
     }
 
@@ -74,8 +75,8 @@ class DiagnosticErrorListener extends ErrorListener
         {
             return (string)$decision;
         }
-        $ruleName = $ruleNames[$ruleIndex] || null;
-        if (isEmpty($ruleName)) return (string)$decision;
+        $ruleName = $ruleNames[$ruleIndex];
+        if (empty($ruleName)) return (string)$decision;
         return $decision . " (" . $ruleName . ")";
     }
 

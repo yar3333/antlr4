@@ -61,7 +61,7 @@ class PrecedencePredicate extends SemanticContext
 
     /**
      * @param Set $set
-     * @return SemanticContext[]
+     * @return PrecedencePredicate[]
      */
     static function filterPrecedencePredicates(Set $set) : array
     {

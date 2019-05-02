@@ -79,8 +79,9 @@ class InputStream
         $stream->_size = count($stream->data);
     }
 
-    function getIndex(){ return $this->_index; }
-    function getSize(){ return $this->_size; }
+    function index(){ return $this->_index; }
+
+    function size(){ return $this->_size; }
 
     // Reset the stream so that it's in the same state it was
     // when the object was created *except* the data array is not touched.

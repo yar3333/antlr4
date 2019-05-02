@@ -22,10 +22,10 @@ class CharStreams
     // Creates an InputStream from a Buffer given the
     // encoding of the bytes in that buffer (defaults to 'utf8' if
     // encoding is null).
-    function fromBuffer2($buffer, $encoding)
+    /*function fromBuffer2($buffer, $encoding)
     {
         return new InputStream($buffer->toString($encoding), true);
-    }
+    }*/
 
     // Synchronously creates an InputStream given a path to a file
     // on disk and the encoding of the bytes in that file (defaults to

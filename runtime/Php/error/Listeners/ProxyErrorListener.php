@@ -2,23 +2,28 @@
 
 namespace Antlr4\Error\Listeners;
 
-class ProxyErrorListener extends ErrorListener
+use Antlr4\Atn\ATNConfigSet;
+use Antlr4\Dfa\DFA;
+use Antlr4\Error\Exceptions\RecognitionException;
+use Antlr4\Parser;
+use Antlr4\Recognizer;
+use Antlr4\Utils\BitSet;
+
+class ProxyErrorListener implements ANTLRErrorListener
 {
     /**
-     * @var ErrorListener[]
+     * @var ANTLRErrorListener[]
      */
     public $delegates;
 
     function __construct(array $delegates)
     {
-        parent::__construct();
-
         if ($delegates === null) throw new \Exception("delegates");
 
         $this->delegates = $delegates;
     }
 
-    function syntaxError($recognizer, $offendingSymbol, $line, $column, $msg, $e)
+   	function syntaxError(Recognizer $recognizer, Object $offendingSymbol, int $line, int $charPositionInLine, string $msg, RecognitionException $e) : void
     {
         foreach ($this->delegates as $d)
         {
@@ -26,7 +31,7 @@ class ProxyErrorListener extends ErrorListener
         }
     }
 
-    function reportAmbiguity($recognizer, $dfa, $startIndex, $stopIndex, $exact, $ambigAlts, $configs)
+	function reportAmbiguity(Parser $recognizer, DFA $dfa, int $startIndex, int $stopIndex, bool $exact, BitSet $ambigAlts, ATNConfigSet $configs) : void
     {
         foreach ($this->delegates as $d)
         {
@@ -34,7 +39,7 @@ class ProxyErrorListener extends ErrorListener
         }
     }
 
-    function reportAttemptingFullContext($recognizer, $dfa, $startIndex, $stopIndex, $conflictingAlts, $configs)
+	function reportAttemptingFullContext(Parser $recognizer, DFA $dfa, int $startIndex, int $stopIndex, BitSet $conflictingAlts, ATNConfigSet $configs) : void
     {
         foreach ($this->delegates as $d)
         {
@@ -42,7 +47,7 @@ class ProxyErrorListener extends ErrorListener
         }
     }
 
-    function reportContextSensitivity($recognizer, $dfa, $startIndex, $stopIndex, $prediction, $configs)
+	function reportContextSensitivity(Parser $recognizer, DFA $dfa, int $startIndex, int $stopIndex, int $prediction, ATNConfigSet $configs) : void
     {
         foreach ($this->delegates as $d)
         {

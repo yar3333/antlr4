@@ -151,4 +151,19 @@ class Utils
     {
         return array_map($func, $arr);
     }
+
+    static function minObjects(array $objectsWithCompareTo) : object
+    {
+        $i = new \ArrayIterator($objectsWithCompareTo);
+
+        $candidate = $i->current(); $i->next();
+
+        while ($i->valid())
+        {
+            $next = $i->current(); $i->next();
+            if ($next->compareTo($candidate) < 0) $candidate = $next;
+        }
+
+        return $candidate;
+    }
 }

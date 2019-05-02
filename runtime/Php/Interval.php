@@ -104,11 +104,11 @@ class Interval
 
 	function union(Interval $other) : Interval
     {
-		return new Interval(min($this->start, $other->start), max($this->stop, $other->b));
+		return new Interval(min($this->start, $other->start), max($this->stop, $other->stop));
 	}
 
 	function intersection(Interval $other) : Interval
     {
-		return new Interval(max($this->start, $other->a), min($this->stop, $other->b));
+		return new Interval(max($this->start, $other->start), min($this->stop, $other->stop));
 	}
 }

@@ -11,6 +11,7 @@ use Antlr4\Atn\ATNDeserializationOptions;
 use Antlr4\Atn\ATNDeserializer;
 use Antlr4\Atn\ParserATNSimulator;
 use Antlr4\Error\DefaultErrorStrategy;
+use Antlr4\Error\Exceptions\RecognitionException;
 use Antlr4\Tree\ErrorNode;
 use Antlr4\Tree\ErrorNodeImpl;
 use Antlr4\Tree\ParseTreeListener;
@@ -392,10 +393,8 @@ abstract class Parser extends Recognizer
         return $this->_input->LT(1);
     }
 
-    function notifyErrorListeners($msg, $offendingToken, $err)
+    function notifyErrorListeners(string $msg, Token $offendingToken=null, RecognitionException $err=null)
     {
-        $offendingToken = $offendingToken || null;
-        $err = $err || null;
         if ($offendingToken === null)
         {
             $offendingToken = $this->getCurrentToken();
@@ -772,11 +771,6 @@ abstract class Parser extends Recognizer
             $this->_tracer = new ParserTraceListener($this);
             $this->addParseListener($this->_tracer);
         }
-    }
-
-    function notifyErrorListenersByMessage(string $msg)
-    {
-        $this->notifyErrorListeners($this->getCurrentToken(), $msg, null);
     }
 
 	function getContext() : ParserRuleContext { return $this->_ctx;	}

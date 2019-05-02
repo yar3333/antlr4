@@ -2,11 +2,11 @@
 
 namespace Antlr4\Atn\Semanticcontexts;
 
-use Antlr4\Atn\Semanticcontexts\PrecedencePredicate;
-use Antlr4\Atn\Semanticcontexts\SemanticContext;
 use Antlr4\Utils\Hash;
 use Antlr4\Utils\Set;
+use Antlr4\Utils\Utils;
 
+// A semantic context which is true whenever none of the contained contexts is false.
 class SemanticContextAnd extends SemanticContext
 {
     /**
@@ -18,52 +18,25 @@ class SemanticContextAnd extends SemanticContext
     {
         parent::__construct();
 
+        /** @var Set<SemanticContext> $operands */
         $operands = new Set();
 
-        if ($a instanceof SemanticContextAnd)
-        {
-            foreach ($a->opnds as $o)
-            {
-                $operands->add($o);
-            }
-        }
-        else
-        {
-            $operands->add($a);
-        }
+        if ($a instanceof SemanticContextAnd) $operands->addAll($a->opnds);
+        else $operands->add($a);
 
-        if ($b instanceof SemanticContextAnd)
-        {
-            foreach ($b->opnds as $o)
-            {
-                $operands->add($o);
-            }
-        }
-        else
-        {
-            $operands->add($b);
-        }
+        if ($b instanceof SemanticContextAnd) $operands->addAll($b->opnds);
+        else $operands->add($b);
 
-        /**
-         * @var  SemanticContext[] $precedencePredicates
-         */
+        /** @var PrecedencePredicate[] $precedencePredicates */
         $precedencePredicates = PrecedencePredicate::filterPrecedencePredicates($operands);
-        if ($precedencePredicates->length > 0)
+        if ($precedencePredicates)
         {
             // interested in the transition with the lowest precedence
-            $reduced = null;
-            foreach ($precedencePredicates as $p)
-            {
-                /**
-                 * @var  SemanticContextAnd $p
-                 */
-                if ($reduced === null || $p->precedence < $reduced->precedence)
-                {
-                    $reduced = $p;
-                }
-            }
+            /** @var PrecedencePredicate $reduced */
+            $reduced = Utils::minObjects($precedencePredicates);
             $operands->add($reduced);
         }
+
         $this->opnds = $operands->values();
     }
 

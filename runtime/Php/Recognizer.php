@@ -9,8 +9,8 @@ namespace Antlr4;
 use Antlr4\Atn\ATN;
 use Antlr4\Atn\ATNSimulator;
 use Antlr4\Error\Exceptions\RecognitionException;
+use Antlr4\Error\Listeners\ANTLRErrorListener;
 use \Antlr4\Error\Listeners\ConsoleErrorListener;
-use Antlr4\Error\Listeners\ErrorListener;
 use \Antlr4\Error\Listeners\ProxyErrorListener;
 
 abstract class Recognizer
@@ -19,7 +19,7 @@ abstract class Recognizer
     private static $ruleIndexMapCache = [];
 
     /**
-     * @var ErrorListener[]
+     * @var ANTLRErrorListener[]
      */
     public $_listeners;
 
@@ -171,7 +171,7 @@ abstract class Recognizer
         return "'" . $s . "'";
     }
 
-    function getErrorListenerDispatch() : ErrorListener
+    function getErrorListenerDispatch() : ANTLRErrorListener
     {
         return new ProxyErrorListener($this->_listeners);
     }

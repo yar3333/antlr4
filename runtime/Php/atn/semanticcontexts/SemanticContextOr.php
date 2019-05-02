@@ -2,15 +2,11 @@
 
 namespace Antlr4\Atn\Semanticcontexts;
 
-use Antlr4\Atn\Semanticcontexts\PrecedencePredicate;
-use Antlr4\Atn\Semanticcontexts\SemanticContext;
-use Antlr4\Parser;
 use Antlr4\Recognizer;
 use Antlr4\RuleContext;
 use Antlr4\Utils\Hash;
 use Antlr4\Utils\Set;
 
-// A semantic context which is true whenever none of the contained contexts is false.
 // A semantic context which is true whenever at least one of the contained contexts is true.
 class SemanticContextOr extends SemanticContext
 {
@@ -41,9 +37,10 @@ class SemanticContextOr extends SemanticContext
 
         $precedencePredicates = PrecedencePredicate::filterPrecedencePredicates($operands);
 
-        if ($precedencePredicates->length > 0) {
+        if ($precedencePredicates)
+        {
             // interested in the transition with the highest precedence
-            $s = usort($precedencePredicates, function ($a, $b) { return $a->compareTo($b); });
+            $s = usort($precedencePredicates, function (object $a, object $b) { return $a->compareTo($b); });
             $reduced = $s[$s->length - 1];
             $operands->add($reduced);
         }
@@ -124,9 +121,7 @@ class SemanticContextOr extends SemanticContext
     function __toString()
     {
         $s = "";
-        foreach ($this->opnds as $o) {
-            $s .= "|| " . (string)$o;
-        }
-        return strlen($s) > 3 ? $s->slice(3) : $s;
+        foreach ($this->opnds as $o) $s .= "|| " . $o;
+        return strlen($s) > 3 ? substr($s, 3) : $s;
     }
 }

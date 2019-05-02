@@ -10,7 +10,7 @@ use Antlr4\Atn\Actions\LexerAction;
 use Antlr4\InputStream;
 use Antlr4\Utils\Hash;
 use \Antlr4\Utils\Utils;
-use \Antlr4\Atn\Actions\LexerIndexedCustomAction;
+use Antlr4\Atn\Actions\LexerIndexedCustomAction;
 
 // Represents an executor for a sequence of lexer actions which traversed during
 // the matching operation of a lexer rule (token).
@@ -196,7 +196,7 @@ class LexerActionExecutor
             $numActions = count($this->lexerActions);
             for ($idx = 0; $idx < $numActions; ++$idx)
             {
-                if (!$this->lexerActions[$idx].equals($other->lexerActions[$idx]))
+                if (!$this->lexerActions[$idx]->equals($other->lexerActions[$idx]))
                 {
                     return false;
                 }

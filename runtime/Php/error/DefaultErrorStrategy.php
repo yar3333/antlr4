@@ -139,7 +139,7 @@ class DefaultErrorStrategy implements ErrorStrategy
         {
             //$console->log("unknown recognition error type: " . $e->constructor->name);
             //$console->log($e->stack);
-            $recognizer->notifyErrorListeners($e->offendingToken, $e->getMessage(), $e);
+            $recognizer->notifyErrorListeners($e->getMessage(), $e->offendingToken, $e);
         }
     }
 
@@ -294,7 +294,7 @@ class DefaultErrorStrategy implements ErrorStrategy
      * @param Parser $recognizer
      * @param RecognitionException $e
      */
-    function reportInputMismatch($recognizer, $e)
+    function Def($recognizer, $e)
     {
         $msg = "mismatched input " . $this->getTokenErrorDisplay($e->offendingToken) . " expecting " . $e->getExpectedTokens()->toString($recognizer->getVocabulary());
         $recognizer->notifyErrorListeners($msg, $e->offendingToken, $e);
@@ -342,7 +342,7 @@ class DefaultErrorStrategy implements ErrorStrategy
         $tokenName = $this->getTokenErrorDisplay($t);
         $expecting = $this->getExpectedTokens($recognizer);
         $msg = "extraneous input " . $tokenName . " expecting " .
-            $expecting->toString($recognizer->literalNames, $recognizer->symbolicNames);
+            $expecting->toStringVocabulary($recognizer->getVocabulary());
         $recognizer->notifyErrorListeners($msg, $t, null);
     }
 
@@ -368,7 +368,7 @@ class DefaultErrorStrategy implements ErrorStrategy
         $this->beginErrorCondition($recognizer);
         $t = $recognizer->getCurrentToken();
         $expecting = $this->getExpectedTokens($recognizer);
-        $msg = "missing " . $expecting->toString($recognizer->literalNames, $recognizer->symbolicNames) . " at " . $this->getTokenErrorDisplay($t);
+        $msg = "missing " . $expecting->toStringVocabulary($recognizer->getVocabulary()) . " at " . $this->getTokenErrorDisplay($t);
         $recognizer->notifyErrorListeners($msg, $t, null);
     }
 
@@ -541,14 +541,14 @@ class DefaultErrorStrategy implements ErrorStrategy
         if ($expectedTokenType === Token::EOF) {
             $tokenText = "<missing EOF>";
         } else {
-            $tokenText = "<missing " . $recognizer->literalNames[$expectedTokenType] . ">";
+            $tokenText = "<missing " . $recognizer->getVocabulary()->getDisplayName($expectedTokenType) . ">";
         }
         $current = $currentSymbol;
         $lookback = $recognizer->getTokenStream()->LT(-1);
         if ($current->type === Token::EOF && $lookback !== null) {
             $current = $lookback;
         }
-        return $recognizer->getTokenFactory()->create($current->source, $expectedTokenType, $tokenText, Token::DEFAULT_CHANNEL, -1, -1, $current->line, $current->column);
+        return $recognizer->getTokenFactory()->createEx($current->source, $expectedTokenType, $tokenText, Token::DEFAULT_CHANNEL, -1, -1, $current->line, $current->column);
     }
 
     function getExpectedTokens(Parser $recognizer)

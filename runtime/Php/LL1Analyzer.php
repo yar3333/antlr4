@@ -202,7 +202,7 @@ class LL1Analyzer
             }
             else
             {
-                $set = $t->label;
+                $set = $t->label();
                 if ($set !== null)
                 {
                     if ($t instanceof NotSetTransition)

@@ -362,4 +362,11 @@ class IntervalSet
         $s->addOne($a);
         return $s;
     }
+
+    static function fromRange(int $a, int $b) : IntervalSet
+    {
+		$s = new IntervalSet();
+        $s->addRange($a, $b);
+        return $s;
+    }
 }
