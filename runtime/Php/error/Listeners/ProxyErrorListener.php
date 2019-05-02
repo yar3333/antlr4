@@ -27,7 +27,7 @@ class ProxyErrorListener implements ANTLRErrorListener
     {
         foreach ($this->delegates as $d)
         {
-            $d->syntaxError($recognizer, $offendingSymbol, $line, $column, $msg, $e);
+            $d->syntaxError($recognizer, $offendingSymbol, $line, $charPositionInLine, $msg, $e);
         }
     }
 

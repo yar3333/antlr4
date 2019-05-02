@@ -201,16 +201,16 @@ abstract class PredictionContext
     // otherwise false to indicate a full-context merge
     // @param mergeCache
     // /
-    static function mergeSingletons($a, $b, $rootIsWildcard, $mergeCache)
+    static function mergeSingletons($a, $b, $rootIsWildcard, DoubleKeyMap $mergeCache)
     {
         if ($mergeCache !== null)
         {
-            $previous = $mergeCache->get($a, $b);
+            $previous = $mergeCache->getByTwoKeys($a, $b);
             if ($previous !== null)
             {
                 return $previous;
             }
-            $previous = $mergeCache->get($b, $a);
+            $previous = $mergeCache->getByTwoKeys($b, $a);
             if ($previous !== null)
             {
                 return $previous;

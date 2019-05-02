@@ -29,19 +29,35 @@ namespace Antlr4;
 //  I do not use getters for fields of objects that are used simply to
 //  group values such as this aggregate.  The getters/setters are there to
 //  satisfy the superclass interface.
+use Antlr4\Error\Exceptions\RecognitionException;
 use Antlr4\Tree\ErrorNodeImpl;
+use Antlr4\Tree\ParseTree;
 use Antlr4\Tree\TerminalNode;
 use Antlr4\Tree\TerminalNodeImpl;
 
 class ParserRuleContext extends RuleContext
 {
     public $ruleIndex;
+
+    /**
+     * @var ParseTree[]
+     */
     public $children;
+
+    /**
+     * @var Token
+     */
     public $start;
+
+    /**
+     * @var Token
+     */
     public $stop;
+
+    /**
+     * @var RecognitionException
+     */
     public $exception;
-    protected $parentCtx;
-    public $invokingState;
 
     function __construct(RuleContext $parent=null, int $invokingStateNumber=null)
     {
@@ -163,7 +179,7 @@ class ParserRuleContext extends RuleContext
         {
             if ($child instanceof TerminalNode)
             {
-                if ($child->symbol->type === $ttype)
+                if ($child->getSymbol()->type === $ttype)
                 {
                     if($i===0)
                     {
@@ -192,7 +208,7 @@ class ParserRuleContext extends RuleContext
             {
                 if ($child instanceof TerminalNode)
                 {
-                    if ($child->symbol->type === $ttype)
+                    if ($child->getSymbol()->type === $ttype)
                     {
                         array_push($tokens, $child);
                     }
@@ -240,7 +256,7 @@ class ParserRuleContext extends RuleContext
         }
         else
         {
-            return new Interval($this->start->tokenIndex(), $this->stop->tokenIndex());
+            return new Interval($this->start->tokenIndex, $this->stop->tokenIndex);
         }
     }
 
@@ -249,6 +265,8 @@ class ParserRuleContext extends RuleContext
      */
     public function getParent()
     {
-        return $this->parentCtx;
+        /** @var ParserRuleContext $r */
+        $r = $this->parentCtx;
+        return $r;
     }
 }

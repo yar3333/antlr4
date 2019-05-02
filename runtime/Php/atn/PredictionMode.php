@@ -500,7 +500,7 @@ class PredictionMode
             }
             $alts->add($cfg->alt);
         }
-        return $configToAlts->getValues();
+        return $configToAlts->values();
     }
 
     // Get a map from state to alt subset from a configuration set. For each

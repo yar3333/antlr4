@@ -214,7 +214,9 @@ abstract class Recognizer
         throw new \Exception("there is no serialized ATN");
     }
 
-    /**
+	function action(RuleContext $_localctx, int $ruleIndex, int $actionIndex) : void {}
+
+	/**
      * @return string[]
      */
     abstract function getTokenNames() : array;
@@ -225,4 +227,5 @@ abstract class Recognizer
     abstract function getRuleNames() : \ArrayObject;
 
     abstract function getATN() : ATN;
+
 }

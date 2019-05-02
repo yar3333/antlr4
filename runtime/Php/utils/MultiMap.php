@@ -20,7 +20,7 @@ class MultiMap extends Map
      */
 	function getPairs() {
 		$pairs = [];
-		foreach ($this->getKeys() as $key => $values)
+		foreach ($this->keys() as $key => $values)
 		{
 			foreach ($values as $value)
 			{

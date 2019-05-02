@@ -27,7 +27,7 @@ abstract class Lexer extends Recognizer
     const MAX_CHAR_VALUE = 0x10FFFF;
 
     /**
-     * @var InputStream
+     * @var CharStream
      */
     public $_input;
 
@@ -69,7 +69,7 @@ abstract class Lexer extends Recognizer
 
     public $_text;
 
-    function __construct(InputStream $input)
+    function __construct(CharStream $input)
     {
         parent::__construct();
 
@@ -158,7 +158,7 @@ abstract class Lexer extends Recognizer
                 }
                 $this->_token = null;
                 $this->_channel = Token::DEFAULT_CHANNEL;
-                $this->_tokenStartCharIndex = $this->_input->getIndex();
+                $this->_tokenStartCharIndex = $this->_input->index();
                 $this->_tokenStartColumn = $this->_interp->column;
                 $this->_tokenStartLine = $this->_interp->line;
                 $this->_text = null;
@@ -321,8 +321,8 @@ abstract class Lexer extends Recognizer
             Token::EOF,
             null,
             Token::DEFAULT_CHANNEL,
-            $this->_input->getIndex(),
-            $this->_input->getIndex() - 1,
+            $this->_input->index(),
+            $this->_input->index() - 1,
             $lpos,
             $cpos
         );
@@ -344,7 +344,7 @@ abstract class Lexer extends Recognizer
     // What is the index of the current character of lookahead?
     function getCharIndex() : int
     {
-        return $this->_input->getIndex();
+        return $this->_input->index();
     }
 
     // Return the text matched so far for the current token or any text override.
@@ -382,8 +382,8 @@ abstract class Lexer extends Recognizer
     function notifyListeners($e)
     {
         $start = $this->_tokenStartCharIndex;
-        $stop = $this->_input->getIndex();
-        $text = $this->_input->getText($start, $stop);
+        $stop = $this->_input->index();
+        $text = $this->_input->getText(new Interval($start, $stop));
         $msg = "token recognition error at: '" . $this->getErrorDisplay($text) . "'";
         $listener = $this->getErrorListenerDispatch();
         $listener->syntaxError($this, null, $this->_tokenStartLine, $this->_tokenStartColumn, $msg, $e);

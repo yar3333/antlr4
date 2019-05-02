@@ -2,6 +2,7 @@
 
 namespace Antlr4\Error\Exceptions;
 
+use Antlr4\Atn\ATNConfigSet;
 use Antlr4\Parser;
 use Antlr4\Token;
 
@@ -16,6 +17,9 @@ class NoViableAltException extends RecognitionException
      */
     public $startToken;
 
+    /**
+     * @var ATNConfigSet
+     */
     public $deadEndConfigs;
 
     function __construct(Parser $recognizer, $input, $startToken, $offendingToken, $deadEndConfigs, $ctx)

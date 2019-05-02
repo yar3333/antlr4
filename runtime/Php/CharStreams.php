@@ -6,8 +6,6 @@
 
 namespace Antlr4;
 
-use Antlr4\InputStream; //('./InputStream').InputStream;
-
 // Utility functions to create InputStreams from various sources.
 // All returned InputStreams support the full range of Unicode
 // up to U+10FFFF (the default behavior of InputStream only supports

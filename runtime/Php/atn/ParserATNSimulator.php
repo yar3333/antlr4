@@ -31,6 +31,7 @@ use Antlr4\Predictioncontexts\PredictionContextCache;
 use Antlr4\Predictioncontexts\SingletonPredictionContext;
 use Antlr4\Token;
 use Antlr4\Utils\BitSet;
+use Antlr4\Utils\Printer;
 use Antlr4\Utils\Set;
 use Antlr4\VocabularyImpl;
 
@@ -310,6 +311,11 @@ class ParserATNSimulator extends ATNSimulator
     private $mergeCache;
 
     /**
+     * @var Printer
+     */
+    public $printer;
+
+    /**
      * ParserATNSimulator constructor.
      * @param Parser $parser
      * @param ATN $atn
@@ -354,13 +360,13 @@ class ParserATNSimulator extends ATNSimulator
             //$console->log("adaptivePredict decision " . $decision . " exec LA(1)==" . $this->getLookaheadName($input) . " line " . $input->LT(1)->line . ":" . $input->LT(1)->column);
         }
         $this->_input = $input;
-        $this->_startIndex = $input->getIndex();
+        $this->_startIndex = $input->index();
         $this->_outerContext = $outerContext;
 
         $dfa = $this->decisionToDFA[$decision];
         $this->_dfa = $dfa;
         $m = $input->mark();
-        $index = $input->getIndex();
+        $index = $input->index();
 
         // Now we are certain to have a specific decision's DFA
         // But, do we still need an initial state?
@@ -512,7 +518,7 @@ class ParserATNSimulator extends ATNSimulator
                     {
                         //$console->log("DFA state has preds in DFA sim LL failover");
                     }
-                    $conflictIndex = $input->getIndex();
+                    $conflictIndex = $input->index();
                     if($conflictIndex !== $startIndex)
                     {
                         $input->seek($startIndex);
@@ -539,7 +545,7 @@ class ParserATNSimulator extends ATNSimulator
                 }
                 $fullCtx = true;
                 $s0_closure = $this->computeStartState($dfa->atnStartState, $outerContext, $fullCtx);
-                $this->reportAttemptingFullContext($dfa, $conflictingAlts, $D->configs, $startIndex, $input->getIndex());
+                $this->reportAttemptingFullContext($dfa, $conflictingAlts, $D->configs, $startIndex, $input->index());
                 $alt = $this->execATNWithFullContext($dfa, $D, $s0_closure, $input, $startIndex, $outerContext);
                 return $alt;
             }
@@ -549,7 +555,7 @@ class ParserATNSimulator extends ATNSimulator
                 {
                     return $D->prediction;
                 }
-                $stopIndex = $input->getIndex();
+                $stopIndex = $input->index();
                 $input->seek($startIndex);
                 $alts = $this->evalSemanticContextMany($D->predicates, $outerContext, true);
                 if ($alts->length()===0)
@@ -775,7 +781,7 @@ class ParserATNSimulator extends ATNSimulator
         // without conflict, then we know that it's a full LL decision not SLL.
         if ($reach->uniqueAlt !== ATN::INVALID_ALT_NUMBER )
         {
-            $this->reportContextSensitivity($dfa, $predictedAlt, $reach, $startIndex, $input->getIndex());
+            $this->reportContextSensitivity($dfa, $predictedAlt, $reach, $startIndex, $input->index());
             return $predictedAlt;
         }
         // We do not check predicates here because we have checked them
@@ -805,7 +811,7 @@ class ParserATNSimulator extends ATNSimulator
         // the fact that we should predict alternative 1.  We just can't say for
         // sure that there is an ambiguity without looking further.
 
-        $this->reportAmbiguity($dfa, $D, $startIndex, $input->getIndex(), $foundExactAmbig, null, $reach);
+        $this->reportAmbiguity($dfa, $D, $startIndex, $input->index(), $foundExactAmbig, null, $reach);
 
         return $predictedAlt;
     }
@@ -1681,7 +1687,7 @@ class ParserATNSimulator extends ATNSimulator
                 // during closure, which dramatically reduces the size of
                 // the config sets. It also obviates the need to test predicates
                 // later during conflict resolution.
-                $currentPosition = $this->_input->getIndex();
+                $currentPosition = $this->_input->index();
                 $this->_input->seek($this->_startIndex);
                 $predSucceeds = $pt->getPredicate()->eval($this->parser, $this->_outerContext);
                 $this->_input->seek($currentPosition);
@@ -1726,7 +1732,7 @@ class ParserATNSimulator extends ATNSimulator
                 // during closure, which dramatically reduces the size of
                 // the config sets. It also obviates the need to test predicates
                 // later during conflict resolution.
-                $currentPosition = $this->_input->getIndex();
+                $currentPosition = $this->_input->index();
                 $this->_input->seek($this->_startIndex);
                 $predSucceeds = $pt->getPredicate()->eval($this->parser, $this->_outerContext);
                 $this->_input->seek($currentPosition);
@@ -1843,26 +1849,28 @@ class ParserATNSimulator extends ATNSimulator
     //  "dead" code for a bit.
     function dumpDeadEndConfigs(NoViableAltException $nvae)
     {
-        //$console->log("dead end configs: ");
-        $decs = $nvae->deadEndConfigs;
-        foreach ($decs as $c)
-        {
-            $trans = "no edges";
-            if ($c->state->transitions->length > 0)
-            {
-                $t = $c->state->transitions[0];
-                if ($t instanceof AtomTransition)
-                {
-                    $trans = "Atom ". $this->getTokenName($t->label);
-                }
-                else if ($t instanceof SetTransition)
-                {
-                    $neg = ($t instanceof NotSetTransition);
-                    $trans = ($neg ? "~" : "") . "Set " . $t->set;
-                }
-            }
-            //$console->error($c->toString($this->parser, true) . ":" . $trans);
-        }
+		$this->printer->println("dead end configs: ");
+		foreach ($nvae->deadEndConfigs->items() as $c)
+		{
+			/** @var string $trans */
+			$trans = "no edges";
+			if (count($c->state->transitions))
+			{
+				/** @var Transition $t */
+				$t = $c->state->transitions[0];
+				if ($t instanceof AtomTransition)
+				{
+					$trans = "Atom " . $this->getTokenName($t->label);
+				}
+				else if ($t instanceof SetTransition)
+				{
+					/** @var bool $not */
+					$not = $t instanceof NotSetTransition;
+					$trans = ($not ? "~" : "") . "Set " . $t->set;
+				}
+			}
+			$this->printer->println($c->toString($this->parser, true) . ":" . $trans);
+		}
     }
 
     function noViableAlt(InputStream $input, $outerContext, ATNConfigSet $configs, int $startIndex)

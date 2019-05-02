@@ -128,13 +128,13 @@ class DFAState
 
         if ($this->configs)
         {
-            foreach ($this->configs->getItems() as $c)
+            foreach ($this->configs->items() as $c)
             {
                 $alts->add($c->alt);
             }
         }
 
-        if ($alts->getLength() === 0) return null;
+        if ($alts->length() === 0) return null;
 
         return $alts;
     }

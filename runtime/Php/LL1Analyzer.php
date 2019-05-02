@@ -46,12 +46,12 @@ class LL1Analyzer
 
         $count = count($s->transitions);
         $look = [];
-        for ($alt=0; $alt< $count; $alt++)
+        for ($alt = 0; $alt < $count; $alt++)
         {
             $look[$alt] = new IntervalSet();
             $lookBusy = new Set();
             $seeThruPreds = false;// fail to get lookahead upon pred
-            $this->_LOOK($s->transition($alt)->target, null, PredictionContext::EMPTY(), $look[$alt], $lookBusy, new BitSet(), $seeThruPreds, false);
+            $this->_LOOK($s->transitions[$alt]->target, null, PredictionContext::EMPTY(), $look[$alt], $lookBusy, new BitSet(), $seeThruPreds, false);
             // Wipe out lookahead for this alternative if we found nothing
             // or we had a predicate when we !seeThruPreds
             if ($look[$alt]->length===0 || $look[$alt]->contains(LL1Analyzer::HIT_PRED))

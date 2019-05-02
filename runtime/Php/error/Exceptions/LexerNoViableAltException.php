@@ -18,7 +18,7 @@ class LexerNoViableAltException extends RecognitionException
     function __toString()
     {
         $symbol = "";
-        if ($this->startIndex >= 0 && $this->startIndex < $this->input->getSize()) {
+        if ($this->startIndex >= 0 && $this->startIndex < $this->input->size()) {
             $symbol = $this->input->getText($this->startIndex, $this->startIndex);
         }
         return new \Exception("LexerNoViableAltException" . $symbol);

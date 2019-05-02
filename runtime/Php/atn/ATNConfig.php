@@ -9,6 +9,7 @@ namespace Antlr4\Atn;
 use \Antlr4\Atn\Semanticcontexts\SemanticContext;
 use Antlr4\Atn\States\ATNState;
 use \Antlr4\Predictioncontexts\PredictionContext;
+use Antlr4\Recognizer;
 use \Antlr4\Utils\Hash;
 
 // A tuple: (ATN state, predicted alt, syntactic, semantic context).
@@ -18,7 +19,9 @@ use \Antlr4\Utils\Hash;
 // the tree of semantic predicates encountered before reaching an ATN state.
 class ATNConfig
 {
-    /**
+ 	const SUPPRESS_PRECEDENCE_FILTER = 0x40000000;
+
+   /**
      * @var ATNState
      */
     public $state;
@@ -169,6 +172,47 @@ class ATNConfig
                 $this->alt===$other->alt &&
                 $this->semanticContext->equals($other->semanticContext);
         }
+    }
+	/**
+	 * This method gets the value of the {@link #reachesIntoOuterContext} field
+	 * as it existed prior to the introduction of the
+	 * {@link #isPrecedenceFilterSuppressed} method.
+	 */
+	function getOuterContextDepth() : int {
+		return $this->reachesIntoOuterContext & ~self::SUPPRESS_PRECEDENCE_FILTER;
+	}
+
+	/**
+	 * @param Recognizer $recog
+	 * @param bool $showAlt
+	 * @return string
+	 */
+	public function toString(Recognizer $recog, bool $showAlt) : string
+	{
+		$buf = '(';
+		$buf .= $this->state;
+		if ($showAlt)
+		{
+            $buf .= ",";
+            $buf .= $this->alt;
+        }
+        if ($this->context!==null)
+        {
+            $buf .= ",[";
+            $buf .= $this->context;
+			$buf .= "]";
+        }
+        if ($this->semanticContext && $this->semanticContext !== SemanticContext::NONE())
+        {
+            $buf .= ",";
+            $buf .= $this->semanticContext;
+        }
+        if ($this->getOuterContextDepth() > 0)
+        {
+            $buf .= ",up=" . $this->getOuterContextDepth();
+        }
+		$buf .= ')';
+		return $buf;
     }
 
     function __toString()

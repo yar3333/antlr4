@@ -296,7 +296,7 @@ class DefaultErrorStrategy implements ErrorStrategy
      */
     function Def($recognizer, $e)
     {
-        $msg = "mismatched input " . $this->getTokenErrorDisplay($e->offendingToken) . " expecting " . $e->getExpectedTokens()->toString($recognizer->getVocabulary());
+        $msg = "mismatched input " . $this->getTokenErrorDisplay($e->offendingToken) . " expecting " . $e->getExpectedTokens()->toStringVocabulary($recognizer->getVocabulary());
         $recognizer->notifyErrorListeners($msg, $e->offendingToken, $e);
     }
 
@@ -678,9 +678,9 @@ class DefaultErrorStrategy implements ErrorStrategy
     //
     // Like Grosch I implement context-sensitive FOLLOW sets that are combined
     // at run-time upon error to avoid overhead during parsing.
-    function getErrorRecoverySet($recognizer)
+    protected function getErrorRecoverySet(Parser $recognizer) : IntervalSet
     {
-        $atn = $recognizer->_interp->atn;
+        $atn = $recognizer->getInterpreter()->atn;
         $ctx = $recognizer->_ctx;
         $recoverSet = new IntervalSet();
         while ($ctx !== null && $ctx->invokingState >= 0)
@@ -690,14 +690,14 @@ class DefaultErrorStrategy implements ErrorStrategy
             $rt = $invokingState->transitions[0];
             $follow = $atn->nextTokens($rt->followState);
             $recoverSet->addSet($follow);
-            $ctx = $ctx->parentCtx;
+            $ctx = $ctx->getParent();
         }
         $recoverSet->removeOne(Token::EPSILON);
         return $recoverSet;
     }
 
     // Consume tokens until one matches the given token set.//
-    function consumeUntil(Parser $recognizer, $set)
+    function consumeUntil(Parser $recognizer, IntervalSet $set)
     {
         $ttype = $recognizer->getTokenStream()->LA(1);
         while ($ttype !== Token::EOF && !$set->contains($ttype)) {
@@ -705,4 +705,21 @@ class DefaultErrorStrategy implements ErrorStrategy
             $ttype = $recognizer->getTokenStream()->LA(1);
         }
     }
+
+	/**
+	 * This is called by {@link #reportError} when the exception is an
+	 * {@link InputMismatchException}.
+	 *
+	 * @see #reportError
+	 *
+	 * @param Parser $recognizer  the parser instance
+	 * @param InputMismatchException $e the recognition exception
+     * @return void
+	 */
+	protected function reportInputMismatch(Parser $recognizer, InputMismatchException $e) : void
+    {
+		/** @var string $msg */
+		$msg = "mismatched input " . $this->getTokenErrorDisplay($e->offendingToken) . " expecting " . $e->getExpectedTokens()->toStringVocabulary($recognizer->getVocabulary());
+		$recognizer->notifyErrorListeners($msg, $e->offendingToken, $e);
+	}
 }

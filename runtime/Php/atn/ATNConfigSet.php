@@ -192,8 +192,12 @@ class ATNConfigSet
         return $preds;
     }
 
-    function items() { return $this->configs; }
-    function item(int $index) { return $this->configs[$index]; }
+    /**
+     * @return ATNConfig[]
+     */
+    function items() : array { return $this->configs; }
+
+    function item(int $index) : ATNConfig { return $this->configs[$index]; }
 
     function optimizeConfigs(ATNSimulator $interpreter)
     {

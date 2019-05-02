@@ -1,10 +1,6 @@
 <?php
 
-
 namespace Antlr4;
-
-
-use Antlr4\Utils\Utils;
 
 /**
  * This class provides a default implementation of the {@link Vocabulary}

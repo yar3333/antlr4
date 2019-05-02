@@ -12,7 +12,7 @@ class SetTransition extends Transition
     /**
      * @var IntervalSet
      */
-    public $label;
+    public $set;
 
     // A transition containing a set of values.
     function __construct($target, IntervalSet $set)
@@ -21,21 +21,22 @@ class SetTransition extends Transition
 
         $this->serializationType = Transition::SET;
         if ($set) {
-            $this->label = $set;
+            $this->set = $set;
         } else {
-            $this->label = new IntervalSet();
-            $this->label->addOne(Token::INVALID_TYPE);
+            $this->set = new IntervalSet();
+            $this->set->addOne(Token::INVALID_TYPE);
         }
     }
 
     function matches(int $symbol, int $minVocabSymbol, int $maxVocabSymbol) : bool
     {
-        return mb_strpos($this->label, $symbol) !== false;
+        return mb_strpos($this->set, $symbol) !== false;
     }
 
+	function label() : IntervalSet { return $this->set; }
 
     function __toString()
     {
-        return (string)$this->label;
+        return (string)$this->set;
     }
 }

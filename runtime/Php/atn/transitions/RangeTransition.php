@@ -2,7 +2,6 @@
 
 namespace Antlr4\Atn\Transitions;
 
-use Antlr4\Interval;
 use Antlr4\IntervalSet;
 use Antlr4\Utils\Utils;
 

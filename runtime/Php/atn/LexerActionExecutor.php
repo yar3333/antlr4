@@ -134,7 +134,7 @@ class LexerActionExecutor
     function execute($lexer, InputStream $input, $startIndex)
     {
         $requiresSeek = false;
-        $stopIndex = $input->getIndex();
+        $stopIndex = $input->index();
         try
         {
             foreach ($this->lexerActions as $lexerAction)

@@ -51,19 +51,10 @@ class ATNDeserializer
      */
     public $deserializationOptions;
 
-    public $stateFactories;
-
-    public $actionFactories;
-    
     /**
      * @var string
      */
     public $data;
-
-    /**
-     * @var Transition[]
-     */
-    public $transitions;
 
     /**
      * @var int
@@ -75,6 +66,10 @@ class ATNDeserializer
      */
     public $uuid;
 
+    private $stateFactories;
+
+    private $actionFactories;
+
     function __construct(ATNDeserializationOptions $options)
     {
         if (!isset($options))
@@ -82,8 +77,6 @@ class ATNDeserializer
             $options = ATNDeserializationOptions::defaultOptions();
         }
         $this->deserializationOptions = $options;
-        $this->stateFactories = null;
-        $this->actionFactories = null;
 
         return $this;
     }
@@ -332,7 +325,7 @@ class ATNDeserializer
         // edges for rule stop states can be derived, so they aren't serialized
         foreach ($atn->states as $state)
         {
-            foreach ($this->transitions as $t)
+            foreach ($state->transitions as $t)
             {
                 if (!($t instanceof \Antlr4\Atn\Transitions\RuleTransition)) continue;
 
@@ -368,7 +361,7 @@ class ATNDeserializer
             }
             if ($state instanceof \Antlr4\Atn\States\PlusLoopbackState)
             {
-                for ($j=0; $j<count($this->transitions); $j++)
+                for ($j=0; $j<count($state->transitions); $j++)
                 {
                     $target = $state->transitions[$j]->target;
                     if ($target instanceof \Antlr4\Atn\States\PlusBlockStartState)
@@ -379,7 +372,7 @@ class ATNDeserializer
             }
             else if ($state instanceof \Antlr4\Atn\States\StarLoopbackState)
             {
-                for ($j=0; $j<count($this->transitions); $j++)
+                for ($j=0; $j<count($state->transitions); $j++)
                 {
                     $target = $state->transitions[$j]->target;
                     if ($target instanceof \Antlr4\Atn\States\StarLoopEntryState)
@@ -527,7 +520,7 @@ class ATNDeserializer
             return null;
         }
 
-        $maybeLoopEndState = $state->transitions[count($this->transitions) - 1]->target;
+        $maybeLoopEndState = $state->transitions[count($state->transitions) - 1]->target;
         if (!( $maybeLoopEndState instanceof LoopEndState)) return null;
 
         if ($maybeLoopEndState->epsilonOnlyTransitions && ($maybeLoopEndState->transitions[0]->target instanceof RuleStopState))
@@ -546,19 +539,16 @@ class ATNDeserializer
     // @param atn The ATN.
     function markPrecedenceDecisions($atn)
     {
-        for($i=0; $i<$atn->states->length; $i++)
+        foreach ($atn->states as $state)
         {
-            $state = $atn->states[$i];
-            if (!($state instanceof \Antlr4\Atn\States\StarLoopEntryState))
-            {
-                continue;
-            }
+            if (!($state instanceof StarLoopEntryState)) continue;
+
             // We analyze the ATN to determine if this ATN decision state is the
             // decision for the closure block that determines whether a
             // precedence rule should continue or complete.
             if ( $atn->ruleToStartState[$state->ruleIndex]->isPrecedenceRule)
             {
-                $maybeLoopEndState = $state->transitions[count($this->transitions) - 1]->target;
+                $maybeLoopEndState = $state->transitions[count($state->transitions) - 1]->target;
                 if ($maybeLoopEndState instanceof \Antlr4\Atn\States\LoopEndState)
                 {
                     if ($maybeLoopEndState->epsilonOnlyTransitions && ($maybeLoopEndState->transitions[0]->target instanceof \Antlr4\Atn\States\RuleStopState))
@@ -575,14 +565,11 @@ class ATNDeserializer
         if (!$this->deserializationOptions->verifyATN) return;
 
         // verify assumptions
-        for($i=0; $i<$atn->states->length; $i++)
+        foreach ($atn->states as $state)
         {
-            $state = $atn->states[$i];
-            if ($state === null)
-            {
-                continue;
-            }
-            $this->checkCondition($state->epsilonOnlyTransitions || count($this->transitions) <= 1);
+            if ($state === null) continue;
+
+            $this->checkCondition($state->epsilonOnlyTransitions || count($state->transitions) <= 1);
             if ($state instanceof \Antlr4\Atn\States\PlusBlockStartState)
             {
                 $this->checkCondition($state->loopBackState !== null);
@@ -590,7 +577,7 @@ class ATNDeserializer
             else  if ($state instanceof \Antlr4\Atn\States\StarLoopEntryState)
             {
                 $this->checkCondition($state->loopBackState !== null);
-                $this->checkCondition(count($this->transitions) === 2);
+                $this->checkCondition(count($state->transitions) === 2);
                 if ($state->transitions[0]->target instanceof \Antlr4\Atn\States\StarBlockStartState)
                 {
                     $this->checkCondition($state->transitions[1]->target instanceof \Antlr4\Atn\States\LoopEndState);
@@ -608,7 +595,7 @@ class ATNDeserializer
             }
             else if ($state instanceof \Antlr4\Atn\States\StarLoopbackState)
             {
-                $this->checkCondition(count($this->transitions) === 1);
+                $this->checkCondition(count($state->transitions) === 1);
                 $this->checkCondition($state->transitions[0]->target instanceof \Antlr4\Atn\States\StarLoopEntryState);
             }
             else if ($state instanceof \Antlr4\Atn\States\LoopEndState)
@@ -629,11 +616,11 @@ class ATNDeserializer
             }
             else if ($state instanceof\Antlr4\Atn\States\ DecisionState)
             {
-                $this->checkCondition(count($this->transitions) <= 1 || $state->decision >= 0);
+                $this->checkCondition(count($state->transitions) <= 1 || $state->decision >= 0);
             }
             else
             {
-                $this->checkCondition(count($this->transitions) <= 1 || ($state instanceof \Antlr4\Atn\States\RuleStopState));
+                $this->checkCondition(count($state->transitions) <= 1 || ($state instanceof \Antlr4\Atn\States\RuleStopState));
             }
         }
     }
