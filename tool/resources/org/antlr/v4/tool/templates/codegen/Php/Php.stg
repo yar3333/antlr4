@@ -45,17 +45,14 @@ javaTypeInitMap ::= [
 ParserFile(file, parser, namedActions, contextSuperClass) ::= <<
 <fileHeader(file.grammarFileName, file.ANTLRVersion)>
 <if(file.genPackage)>
-package <file.genPackage>;
+namespace <file.genPackage>;
 <endif>
 <namedActions.header>
-import org.antlr.v4.runtime.atn.*;
-import org.antlr.v4.runtime.dfa.DFA;
-import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.misc.*;
-import org.antlr.v4.runtime.tree.*;
-import java.util.List;
-import java.util.Iterator;
-import java.util.ArrayList;
+#use \\Antlr4\\Atn.;
+#use \\Antlr4\\dfa\\DFA;
+#use \\Antlr4\\;
+#use \\Antlr4\\Utils\\Set;
+#use \\Antlr4\\Tree\\ErrorNode;
 
 <parser>
 >>
@@ -66,13 +63,13 @@ ListenerFile(file, header, namedActions) ::= <<
 package <file.genPackage>;
 <endif>
 <header>
-import org.antlr.v4.runtime.tree.ParseTreeListener;
+use \\Antlr4\\Tree\\ParseTreeListener;
 
 /**
  * This interface defines a complete listener for a parse tree produced by
  * {@link <file.parserName>}.
  */
-public interface <file.grammarName>Listener extends ParseTreeListener {
+interface <file.grammarName>Listener extends ParseTreeListener {
 	<file.listenerNames:{lname |
 /**
 <if(file.listenerLabelRuleNames.(lname))>
@@ -83,7 +80,7 @@ public interface <file.grammarName>Listener extends ParseTreeListener {
 <endif>
  * @param ctx the parse tree
  */
-void enter<lname; format="cap">(<file.parserName>.<lname; format="cap">Context ctx);
+function enter<lname; format="cap">(<file.parserName>.<lname; format="cap">Context $ctx) : void;
 /**
 <if(file.listenerLabelRuleNames.(lname))>
  * Exit a parse tree produced by the {@code <lname>\}
@@ -93,7 +90,7 @@ void enter<lname; format="cap">(<file.parserName>.<lname; format="cap">Context c
 <endif>
  * @param ctx the parse tree
  */
-void exit<lname; format="cap">(<file.parserName>.<lname; format="cap">Context ctx);}; separator="\n">
+function exit<lname; format="cap">(<file.parserName>.<lname; format="cap">Context $ctx) : void;}; separator="\n">
 }
 >>
 
@@ -104,64 +101,64 @@ package <file.genPackage>;
 <endif>
 <header>
 
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.tree.ErrorNode;
-import org.antlr.v4.runtime.tree.TerminalNode;
+use \\Antlr4\\ParserRuleContext;
+use \\Antlr4\\tree.ErrorNode;
+use \\Antlr4\\tree.TerminalNode;
 
 /**
  * This class provides an empty implementation of {@link <file.grammarName>Listener},
  * which can be extended to create a listener which only needs to handle a subset
  * of the available methods.
  */
-public class <file.grammarName>BaseListener implements <file.grammarName>Listener {
+class <file.grammarName>BaseListener implements <file.grammarName>Listener {
 	<file.listenerNames:{lname |
 /**
  * {@inheritDoc\}
  *
  * \<p>The default implementation does nothing.\</p>
  */
-@Override public void enter<lname; format="cap">(<file.parserName>.<lname; format="cap">Context ctx) { \}
+function enter<lname; format="cap">(<file.parserName>.<lname; format="cap">Context $ctx) : void { \}
 /**
  * {@inheritDoc\}
  *
  * \<p>The default implementation does nothing.\</p>
  */
-@Override public void exit<lname; format="cap">(<file.parserName>.<lname; format="cap">Context ctx) { \}}; separator="\n">
+function exit<lname; format="cap">(<file.parserName>.<lname; format="cap">Context $ctx) : void { \}}; separator="\n">
 
 	/**
 	 * {@inheritDoc\}
 	 *
 	 * \<p>The default implementation does nothing.\</p>
 	 */
-	@Override public void enterEveryRule(ParserRuleContext ctx) { }
+	function enterEveryRule(ParserRuleContext $ctx) : void { }
 	/**
 	 * {@inheritDoc\}
 	 *
 	 * \<p>The default implementation does nothing.\</p>
 	 */
-	@Override public void exitEveryRule(ParserRuleContext ctx) { }
+	function exitEveryRule(ParserRuleContext $ctx) : void { }
 	/**
 	 * {@inheritDoc\}
 	 *
 	 * \<p>The default implementation does nothing.\</p>
 	 */
-	@Override public void visitTerminal(TerminalNode node) { }
+	function visitTerminal(TerminalNode $node) : void { }
 	/**
 	 * {@inheritDoc\}
 	 *
 	 * \<p>The default implementation does nothing.\</p>
 	 */
-	@Override public void visitErrorNode(ErrorNode node) { }
+	function visitErrorNode(ErrorNode $node) : void { }
 }
 >>
 
 VisitorFile(file, header, namedActions) ::= <<
 <fileHeader(file.grammarFileName, file.ANTLRVersion)>
 <if(file.genPackage)>
-package <file.genPackage>;
+namespace <file.genPackage>;
 <endif>
 <header>
-import org.antlr.v4.runtime.tree.ParseTreeVisitor;
+use \\Antlr4\\Tree\\ParseTreeVisitor;
 
 /**
  * This interface defines a complete generic visitor for a parse tree produced
@@ -170,7 +167,7 @@ import org.antlr.v4.runtime.tree.ParseTreeVisitor;
  * @param \<T> The return type of the visit operation. Use {@link Void} for
  * operations with no return type.
  */
-public interface <file.grammarName>Visitor\<T> extends ParseTreeVisitor\<T> {
+interface <file.grammarName>Visitor\<T> extends ParseTreeVisitor\<T> {
 	<file.visitorNames:{lname |
 /**
 <if(file.visitorLabelRuleNames.(lname))>
@@ -182,7 +179,7 @@ public interface <file.grammarName>Visitor\<T> extends ParseTreeVisitor\<T> {
  * @param ctx the parse tree
  * @return the visitor result
  */
-T visit<lname; format="cap">(<file.parserName>.<lname; format="cap">Context ctx);}; separator="\n">
+function visit<lname; format="cap">(<file.parserName>.<lname; format="cap">Context $ctx) : T;}; separator="\n">
 }
 >>
 
@@ -192,7 +189,7 @@ BaseVisitorFile(file, header, namedActions) ::= <<
 package <file.genPackage>;
 <endif>
 <header>
-import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
+use \\Antlr4\\Tree\\AbstractParseTreeVisitor;
 
 /**
  * This class provides an empty implementation of {@link <file.grammarName>Visitor},
@@ -792,10 +789,10 @@ public static class <struct.name> extends <if(contextSuperClass)><contextSuperCl
 	}
 	@Override public int getRuleIndex() { return RULE_<struct.derivedFromName>; }
 <if(struct.provideCopyFrom)> <! don't need copy unless we have subclasses !>
-	public <struct.name>() { }
-	public void copyFrom(<struct.name> ctx) {
-		super.copyFrom(ctx);
-		<struct.attrs:{a | this.<a.name> = ctx.<a.name>;}; separator="\n">
+	function __construct() { }
+	public void copyFrom(<struct.name> $ctx) {
+		parent::copyFrom($ctx);
+		<struct.attrs:{a | $this-\><a.name> = ctx.<a.name>;}; separator="\n">
 	}
 <endif>
 	<dispatchMethods; separator="\n">
@@ -804,25 +801,23 @@ public static class <struct.name> extends <if(contextSuperClass)><contextSuperCl
 >>
 
 AltLabelStructDecl(struct,attrs,getters,dispatchMethods) ::= <<
-public static class <struct.name> extends <currentRule.name; format="cap">Context {
+class <struct.name> extends <currentRule.name; format="cap">Context {
 	<attrs:{a | public <a>;}; separator="\n">
 	<getters:{g | <g>}; separator="\n">
-	public <struct.name>(<currentRule.name; format="cap">Context ctx) { copyFrom(ctx); }
+	function __construct(<currentRule.name; format="cap">Context $ctx) { copyFrom(ctx); }
 	<dispatchMethods; separator="\n">
 }
 >>
 
 ListenerDispatchMethod(method) ::= <<
-@Override
-public void <if(method.isEnter)>enter<else>exit<endif>Rule(ParseTreeListener listener) {
+function <if(method.isEnter)>enter<else>exit<endif>Rule(ParseTreeListener listener) : void {
 	if ( listener instanceof <parser.grammarName>Listener ) ((<parser.grammarName>Listener)listener).<if(method.isEnter)>enter<else>exit<endif><struct.derivedFromName; format="cap">(this);
 }
 >>
 
 VisitorDispatchMethod(method) ::= <<
-@Override
-public \<T> T accept(ParseTreeVisitor\<? extends T> visitor) {
-	if ( visitor instanceof <parser.grammarName>Visitor ) return ((<parser.grammarName>Visitor\<? extends T>)visitor).visit<struct.derivedFromName; format="cap">(this);
+function accept(ParseTreeVisitor $visitor) {
+	if ($visitor instanceof <parser.grammarName>Visitor ) return ((<parser.grammarName>Visitor\<? extends T>)visitor).visit<struct.derivedFromName; format="cap">(this);
 	else return visitor.visitChildren(this);
 }
 >>
@@ -883,14 +878,12 @@ LexerFile(lexerFile, lexer, namedActions) ::= <<
 package <lexerFile.genPackage>;
 <endif>
 <namedActions.header>
-import org.antlr.v4.runtime.Lexer;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.TokenStream;
-import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.atn.*;
-import org.antlr.v4.runtime.dfa.DFA;
-import org.antlr.v4.runtime.misc.*;
+use \\Antlr4\\Lexer;
+use \\Antlr4\\CharStream;
+use \\Antlr4\\Token;
+use \\Antlr4\\TokenStream;
+use \\Antlr4\\Atn\\Atn;
+use \\Antlr4\\Dfa\\DFA;
 
 <lexer>
 >>
@@ -900,62 +893,65 @@ Lexer(lexer, atn, actionFuncs, sempredFuncs, superClass) ::= <<
 public class <lexer.name> extends <superClass; null="Lexer"> {
 	static { RuntimeMetaData.checkVersion("<lexerFile.ANTLRVersion>", RuntimeMetaData.VERSION); }
 
-	protected static final DFA[] _decisionToDFA;
-	protected static final PredictionContextCache _sharedContextCache =
+	protected static /*final*/ DFA[] $_decisionToDFA;
+	protected static /*final*/ PredictionContextCache $_sharedContextCache =
 		new PredictionContextCache();
 	<if(lexer.tokens)>
-	public static final int
+	public const
 		<lexer.tokens:{k | <k>=<lexer.tokens.(k)>}; separator=", ", wrap, anchor>;
 	<endif>
 	<if(lexer.channels)>
-	public static final int
+	public const
 		<lexer.channels:{c | <c>=<lexer.channels.(c)>}; separator=", ", wrap, anchor>;
 	<endif>
 	<if(rest(lexer.modes))>
-	public static final int
+	public const
 		<rest(lexer.modes):{m | <m>=<i>}; separator=", ", wrap, anchor>;
 	<endif>
-	public static String[] channelNames = {
+	public static $channelNames = {
 		"DEFAULT_TOKEN_CHANNEL", "HIDDEN"<if (lexer.channels)>, <lexer.channels:{c| "<c>"}; separator=", ", wrap, anchor><endif>
 	};
 
-	public static String[] modeNames = {
+	public static $modeNames = {
 		<lexer.modes:{m| "<m>"}; separator=", ", wrap, anchor>
 	};
 
-	private static String[] makeRuleNames() {
+	private static function makeRuleNames() : array {
 		return new String[] {
 			<lexer.ruleNames:{r | "<r>"}; separator=", ", wrap, anchor>
 		};
 	}
-	public static final String[] ruleNames = makeRuleNames();
+	public const ruleNames = makeRuleNames();
 
 	<vocabulary(lexer.literalNames, lexer.symbolicNames)>
 
 	<namedActions.members>
 
-	public <lexer.name>(CharStream input) {
-		super(input);
-		_interp = new LexerATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);
+	public <lexer.name>(CharStream $input) {
+		super($input);
+		$this->_interp = new LexerATNSimulator($this,_ATN,_decisionToDFA,_sharedContextCache);
 	}
 
-	@Override
-	public String getGrammarFileName() { return "<lexer.grammarFileName>"; }
+	function getGrammarFileName() : String { return "<lexer.grammarFileName>"; }
 
-	@Override
-	public String[] getRuleNames() { return ruleNames; }
+	/**
+	 * @return string[] 
+	 */
+	function getRuleNames() : array { return $this->ruleNames; }
 
-	@Override
-	public String getSerializedATN() { return _serializedATN; }
+	function getSerializedATN() : string { return $this->_serializedATN; }
 
-	@Override
-	public String[] getChannelNames() { return channelNames; }
+	/**
+	 * @return string[] 
+	 */
+	function getChannelNames() : array { return $this->channelNames; }
 
-	@Override
-	public String[] getModeNames() { return modeNames; }
+	/**
+	 * @return string[] 
+	 */
+	function getModeNames() : array { return $this->modeNames; }
 
-	@Override
-	public ATN getATN() { return _ATN; }
+	function getATN() : ATN { return $this->_ATN; }
 
 	<dumpActions(lexer, "", actionFuncs, sempredFuncs)>
 	<atn>
@@ -999,4 +995,4 @@ initValue(typeName) ::= <<
 <javaTypeInitMap.(typeName)>
 >>
 
-codeFileExtension() ::= ".java"
+codeFileExtension() ::= ".php"
