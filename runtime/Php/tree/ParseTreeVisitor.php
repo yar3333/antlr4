@@ -2,43 +2,42 @@
 
 namespace Antlr4\Tree;
 
-use Antlr4\Utils\Utils;
-
-abstract class ParseTreeVisitor
+/**
+ * This interface defines the basic notion of a parse tree visitor. Generated
+ * visitors implement this interface and the {@code XVisitor} interface for grammar {@code X}.
+ */
+interface ParseTreeVisitor
 {
-    function __construct() {}
+	/**
+	 * Visit a parse tree, and return a user-defined result of the operation.
+     * Must return the result of visiting the parse tree.
+	 *
+	 * @param ParseTree $tree  The {@link ParseTree} to visit.
+	 */
+	function visit(ParseTree $tree);
 
-    function visitOne(ParseTree $ctx) : object
-    {
-        return $ctx->accept($this);
-    }
+	/**
+	 * Visit the children of a node, and return a user-defined result of the
+	 * operation.
+     * Must return the result of visiting the parse tree.
+	 *
+	 * @param RuleNode $node  The {@link RuleNode} whose children should be visited.
+	 */
+	function visitChildren(RuleNode $node);
 
-    /**
-     * @param ParseTree[] $ctx
-     * @return object[]
-     */
-    function visitMany(array $ctx) : array
-    {
-        return Utils::arrayMap($ctx, function(ParseTree $child) { return $child->accept($this); });
-    }
+	/**
+	 * Visit a terminal node, and return a user-defined result of the operation.
+     * Must return the result of visiting the parse tree.
+	 *
+	 * @param TerminalNode $node  The {@link TerminalNode} to visit.
+	 */
+	function visitTerminal(TerminalNode $node);
 
-    /**
-     * @param RuleNode $ctx
-     * @return object[]
-     */
-    function visitChildren(RuleNode $ctx) : array
-    {
-        if (!$ctx->children()) return null;
-        return $this->visitMany($ctx->children());
-    }
-
-    function visitTerminal(TerminalNode $node) : object
-    {
-        return null;
-    }
-
-    function visitErrorNode(ErrorNode $node) : object
-    {
-        return null;
-    }
+	/**
+	 * Visit an error node, and return a user-defined result of the operation.
+     * Must return the result of visiting the parse tree.
+	 *
+	 * @param ErrorNode $node  The {@link ErrorNode} to visit.
+	 */
+	function visitErrorNode(ErrorNode $node);
 }

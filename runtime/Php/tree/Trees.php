@@ -23,11 +23,11 @@ class Trees
      * parse trees and extract data appropriately.
      *
      * @param Tree $tree
-     * @param array $ruleNames
+     * @param string[]|\ArrayObject $ruleNames
      * @param Parser $recog
      * @return string
      */
-    static function toStringTree(Tree $tree, $ruleNames, Parser $recog=null) : string
+    static function toStringTree(Tree $tree, \ArrayObject $ruleNames, Parser $recog=null) : string
     {
         if ($recog) $ruleNames = $recog->ruleNames;
 
@@ -49,7 +49,13 @@ class Trees
         return $res;
     }
 
-    static function getNodeText(Tree $t, array $ruleNames, Recognizer $recog=null) : string
+    /**
+     * @param Tree $t
+     * @param string[]|\ArrayObject $ruleNames
+     * @param Recognizer|null $recog
+     * @return string
+     */
+    static function getNodeText(Tree $t, \ArrayObject $ruleNames, Recognizer $recog=null) : string
     {
         if ($recog !== null) $ruleNames = $recog->ruleNames;
 

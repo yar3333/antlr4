@@ -155,9 +155,7 @@ abstract class Parser extends Recognizer
             $t = $this->_errHandler->recoverInline($this);
             if ($this->_buildParseTrees && $t->tokenIndex === -1)
             {
-                // we must have conjured up a new token during single token
-                // insertion
-                // if it's not the current symbol
+                // we must have conjured up a new token during single token insertion if it's not the current symbol
                 $this->_ctx->addErrorNode($t);
             }
         }

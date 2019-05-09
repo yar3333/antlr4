@@ -33,6 +33,9 @@ abstract class Recognizer
      */
     public $_stateNumber;
 
+    /**
+     * @var string[]|\ArrayObject
+     */
     public $ruleNames;
 
     function __construct()
