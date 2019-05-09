@@ -27,14 +27,23 @@ public class PhpTarget extends Target {
 	private static final ThreadLocal<STGroup> targetTemplates = new ThreadLocal<STGroup>();
 
 	protected static final String[] phpKeywords = {
-		"abstract", "bool", "break", "case", "catch",
-		"class", "const", "continue", "default", "do", "else",
-		"enum", "extends", "false", "finally", "float", "for", "goto",
-		"if", "implements", "instanceof", "int", "interface", "namespace",
-		"new", "null", "parent", "private", "protected",
-		"public", "return", "static", "switch",
-		"this", "throw", "true", "try", "use",
-		"void", "while"
+		"abstract", "array",
+		"bool", "break",
+		"case", "catch", "class", "const", "continue",
+		"default", "do",
+		"else", "enum", "extends",
+		"false", "finally", "float", "for", "foreach",
+		"goto",
+		"if", "implements", "instanceof", "int", "interface",
+		"namespace", "new", "null",
+		"object",
+		"parent", "private", "protected", "public",
+		"return",
+		"static", "switch",
+		"this", "throw", "true", "try",
+		"use",
+		"void",
+		"while",
 	};
 
 	/** Avoid grammar symbols in this set to prevent conflicts in gen'd code. */
