@@ -8,6 +8,7 @@ namespace Antlr4;
 
 use Antlr4\Atn\ATN;
 use Antlr4\Tree\ParseTree;
+use Antlr4\Tree\ParseTreeVisitor;
 use Antlr4\Tree\RuleNode;
 use Antlr4\Tree\Trees;
 use Antlr4\Utils\Utils; //('./tree/Tree').RuleNode;
@@ -141,7 +142,7 @@ class RuleContext implements RuleNode
         return [];
     }
 
-    function accept($visitor)
+    function accept(ParseTreeVisitor $visitor)
     {
         return $visitor->visitChildren($this);
     }

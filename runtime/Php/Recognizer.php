@@ -181,7 +181,7 @@ abstract class Recognizer
 
     // subclass needs to override these if there are sempreds or actions
     // that the ATN interp needs to execute
-    function sempred($localctx, int $ruleIndex, int $actionIndex) : bool
+    function sempred(RuleContext $localctx, int $ruleIndex, int $actionIndex) : bool
     {
         return true;
     }
@@ -220,9 +220,9 @@ abstract class Recognizer
 	function action(RuleContext $_localctx, int $ruleIndex, int $actionIndex) : void {}
 
 	/**
-     * @return string[]
+     * @return string[]|\ArrayObject
      */
-    abstract function getTokenNames() : array;
+    abstract function getTokenNames() : \ArrayObject;
 
     /**
      * @return \ArrayObject

@@ -79,8 +79,11 @@ class ParserRuleContext extends RuleContext
         $this->exception = null;
     }
 
-    // COPY a ctx (I'm deliberately not using copy constructor)
-    function copyFrom(ParserRuleContext $ctx)
+    /**
+     * COPY a ctx (I'm deliberately not using copy constructor)
+     * @param ParserRuleContext $ctx
+     */
+    function copyFrom($ctx) : void
     {
         // from RuleContext
         $this->parentCtx = $ctx->parentCtx;

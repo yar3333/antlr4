@@ -45,10 +45,15 @@ namespace <file.genPackage>;
 
 <namedActions.header>
 use \\Antlr4\\Atn\\ATN;
+use \\Antlr4\\Atn\\ATNDeserializer;
+use \\Antlr4\\Atn\\ParserATNSimulator;
 use \\Antlr4\\Dfa\\DFA;
 use \\Antlr4\\Parser;
+use \\Antlr4\\ParserRuleContext;
 use \\Antlr4\\Predictioncontexts\\PredictionContextCache;
+use \\Antlr4\\RuleContext;
 use \\Antlr4\\TokenStream;
+use \\Antlr4\\Tree\\ParseTreeVisitor;
 use \\Antlr4\\Vocabulary;
 use \\Antlr4\\VocabularyImpl;
 
@@ -190,6 +195,8 @@ namespace <file.genPackage>;
 <header>
 use \\Antlr4\\Tree\\AbstractParseTreeVisitor;
 
+<file.visitorNames:{lname | use \\<file.genPackage>\\<file.parserName>_<lname; format="cap">;}; separator="\n">
+
 /**
  * This class provides an empty implementation of {@link <file.grammarName>Visitor},
  * which can be extended to create a visitor which only needs to handle a subset
@@ -223,11 +230,22 @@ class <parser.name> extends <superClass; null="Parser">
 {
 	//static { RuntimeMetaData.checkVersion("<file.ANTLRVersion>", RuntimeMetaData.VERSION); }
 
+	private static $__decisionToDFA;
 	/**
-	 * @var DFA[]
+	 * @return DFA[]
 	 */
-	protected static $_decisionToDFA;
-	
+	protected static function _decisionToDFA() : array
+	{
+	    if (self::$__decisionToDFA === null)
+	    {
+	        self::$__decisionToDFA = [];
+            for ($i = 0; $i \< self::_ATN()->getNumberOfDecisions(); $i++) {
+                self::$__decisionToDFA[] = new DFA(self::_ATN()->getDecisionState($i), $i);
+            }
+	    }
+	    return self::$__decisionToDFA;
+	}
+
 	private static $__sharedContextCache;
 	protected static function _sharedContextCache() { return self::$__sharedContextCache ? self::$__sharedContextCache : (self::$__sharedContextCache = new PredictionContextCache()); }
 	
@@ -270,7 +288,6 @@ class <parser.name> extends <superClass; null="Parser">
 
 	<namedActions.members>
 	<parser:(ctor)()>
-	<funcs; separator="\n">
 
 <if(sempredFuncs)>
 	function sempred(RuleContext $_localctx, int $ruleIndex, int $predIndex) : bool
@@ -278,7 +295,7 @@ class <parser.name> extends <superClass; null="Parser">
 		switch ($ruleIndex) {
 		<parser.sempredFuncs.values:{f|
 case <f.ruleIndex>:
-	return <f.name>_sempred(/** @var <f.ctxType> */_localctx, $predIndex);}; separator="\n">
+	return $this-><f.name>_sempred(/** @var <f.ctxType> */$_localctx, $predIndex);}; separator="\n">
 		}
 		return true;
 	}
@@ -286,6 +303,8 @@ case <f.ruleIndex>:
 <endif>
 
 	<atn>
+
+    <funcs; separator="\n">
 }
 >>
 
@@ -367,7 +386,7 @@ case <f.ruleIndex>:
 parser_ctor(p) ::= <<
 function __construct(TokenStream $input) {
 	parent::__construct($input);
-	$this->_interp = new ParserATNSimulator($this, self::_ATN(), self::_decisionToDFA, self::_sharedContextCache());
+	$this->_interp = new ParserATNSimulator($this, self::_ATN(), self::_decisionToDFA(), self::_sharedContextCache());
 }
 >>
 
@@ -403,18 +422,22 @@ case <index>:
 
 RuleFunction(currentRule,args,code,locals,ruleCtx,altLabelCtxs,namedActions,finallyAction,postamble,exceptions) ::= <<
 
+// ruleCtx =================================
 <ruleCtx>
+
+// altLabelCtxs =================================
 <altLabelCtxs:{l | <altLabelCtxs.(l)>}; separator="\n">
 
-<if(currentRule.modifiers)><currentRule.modifiers:{f | <f> }><else>public <endif>function <currentRule.name>(<args; separator=",">) : <currentRule.ctxType>
+// function =================================
+<if(currentRule.modifiers)><currentRule.modifiers:{f | <f> }><endif>function <currentRule.name>(<args; separator=",">) : <currentRule.ctxType>
 {
 	$_localctx = new <currentRule.ctxType>($_ctx, $this->getState()<currentRule.args:{a | , <a.name>}>);
-	enterRule($_localctx, <currentRule.startState>, RULE_<currentRule.name>);
+	$this->enterRule($_localctx, <currentRule.startState>, RULE_<currentRule.name>);
 	<namedActions.init>
 	<locals; separator="\n">
 	try {
 <if(currentRule.hasLookaheadBlock)>
-		$_alt; // int
+		//int $_alt;
 <endif>
 		<code>
 		<postamble; separator="\n">
@@ -425,13 +448,13 @@ RuleFunction(currentRule,args,code,locals,ruleCtx,altLabelCtxs,namedActions,fina
 	<else>
 	catch (RecognitionException $re) {
 		$_localctx->exception = $re;
-		$_errHandler->reportError(this, $re);
-		$_errHandler->recover(this, $re);
+		$_errHandler->reportError($this, $re);
+		$_errHandler->recover($this, $re);
 	}
 	<endif>
 	finally {
 		<finallyAction>
-		exitRule();
+		$this->exitRule();
 	}
 	return $_localctx;
 }
@@ -494,7 +517,7 @@ CodeBlockForAlt(currentAltCodeBlock, locals, preamble, ops) ::= <<
 >>
 
 LL1AltBlock(choice, preamble, alts, error) ::= <<
-setState(<choice.stateNumber>);
+$this->setState(<choice.stateNumber>);
 $_errHandler->sync($this);
 <if(choice.label)><labelref(choice.label)> = $_input->LT(1);<endif>
 <preamble; separator="\n">
@@ -520,7 +543,7 @@ default:
 >>
 
 LL1OptionalBlockSingleAlt(choice, expr, alts, preamble, error, followExpr) ::= <<
-setState(<choice.stateNumber>);
+$this->setState(<choice.stateNumber>);
 $_errHandler->sync($this);
 <preamble; separator="\n">
 if (<expr>) {
@@ -530,24 +553,24 @@ if (<expr>) {
 >>
 
 LL1StarBlockSingleAlt(choice, loopExpr, alts, preamble, iteration) ::= <<
-setState(<choice.stateNumber>);
+$this->setState(<choice.stateNumber>);
 $_errHandler->sync($this);
 <preamble; separator="\n">
 while (<loopExpr>) {
 	<alts; separator="\n">
-	setState(<choice.loopBackStateNumber>);
+	$this->setState(<choice.loopBackStateNumber>);
 	$_errHandler->sync($this);
 	<iteration>
 }
 >>
 
 LL1PlusBlockSingleAlt(choice, loopExpr, alts, preamble, iteration) ::= <<
-setState(<choice.blockStartStateNumber>); <! alt block decision !>
+$this->setState(<choice.blockStartStateNumber>); <! alt block decision !>
 $_errHandler->sync($this);
 <preamble; separator="\n">
 do {
 	<alts; separator="\n">
-	setState(<choice.stateNumber>); <! loopback/exit decision !>
+	$this->setState(<choice.stateNumber>); <! loopback/exit decision !>
 	$_errHandler->sync($this);
 	<iteration>
 } while ( <loopExpr> );
@@ -556,11 +579,11 @@ do {
 // LL(*) stuff
 
 AltBlock(choice, preamble, alts, error) ::= <<
-setState(<choice.stateNumber>);
+$this->setState(<choice.stateNumber>);
 $_errHandler->sync($this);
 <if(choice.label)><labelref(choice.label)> = $_input->LT(1);<endif>
 <preamble; separator="\n">
-switch ( getInterpreter()->adaptivePredict($_input, <choice.decision>, $_ctx) ) {
+switch ($this->getInterpreter()->adaptivePredict($_input, <choice.decision>, $_ctx) ) {
 <alts:{alt |
 case <i>:
 	<alt>
@@ -569,9 +592,9 @@ case <i>:
 >>
 
 OptionalBlock(choice, alts, error) ::= <<
-setState(<choice.stateNumber>);
-_errHandler.sync(this);
-switch ( getInterpreter().adaptivePredict($_input, <choice.decision>, $_ctx) ) {
+$this->setState(<choice.stateNumber>);
+$_errHandler->sync($this);
+switch ($this->getInterpreter().adaptivePredict($_input, <choice.decision>, $_ctx) ) {
 <alts:{alt |
 case <i><if(!choice.ast.greedy)>+1<endif>:
 	<alt>
@@ -580,22 +603,22 @@ case <i><if(!choice.ast.greedy)>+1<endif>:
 >>
 
 StarBlock(choice, alts, sync, iteration) ::= <<
-setState(<choice.stateNumber>);
+$this->setState(<choice.stateNumber>);
 $_errHandler->sync($this);
-$_alt = getInterpreter()->adaptivePredict($_input, <choice.decision>, $_ctx);
+$_alt = $this->getInterpreter()->adaptivePredict($_input, <choice.decision>, $_ctx);
 while ($_alt != <choice.exitAlt> && $_alt != ATN::INVALID_ALT_NUMBER ) {
 	if ($_alt == 1<if(!choice.ast.greedy)>+1<endif> ) {
 		<iteration>
 		<alts> <! should only be one !>
 	}
-	setState(<choice.loopBackStateNumber>);
+	$this->setState(<choice.loopBackStateNumber>);
 	$_errHandler->sync($this);
-	$_alt = getInterpreter()->adaptivePredict($_input, <choice.decision>, $_ctx);
+	$_alt = $this->getInterpreter()->adaptivePredict($_input, <choice.decision>, $_ctx);
 }
 >>
 
 PlusBlock(choice, alts, error) ::= <<
-setState(<choice.blockStartStateNumber>); <! alt block decision !>
+$this->setState(<choice.blockStartStateNumber>); <! alt block decision !>
 $_errHandler->sync($this);
 _alt = 1<if(!choice.ast.greedy)>+1<endif>;
 do {
@@ -607,7 +630,7 @@ case <i><if(!choice.ast.greedy)>+1<endif>:
 	default:
 		<error>
 	}
-	setState(<choice.loopBackStateNumber>); <! loopback/exit decision !>
+	$this->setState(<choice.loopBackStateNumber>); <! loopback/exit decision !>
 	$_errHandler->sync($this);
 	$_alt = $this->getInterpreter()->adaptivePredict($_input, <choice.decision>, $_ctx);
 } while ($_alt != <choice.exitAlt> && $_alt != ATN::INVALID_ALT_NUMBER);
@@ -757,28 +780,43 @@ TokenListDecl(t) ::= "List\<Token> <t.name> = new ArrayList\<Token>()"
 RuleContextDecl(r) ::= "<r.ctxName> <r.name>"
 RuleContextListDecl(rdecl) ::= "List\<<rdecl.ctxName>> <rdecl.name> = new ArrayList\<<rdecl.ctxName>>()"
 
-ContextTokenGetterDecl(t)      ::=
-    "public TerminalNode <t.name>() { return getToken(<parser.name>.<t.name>, 0); }"
-ContextTokenListGetterDecl(t)  ::=
-    "public List\<TerminalNode> <t.name>() { return getTokens(<parser.name>.<t.name>); }"
+ContextTokenGetterDecl(t) ::= "function <t.name>() : TerminalNode { return $this->getToken(<parser.name>::<t.name>, 0); }"
+
+ContextTokenListGetterDecl(t)  ::= <<
+    /**
+     * @return <TerminalNode>[]
+     */
+    function <t.name>() : array
+    {
+        return $this->getTokens(<parser.name>::<t.name>);
+    }
+>>
+
 ContextTokenListIndexedGetterDecl(t)  ::= <<
-public TerminalNode <t.name>(int i) {
-	return getToken(<parser.name>.<t.name>, i);
-}
+public <t.name>(int $i) : TerminalNode { return $this->getToken(<parser.name>::<t.name>, $i); }
 >>
+
 ContextRuleGetterDecl(r)       ::= <<
-public <r.ctxName> <r.name>() {
-	return getRuleContext(<r.ctxName>.class,0);
+function <r.name>() : <r.ctxName>
+{
+	return $this->getRuleContext(<r.ctxName>.class, 0);
 }
 >>
+
 ContextRuleListGetterDecl(r)   ::= <<
-public List\<<r.ctxName>\> <r.name>() {
-	return getRuleContexts(<r.ctxName>.class);
+/**
+ * @return <r.ctxName>[]
+ */
+function <r.name>() : array
+{
+	return $this->getRuleContexts(<r.ctxName>.class);
 }
 >>
+
 ContextRuleListIndexedGetterDecl(r)   ::= <<
-public <r.ctxName> <r.name>(int i) {
-	return getRuleContext(<r.ctxName>.class,i);
+function <r.name>(int $i) : <r.ctxName>
+{
+	return $this->getRuleContext(<r.ctxName>.class, $i);
 }
 >>
 
@@ -794,37 +832,40 @@ ImplicitRuleLabel(ruleName)	  ::= "<ruleName>"
 ImplicitSetLabel(id)		  ::= "_tset<id>"
 ListLabelName(label)		  ::= "<label>"
 
-CaptureNextToken(d) ::= "<d.varName> = _input.LT(1);"
-CaptureNextTokenType(d) ::= "<d.varName> = _input.LA(1);"
+CaptureNextToken(d) ::= "<d.varName> = \$_input->LT(1);"
+CaptureNextTokenType(d) ::= "<d.varName> = \$_input->LA(1);"
 
-StructDecl(struct,ctorAttrs,attrs,getters,dispatchMethods,interfaces,extensionMembers)
-	::= <<
+StructDecl(struct,ctorAttrs,attrs,getters,dispatchMethods,interfaces,extensionMembers) ::= <<
 class <struct.name> extends <if(contextSuperClass)><contextSuperClass><else>ParserRuleContext<endif><if(interfaces)> implements <interfaces; separator=", "><endif>
 {
 	<attrs:{a | public <a>;}; separator="\n">
 	<getters:{g | <g>}; separator="\n">
 	
-	<if(ctorAttrs)>function __construct(ParserRuleContext $parent, int $invokingState) { parent::__construct($parent, $invokingState); }<endif>
-	
-	function __construct(ParserRuleContext $parent, int $invokingState<ctorAttrs:{a | , <a>}>)
+	<if(ctorAttrs)>function __construct(ParserRuleContext $parent, int $invokingState) { parent::__construct($parent, $invokingState); }
+	<endif>
+	function __construct(ParserRuleContext $parent, int $invokingState=null<ctorAttrs:{a | , <a>}>)
 	{
 		parent::__construct($parent, $invokingState);
-		<struct.ctorAttrs:{a | $this-><a.name> = $<a.name>;}; separator="\n">
+		<struct.ctorAttrs:{a | $this-\><a.name> = $<a.name>;}; separator="\n">
 	}
 	
-	function getRuleIndex() : int { return self::RULE_<struct.derivedFromName>; }
-	
+	function getRuleIndex() : int { return <parser.name>::RULE_<struct.derivedFromName>; }
 <if(struct.provideCopyFrom)> <! don't need copy unless we have subclasses !>
-	function __construct() {}
-	
-	function copyFrom(<struct.name> $ctx) : void
+	/**
+	 * @param <struct.name> $ctx
+	 */
+	function copyFrom($ctx) : void
 	{
 		parent::copyFrom($ctx);
 		<struct.attrs:{a | $this-\><a.name> = $ctx-><a.name>;}; separator="\n">
 	}
 <endif>
-	<dispatchMethods; separator="\n">
-	<extensionMembers; separator="\n">
+<if(dispatchMethods)>
+    <dispatchMethods; separator="\n">
+<endif>
+<if(extensionMembers)>
+    <extensionMembers; separator="\n">
+<endif>
 }
 >>
 
@@ -833,7 +874,8 @@ class <struct.name> extends <currentRule.name; format="cap">Context
 {
 	<attrs:{a | public <a>;}; separator="\n">
 	<getters:{g | <g>}; separator="\n">
-	function __construct(<currentRule.name; format="cap">Context $ctx) { $this->copyFrom($ctx); }
+	function __construct(<currentRule.name; format="cap">Context $ctx) { parent::__construct($ctx); $this->copyFrom($ctx); }
+
 	<dispatchMethods; separator="\n">
 }
 >>
@@ -848,7 +890,7 @@ function <if(method.isEnter)>enter<else>exit<endif>Rule(ParseTreeListener $liste
 VisitorDispatchMethod(method) ::= <<
 function accept(ParseTreeVisitor $visitor)
 {
-	if ($visitor instanceof <parser.grammarName>Visitor) return visitor->visit<struct.derivedFromName; format="cap">($this);
+	if ($visitor instanceof <parser.grammarName>Visitor) return $visitor->visit<struct.derivedFromName; format="cap">($this);
 	else return $visitor->visitChildren($this);
 }
 >>
@@ -862,9 +904,9 @@ labelref(x) ::= "<if(!x.isLocal)>((<x.ctx.name>)_localctx).<endif><x.name>"
 ctx(actionChunk) ::= "((<actionChunk.ctx.name>)_localctx)"
 
 // used for left-recursive rules
-recRuleAltPredicate(ruleName,opPrec)  ::= "precpred(_ctx, <opPrec>)"
-recRuleSetReturnAction(src,name)	  ::= "$<name>=$<src>.<name>;"
-recRuleSetStopToken()                 ::= "_ctx.stop = _input.LT(-1);"
+recRuleAltPredicate(ruleName,opPrec)  ::= "\$this->precpred(\$this->_ctx, <opPrec>)"
+recRuleSetReturnAction(src,name)	  ::= "\$<name>=\$<src>-><name>;"
+recRuleSetStopToken()                 ::= "\$_ctx->stop = \$_input->LT(-1);"
 
 recRuleAltStartAction(ruleName, ctxName, label, isListLabel) ::= <<
 _localctx = new <ctxName>Context(_parentctx, _parentState);
@@ -915,8 +957,6 @@ use \\Antlr4\\Atn\\LexerATNSimulator;
 use \\Antlr4\\Lexer;
 use \\Antlr4\\CharStream;
 use \\Antlr4\\Predictioncontexts\\PredictionContextCache;
-use \\Antlr4\\Token;
-use \\Antlr4\\TokenStream;
 use \\Antlr4\\Atn\\Atn;
 use \\Antlr4\\Dfa\\DFA;
 use \\Antlr4\\Vocabulary;
@@ -930,11 +970,22 @@ class <lexer.name> extends <superClass; null="Lexer">
 {
 	//static { RuntimeMetaData.checkVersion("<lexerFile.ANTLRVersion>", RuntimeMetaData.VERSION); }
 
+	private static $__decisionToDFA;
 	/**
-	 * @var DFA[]
+	 * @return DFA[]
 	 */
-	protected static $_decisionToDFA;
-	
+	protected static function _decisionToDFA() : array
+	{
+	    if (self::$__decisionToDFA === null)
+	    {
+	        self::$__decisionToDFA = [];
+            for ($i = 0; $i \< self::_ATN()->getNumberOfDecisions(); $i++) {
+                self::$__decisionToDFA[] = new DFA(self::_ATN()->getDecisionState($i), $i);
+            }
+	    }
+	    return self::$__decisionToDFA;
+	}
+
 	/**
 	 * @var PredictionContextCache
 	 */
@@ -974,7 +1025,7 @@ class <lexer.name> extends <superClass; null="Lexer">
 	function __construct(CharStream $input)
 	{
 		parent::__construct($input);
-		$this->_interp = new LexerATNSimulator($this, self::_ATN(), self::$_decisionToDFA, self::_sharedContextCache());
+		$this->_interp = new LexerATNSimulator($this, self::_ATN(), self::_decisionToDFA(), self::_sharedContextCache());
 	}
 
 	function getGrammarFileName() : string { return "<lexer.grammarFileName>"; }
@@ -1032,14 +1083,7 @@ static function _serializedATN()
  * @var ATN
  */
 private static $__ATN;
-static function _ATN() : ATN { return self::$__ATN ? self::$__ATN : (self::$__ATN = (new ATNDeserializer())->deserialize(self::_serializedATN()->toCharArray())); }
-
-static {
-	self::$_decisionToDFA = [];
-	for ($i = 0; $i \< self::_ATN()->getNumberOfDecisions(); $i++) {
-		self::$_decisionToDFA[] = new DFA(self::_ATN()->getDecisionState($i), $i);
-	}
-}
+static function _ATN() : ATN { return self::$__ATN ? self::$__ATN : (self::$__ATN = (new ATNDeserializer())->deserialize(self::_serializedATN())); }
 >>
 
 /** Using a type to init value map, try to init a type; if not in table

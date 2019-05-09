@@ -161,14 +161,14 @@ class ATN
         $this->states[$state->stateNumber] = null;// just free mem, don't shift states in list
     }
 
-    function defineDecisionState(DecisionState $s)
+    function defineDecisionState(DecisionState $s) : int
     {
         array_push($this->decisionToState, $s);
         $s->decision = count($this->decisionToState)-1;
         return $s->decision;
     }
 
-    function getDecisionState( $decision)
+    function getDecisionState(int $decision) : DecisionState
     {
         if (count($this->decisionToState)===0)
         {
@@ -179,6 +179,8 @@ class ATN
             return $this->decisionToState[$decision];
         }
     }
+
+    function getNumberOfDecisions() { return count($this->decisionToState); }
 
     // Computes the set of input symbols which could follow ATN state number
     // {@code stateNumber} in the specified full {@code context}. This method
