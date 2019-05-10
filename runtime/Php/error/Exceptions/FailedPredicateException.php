@@ -26,7 +26,7 @@ class FailedPredicateException extends RecognitionException
      */
     private $predicate;
 
-    function __construct(Parser $recognizer, string $predicate, string $message)
+    function __construct(Parser $recognizer, string $predicate, string $message=null)
     {
         parent::__construct((object)[
             'message' => $this->formatMessage($predicate, $message),
@@ -48,12 +48,9 @@ class FailedPredicateException extends RecognitionException
         return $this;
     }
 
-    function formatMessage($predicate, $message)
+    function formatMessage(string $predicate, string $message)
     {
-        if ($message !== null) {
-            return $message;
-        } else {
-            return new \Exception("failed predicate: {" . $predicate . "}?");
-        }
+        if ($message !== null) return $message;
+        return new \Exception("failed predicate: {" . $predicate . "}?");
     }
 }

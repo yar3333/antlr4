@@ -40,7 +40,7 @@ class RecognitionException extends \Exception
      */
     public $offendingState;
 
-    function __construct($params)
+    function __construct(object $params)
     {
         parent::__construct($params->message);
 

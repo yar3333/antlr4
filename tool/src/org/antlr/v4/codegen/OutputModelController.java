@@ -170,9 +170,9 @@ public class OutputModelController {
 		functionWithClasses.fillNamedActions(delegate, r);
 
 		if ( r instanceof LeftRecursiveRule ) {
-			buildLeftRecursiveRuleFunction((LeftRecursiveRule)r, (LeftRecursiveRuleFunction)function);
-			buildLeftRecursiveRuleFunction((LeftRecursiveRule)r, (LeftRecursiveRuleFunction)functionWithMethods);
-			buildLeftRecursiveRuleFunction((LeftRecursiveRule)r, (LeftRecursiveRuleFunction)functionWithClasses);
+			buildLeftRecursiveRuleFunction((LeftRecursiveRule)r, (LeftRecursiveRuleFunction)function, true, true);
+			buildLeftRecursiveRuleFunction((LeftRecursiveRule)r, (LeftRecursiveRuleFunction)functionWithMethods, true, false);
+			buildLeftRecursiveRuleFunction((LeftRecursiveRule)r, (LeftRecursiveRuleFunction)functionWithClasses, false, true);
 		}
 		else {
 			buildNormalRuleFunction(r, function, true, true);
@@ -196,8 +196,8 @@ public class OutputModelController {
 		popCurrentRule();
 	}
 
-	public void buildLeftRecursiveRuleFunction(LeftRecursiveRule r, LeftRecursiveRuleFunction function) {
-		buildNormalRuleFunction(r, function, true, true);
+	public void buildLeftRecursiveRuleFunction(LeftRecursiveRule r, LeftRecursiveRuleFunction function, boolean isGenerateMethods, boolean isGenerateClasses) {
+		buildNormalRuleFunction(r, function, isGenerateMethods, isGenerateClasses);
 
 		// now inject code to start alts
 		CodeGenerator gen = delegate.getGenerator();

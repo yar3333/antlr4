@@ -51,6 +51,7 @@ public class PhpTarget extends Target {
 
 	public PhpTarget(CodeGenerator gen) {
 		super(gen, "Php");
+		targetCharValueEscape['$'] = "\\$";
 	}
 
     @Override

@@ -30,6 +30,7 @@ use Antlr4\Predictioncontexts\PredictionContext;
 use Antlr4\Predictioncontexts\PredictionContextCache;
 use Antlr4\Predictioncontexts\SingletonPredictionContext;
 use Antlr4\Token;
+use Antlr4\TokenStream;
 use Antlr4\Utils\BitSet;
 use Antlr4\Utils\Printer;
 use Antlr4\Utils\Set;
@@ -286,7 +287,7 @@ class ParserATNSimulator extends ATNSimulator
     public $predictionMode;
 
     /**
-     * @var InputStream
+     * @var TokenStream
      */
     private $_input;
 
@@ -353,7 +354,7 @@ class ParserATNSimulator extends ATNSimulator
     {
     }
 
-    function adaptivePredict(InputStream $input, $decision, $outerContext)
+    function adaptivePredict(TokenStream $input, $decision, $outerContext)
     {
         if (self::$debug || self::$debug_list_atn_decisions)
         {
@@ -461,7 +462,7 @@ class ParserATNSimulator extends ATNSimulator
     //    single alt + preds
     //    conflict
     //    conflict + preds
-    function execATN($dfa, $s0, InputStream $input, $startIndex, $outerContext )
+    function execATN($dfa, $s0, TokenStream $input, $startIndex, $outerContext )
     {
         if (self::$debug || self::$debug_list_atn_decisions)
         {
@@ -692,7 +693,7 @@ class ParserATNSimulator extends ATNSimulator
     // comes back with reach.uniqueAlt set to a valid alt
     function execATNWithFullContext($dfa, $D,// how far we got before failing over
                                          $s0,
-                                         InputStream $input,
+                                         TokenStream $input,
                                          $startIndex,
                                          $outerContext)
                                          {
@@ -1873,7 +1874,7 @@ class ParserATNSimulator extends ATNSimulator
 		}
     }
 
-    function noViableAlt(InputStream $input, $outerContext, ATNConfigSet $configs, int $startIndex)
+    function noViableAlt(TokenStream $input, $outerContext, ATNConfigSet $configs, int $startIndex)
     {
         return new NoViableAltException($this->parser, $input, $input->get($startIndex), $input->LT(1), $configs, $outerContext);
     }
