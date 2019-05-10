@@ -157,15 +157,27 @@ public class OutputModelController {
 	public void buildRuleFunction(Parser parser, Rule r) {
 		RuleFunction function = rule(r);
 		parser.funcs.add(function);
+		
+		RuleFunction functionWithMethods = rule(r);
+		parser.funcs_methods.add(functionWithMethods);
+		
+		RuleFunction functionWithClasses = rule(r);
+		parser.funcs_classes.add(functionWithClasses);
+		
 		pushCurrentRule(function);
 		function.fillNamedActions(delegate, r);
+		functionWithMethods.fillNamedActions(delegate, r);
+		functionWithClasses.fillNamedActions(delegate, r);
 
 		if ( r instanceof LeftRecursiveRule ) {
-			buildLeftRecursiveRuleFunction((LeftRecursiveRule)r,
-										   (LeftRecursiveRuleFunction)function);
+			buildLeftRecursiveRuleFunction((LeftRecursiveRule)r, (LeftRecursiveRuleFunction)function);
+			buildLeftRecursiveRuleFunction((LeftRecursiveRule)r, (LeftRecursiveRuleFunction)functionWithMethods);
+			buildLeftRecursiveRuleFunction((LeftRecursiveRule)r, (LeftRecursiveRuleFunction)functionWithClasses);
 		}
 		else {
-			buildNormalRuleFunction(r, function);
+			buildNormalRuleFunction(r, function, true, true);
+			buildNormalRuleFunction(r, functionWithMethods, true, false);
+			buildNormalRuleFunction(r, functionWithClasses, false, true);
 		}
 
 		Grammar g = getGrammar();
@@ -185,7 +197,7 @@ public class OutputModelController {
 	}
 
 	public void buildLeftRecursiveRuleFunction(LeftRecursiveRule r, LeftRecursiveRuleFunction function) {
-		buildNormalRuleFunction(r, function);
+		buildNormalRuleFunction(r, function, true, true);
 
 		// now inject code to start alts
 		CodeGenerator gen = delegate.getGenerator();
@@ -269,7 +281,7 @@ public class OutputModelController {
 		}
 	}
 
-	public void buildNormalRuleFunction(Rule r, RuleFunction function) {
+	public void buildNormalRuleFunction(Rule r, RuleFunction function, boolean isGenerateMethods, boolean isGenerateClasses) {
 		CodeGenerator gen = delegate.getGenerator();
 		// TRIGGER factory functions for rule alts, elements
 		GrammarASTAdaptor adaptor = new GrammarASTAdaptor(r.ast.token.getInputStream());
@@ -288,6 +300,9 @@ public class OutputModelController {
 		function.ctxType = gen.getTarget().getRuleFunctionContextStructName(function);
 
 		function.postamble = rulePostamble(function, r);
+		
+		function.isGenerateMethods = isGenerateMethods;
+		function.isGenerateClasses = isGenerateClasses;
 	}
 
 	public void buildLexerRuleActions(Lexer lexer, final Rule r) {

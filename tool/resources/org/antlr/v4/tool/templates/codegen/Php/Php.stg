@@ -221,11 +221,11 @@ fileHeader(grammarFileName, ANTLRVersion) ::= <<
 
 >>
 
-Parser(parser, funcs, atn, sempredFuncs, superClass) ::= <<
+Parser(parser, atn, sempredFuncs, superClass, funcs_methods, funcs_classes) ::= <<
 <Parser_(ctor="parser_ctor", ...)>
 >>
 
-Parser_(parser, funcs, atn, sempredFuncs, ctor, superClass) ::= <<
+Parser_(parser, atn, sempredFuncs, ctor, superClass, funcs_methods, funcs_classes) ::= <<
 class <parser.name> extends <superClass; null="Parser">
 {
 	//static { RuntimeMetaData.checkVersion("<file.ANTLRVersion>", RuntimeMetaData.VERSION); }
@@ -304,8 +304,10 @@ case <f.ruleIndex>:
 
 	<atn>
 
-    <funcs; separator="\n">
+    <funcs_methods; separator="\n">
 }
+
+<funcs_classes; separator="\n">
 >>
 
 vocabulary(literalNames, symbolicNames) ::= <<
@@ -420,44 +422,50 @@ case <index>:
 }
 >>
 
-RuleFunction(currentRule,args,code,locals,ruleCtx,altLabelCtxs,namedActions,finallyAction,postamble,exceptions) ::= <<
+RuleFunction(currentRule,args,code,locals,ruleCtx,altLabelCtxs,namedActions,finallyAction,exceptions,postamble) ::= <<
+<if(currentRule.isGenerateClasses)>
+    // ruleCtx vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+    <ruleCtx>
+    // ruleCtx ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-// ruleCtx =================================
-<ruleCtx>
-
-// altLabelCtxs =================================
-<altLabelCtxs:{l | <altLabelCtxs.(l)>}; separator="\n">
-
-// function =================================
-<if(currentRule.modifiers)><currentRule.modifiers:{f | <f> }><endif>function <currentRule.name>(<args; separator=",">) : <currentRule.ctxType>
-{
-	$_localctx = new <currentRule.ctxType>($_ctx, $this->getState()<currentRule.args:{a | , <a.name>}>);
-	$this->enterRule($_localctx, <currentRule.startState>, RULE_<currentRule.name>);
-	<namedActions.init>
-	<locals; separator="\n">
-	try {
-<if(currentRule.hasLookaheadBlock)>
-		//int $_alt;
+    // altLabelCtxs vvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+    <altLabelCtxs:{l | <altLabelCtxs.(l)>}; separator="\n">
+    // altLabelCtxs ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 <endif>
-		<code>
-		<postamble; separator="\n">
-		<namedActions.after>
-	}
-	<if(exceptions)>
-	<exceptions; separator="\n">
-	<else>
-	catch (RecognitionException $re) {
-		$_localctx->exception = $re;
-		$_errHandler->reportError($this, $re);
-		$_errHandler->recover($this, $re);
-	}
-	<endif>
-	finally {
-		<finallyAction>
-		$this->exitRule();
-	}
-	return $_localctx;
-}
+
+<if(currentRule.isGenerateMethods)>
+    // functions vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+    <if(currentRule.modifiers)><currentRule.modifiers:{f | <f> }><endif>function <currentRule.name>(<args; separator=",">) : <currentRule.ctxType>
+    {
+        $_localctx = new <currentRule.ctxType>($_ctx, $this->getState()<currentRule.args:{a | , <a.name>}>);
+        $this->enterRule($_localctx, <currentRule.startState>, RULE_<currentRule.name>);
+        <namedActions.init>
+        <locals; separator="\n">
+        try {
+    <if(currentRule.hasLookaheadBlock)>
+            //int $_alt;
+    <endif>
+            <code>
+            <postamble; separator="\n">
+            <namedActions.after>
+        }
+        <if(exceptions)>
+        <exceptions; separator="\n">
+        <else>
+        catch (RecognitionException $re) {
+            $_localctx->exception = $re;
+            $_errHandler->reportError($this, $re);
+            $_errHandler->recover($this, $re);
+        }
+        <endif>
+        finally {
+            <finallyAction>
+            $this->exitRule();
+        }
+        return $_localctx;
+    }
+    // functions ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<endif>
 >>
 
 LeftRecursiveRuleFunction(currentRule,args,code,locals,ruleCtx,altLabelCtxs,namedActions,finallyAction,postamble) ::=
