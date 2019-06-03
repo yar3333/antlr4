@@ -6,14 +6,14 @@
 
 namespace Antlr4;
 
-use Antlr4\Atn\ATN;
-use Antlr4\Atn\ATNSimulator;
-use Antlr4\Error\Exceptions\RecognitionException;
-use Antlr4\Error\Listeners\ANTLRErrorListener;
+use \Antlr4\Atn\ATN;
+use \Antlr4\Atn\ATNSimulator;
+use \Antlr4\Error\Exceptions\RecognitionException;
+use \Antlr4\Error\Listeners\ANTLRErrorListener;
 use \Antlr4\Error\Listeners\ConsoleErrorListener;
 use \Antlr4\Error\Listeners\ProxyErrorListener;
-use Antlr4\Utils\Map;
-use Antlr4\Utils\Utils;
+use \Antlr4\Utils\Map;
+use \Antlr4\Utils\Utils;
 
 abstract class Recognizer
 {
@@ -41,11 +41,6 @@ abstract class Recognizer
      * @var int
      */
     public $_stateNumber;
-
-    /**
-     * @var string[]|\ArrayObject
-     */
-    public $ruleNames;
 
     function __construct()
     {

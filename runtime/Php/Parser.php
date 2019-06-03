@@ -692,7 +692,7 @@ abstract class Parser extends Recognizer
             }
             else
             {
-                array_push($stack, $this->ruleNames[$ruleIndex]);
+                array_push($stack, $this->getRuleNames()[$ruleIndex]);
             }
             $p = $p->getParent();
         }

@@ -1610,7 +1610,7 @@ class ParserATNSimulator extends ATNSimulator
     {
         if ($this->parser !== null && $index >= 0)
         {
-            return $this->parser->ruleNames[$index];
+            return $this->parser->getRuleNames()[$index];
         }
         else
         {

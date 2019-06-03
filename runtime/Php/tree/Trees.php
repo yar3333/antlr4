@@ -29,7 +29,7 @@ class Trees
      */
     static function toStringTree(Tree $tree, \ArrayObject $ruleNames, Parser $recog=null) : string
     {
-        if ($recog) $ruleNames = $recog->ruleNames;
+        if ($recog) $ruleNames = $recog->getRuleNames();
 
         $s = self::getNodeText($tree, $ruleNames);
         $s = Utils::escapeWhitespace($s, false);
@@ -57,9 +57,9 @@ class Trees
      */
     static function getNodeText(Tree $t, \ArrayObject $ruleNames, Recognizer $recog=null) : string
     {
-        if ($recog !== null) $ruleNames = $recog->ruleNames;
+        if ($recog !== null) $ruleNames = $recog->getRuleNames();
 
-        if ($ruleNames!==null)
+        if ($ruleNames !== null)
         {
            if ($t instanceof RuleContext)
            {
