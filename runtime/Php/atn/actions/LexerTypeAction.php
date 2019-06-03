@@ -16,25 +16,21 @@ class LexerTypeAction extends LexerAction
         $this->type = $type;
     }
 
-    function execute(Lexer $lexer)
+    function execute(Lexer $lexer) : void
     {
         $lexer->setType($this->type);
     }
 
-    function updateHashCode(Hash $hash)
+    function updateHashCode(Hash $hash) : void
     {
         $hash->update($this->actionType, $this->type);
     }
 
-    function equals(LexerAction $other)
+    function equals(LexerAction $other) : bool
     {
-        if ($this === $other) {
-            return true;
-        } else if (!($other instanceof LexerTypeAction)) {
-            return false;
-        } else {
-            return $this->type === $other->type;
-        }
+        if ($this === $other) return true;
+        if (!($other instanceof LexerTypeAction)) return false;
+        return $this->type === $other->type;
     }
 
     function __toString()

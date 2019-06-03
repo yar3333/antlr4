@@ -4,6 +4,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/** @noinspection ReturnTypeCanBeDeclaredInspection */
+
 namespace Antlr4;
 
 use Antlr4\Atn\ATN;
@@ -35,7 +37,7 @@ use Antlr4\Utils\Utils; //('./tree/Tree').RuleNode;
 class RuleContext implements RuleNode
 {
     private static $_EMPTY;
-    public static function EMPTY() : ParserRuleContext { return self::$_EMPTY ? self::$_EMPTY : (self::$_EMPTY = new ParserRuleContext()); }
+    public static function EMPTY() : ParserRuleContext { return self::$_EMPTY ?: (self::$_EMPTY = new ParserRuleContext()); }
 
     /**
      * @var RuleContext
@@ -47,7 +49,7 @@ class RuleContext implements RuleNode
      */
     public $invokingState;
 
-    function __construct(RuleContext $parent, int $invokingState=null)
+    function __construct(?RuleContext $parent, int $invokingState=-1)
     {
         // What context invoked this rule?
         $this->parentCtx = $parent;
@@ -55,24 +57,24 @@ class RuleContext implements RuleNode
         // What state invoked the rule associated with this context?
         // The "return address" is the followState of invokingState
         // If parent is null, this should be -1.
-        $this->invokingState = $invokingState !== null ? $invokingState : -1;
+        $this->invokingState = $invokingState;
     }
 
-    function depth()
+    function depth() : int
     {
         $n = 0;
         $p = $this;
         while ($p !== null)
         {
             $p = $p->parentCtx;
-            $n += 1;
+            $n++;
         }
         return $n;
     }
 
     // A context is empty if there is no invoking state; meaning nobody call
     // current context.
-    function isEmpty()
+    function isEmpty() : bool
     {
         return $this->invokingState === -1;
     }
@@ -118,16 +120,21 @@ class RuleContext implements RuleNode
     // a subclass of ParserRuleContext with backing field and set
     // option contextSuperClass.
     // to set it.
-    function getAltNumber() { return ATN::INVALID_ALT_NUMBER; }
+    function getAltNumber() : int { return ATN::INVALID_ALT_NUMBER; }
 
     // Set the outer alternative number for this context node. Default
     // implementation does nothing to avoid backing field overhead for
     // trees that don't need it.  Create
     // a subclass of ParserRuleContext with backing field and set
     // option contextSuperClass.
-    function setAltNumber($altNumber) {}
+    function setAltNumber($altNumber) : void {}
 
-    function getChild(int $i, $type=null)
+    /**
+     * @param int $i
+     * @param string $type
+     * @return ParseTree
+     */
+    function getChild(int $i, string $type=null)
     {
         return null;
     }

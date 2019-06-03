@@ -1,4 +1,5 @@
 <?php
+/** @noinspection ReturnTypeCanBeDeclaredInspection */
 
 namespace Antlr4\Tree;
 
@@ -25,7 +26,7 @@ class TerminalNodeImpl implements TerminalNode
         $this->symbol = $symbol;
     }
 
-    function getChild(int $i, $type=null)
+    function getChild(int $i, string $type=null)
     {
         return null;
     }
@@ -40,12 +41,15 @@ class TerminalNodeImpl implements TerminalNode
         $this->parentCtx = $parent;
     }
 
-    function getParent() : ParseTree
+    /**
+     * @return ParseTree
+     */
+    function getParent() : Tree
     {
         return $this->parentCtx;
     }
 
-    function getPayload()
+    function getPayload() : Token
     {
         return $this->symbol;
     }

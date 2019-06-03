@@ -19,12 +19,12 @@ interface TokenFactory
      * @param int $charPositionInLine
      * @return Token
      */
-	function createEx(Pair $source, int $type, string $text, int $channel, int $start, int $stop, int $line, int $charPositionInLine);
+	function createEx(Pair $source, int $type, string $text, int $channel, int $start, int $stop, int $line, int $charPositionInLine) : Token;
 
 	/** Generically useful
      * @param int $type
      * @param string $text
      * @return Token
      */
-	function create(int $type, string $text);
+	function create(int $type, string $text) : Token;
 }

@@ -8,7 +8,7 @@ use Antlr4\Recognizer;
 class ConsoleErrorListener extends BaseErrorListener
 {
     private static $_INSTANCE;
-    static function INSTANCE(): ConsoleErrorListener { return self::$_INSTANCE ? self::$_INSTANCE : (self::$_INSTANCE = new ConsoleErrorListener()); }
+    static function INSTANCE(): ConsoleErrorListener { return self::$_INSTANCE ?: (self::$_INSTANCE = new ConsoleErrorListener()); }
 
     // {@inheritDoc}
     //
@@ -20,7 +20,7 @@ class ConsoleErrorListener extends BaseErrorListener
     // <pre>
     // line <em>line</em>:<em>charPositionInLine</em> <em>msg</em>
     // </pre>
-	function syntaxError(Recognizer $recognizer, Object $offendingSymbol, int $line, int $charPositionInLine, string $msg, RecognitionException $e) : void
+	function syntaxError(Recognizer $recognizer, Object $offendingSymbol, int $line, int $charPositionInLine, string $msg, ?RecognitionException $e) : void
     {
         //$console->error("line " + line + ":" + column + " " . $msg);
     }

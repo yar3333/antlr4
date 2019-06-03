@@ -2,6 +2,8 @@
 
 namespace Antlr4\Atn\Transitions;
 
+use Antlr4\Atn\States\ATNState;
+
 class ActionTransition extends Transition
 {
     /**
@@ -24,14 +26,14 @@ class ActionTransition extends Transition
      */
     public $isCtxDependent;
 
-    function __construct($target, $ruleIndex, $actionIndex, $isCtxDependent)
+    function __construct(ATNState $target, int $ruleIndex, int $actionIndex=null, bool $isCtxDependent=false)
     {
         parent::__construct($target);
 
         $this->serializationType = Transition::ACTION;
         $this->ruleIndex = $ruleIndex;
-        $this->actionIndex = $actionIndex === null ? -1 : $actionIndex;
-        $this->isCtxDependent = $isCtxDependent === null ? false : $isCtxDependent;// e.g., $i ref in pred
+        $this->actionIndex = $actionIndex ?? -1;
+        $this->isCtxDependent = $isCtxDependent ?? false;
         $this->isEpsilon = true;
     }
 

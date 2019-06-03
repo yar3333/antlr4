@@ -12,10 +12,19 @@ use Antlr4\Error\Exceptions\RecognitionException;
 use Antlr4\Error\Listeners\ANTLRErrorListener;
 use \Antlr4\Error\Listeners\ConsoleErrorListener;
 use \Antlr4\Error\Listeners\ProxyErrorListener;
+use Antlr4\Utils\Map;
+use Antlr4\Utils\Utils;
 
 abstract class Recognizer
 {
+    /**
+     * @var Map[] Original type: Map<Vocabulary, Map<String, Integer>>
+     */
     private static $tokenTypeMapCache = [];
+
+    /**
+     * @var Map[] Original type: Map<String[], Map<String, Integer>>
+     */
     private static $ruleIndexMapCache = [];
 
     /**
@@ -45,7 +54,7 @@ abstract class Recognizer
         $this->_stateNumber = -1;
     }
 
-    function checkVersion($toolVersion)
+    function checkVersion($toolVersion) : void
     {
         $runtimeVersion = "4.7.2";
         if ($runtimeVersion!==$toolVersion)
@@ -54,12 +63,12 @@ abstract class Recognizer
         }
     }
 
-    function addErrorListener($listener)
+    function addErrorListener($listener) : void
     {
         array_push($this->_listeners, $listener);
     }
 
-    function removeErrorListeners()
+    function removeErrorListeners() : void
     {
         $this->_listeners = [];
     }
@@ -80,17 +89,18 @@ abstract class Recognizer
 		$vocabulary = $this->getVocabulary();
 
         $result = self::$tokenTypeMapCache[spl_object_hash($vocabulary)];
-        if ($result == null) {
-            $result = []; //new HashMap<String, Integer>();
+        if ($result === null)
+        {
+            $result = new Map(); //new Map<String, Integer>();
             for ($i = 0; $i <= $this->getATN()->maxTokenType; $i++)
             {
                 $literalName = $vocabulary->getLiteralName($i);
-                if ($literalName != null) {
+                if ($literalName !== null) {
                     $result->put($literalName, $i);
                 }
 
                 $symbolicName = $vocabulary->getSymbolicName($i);
-                if ($symbolicName != null) {
+                if ($symbolicName !== null) {
                     $result->put($symbolicName, $i);
                 }
             }
@@ -111,11 +121,11 @@ abstract class Recognizer
 	function getRuleIndexMap() : array
     {
 		$ruleNames = $this->getRuleNames();
-		if ($ruleNames == null) throw new \Exception("The current recognizer does not provide a list of rule names.");
+		if ($ruleNames === null) throw new \Exception("The current recognizer does not provide a list of rule names.");
 
         $result = self::$ruleIndexMapCache[spl_object_hash($ruleNames)];
         if ($result === null) {
-            $result = $ruleNames;
+            $result = Utils::toMap($ruleNames);
             self::$ruleIndexMapCache[spl_object_hash($ruleNames)] = $result;
         }
 
@@ -125,10 +135,10 @@ abstract class Recognizer
     function getTokenType($tokenName) : int
     {
         $ttype = $this->getTokenTypeMap()[$tokenName];
-        return isset($ttype) ? $ttype : Token::INVALID_TYPE;
+        return $ttype ?: Token::INVALID_TYPE;
     }
 
-    // What is the error header, normally line/character position information?//
+    // What is the error header, normally line/character position information?
     function getErrorHeader(RecognitionException $e) : string
     {
         $line = $e->offendingToken->line;
@@ -148,14 +158,12 @@ abstract class Recognizer
     // implementations of {@link ANTLRErrorStrategy} may provide a similar
     // feature when necessary. For example, see
     // {@link DefaultErrorStrategy//getTokenErrorDisplay}.
-    function getTokenErrorDisplay($t)
+    function getTokenErrorDisplay(Token $t) : string
     {
-        if ($t===null)
-        {
-            return "<no token>";
-        }
-        $s = $t->text;
-        if ($s===null)
+        if ($t===null) return "<no token>";
+
+        $s = $t->getText();
+        if ($s === null)
         {
             if ($t->type===Token::EOF)
             {
@@ -171,7 +179,7 @@ abstract class Recognizer
         $s = str_replace("\r","\\r", $s);
         $s = str_replace("\t","\\t", $s);
 
-        return "'" . $s . "'";
+        return "'$s'";
     }
 
     function getErrorListenerDispatch() : ANTLRErrorListener
@@ -181,12 +189,12 @@ abstract class Recognizer
 
     // subclass needs to override these if there are sempreds or actions
     // that the ATN interp needs to execute
-    function sempred(RuleContext $localctx, int $ruleIndex, int $actionIndex) : bool
+    function sempred(?RuleContext $localctx, int $ruleIndex, int $actionIndex) : bool
     {
         return true;
     }
 
-    function precpred(RuleContext $localctx , int $precedence) : bool
+    function precpred(?RuleContext $localctx , int $precedence) : bool
     {
         return true;
     }
@@ -197,13 +205,10 @@ abstract class Recognizer
     //context objects form a stack that lets us see the stack of
     //invoking rules. Combine this and we have complete ATN
     //configuration information.
-    function getState() { return $this->_stateNumber; }
-    function setState($state) { $this->_stateNumber = $state; }
+    function getState() : int { return $this->_stateNumber; }
+    function setState($state) : void { $this->_stateNumber = $state; }
 
-    /**
-     * @return ATNSimulator
-     */
-    function getInterpreter() { return $this->_interp; }
+    function getInterpreter() : ATNSimulator { return $this->_interp; }
 
     /**
      * If this recognizer was generated, it will have a serialized ATN
@@ -220,15 +225,11 @@ abstract class Recognizer
 	function action(RuleContext $_localctx, int $ruleIndex, int $actionIndex) : void {}
 
 	/**
-     * @return string[]|\ArrayObject
+	 * @deprecated
      */
-    abstract function getTokenNames() : \ArrayObject;
+    abstract function getTokenNames() : array;
 
-    /**
-     * @return \ArrayObject
-     */
     abstract function getRuleNames() : \ArrayObject;
 
     abstract function getATN() : ATN;
-
 }

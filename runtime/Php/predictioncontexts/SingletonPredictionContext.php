@@ -70,7 +70,7 @@ class SingletonPredictionContext extends PredictionContext
         if (!($other instanceof SingletonPredictionContext)) return false;
         if ($this->hashCode() !== $other->hashCode()) return false; // can't be same if hash is different
         if ($this->returnState !== $other->returnState) return false;
-        if ($this->parentCtx == null) return $other->parentCtx == null;
+        if (!$this->parentCtx) return $other->parentCtx === null;
         return $this->parentCtx->equals($other->parentCtx);
     }
 

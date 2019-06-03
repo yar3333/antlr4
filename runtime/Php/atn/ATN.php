@@ -6,23 +6,26 @@
 
 namespace Antlr4\Atn;
 
-use Antlr4\Atn\Actions\LexerAction;
-use Antlr4\Atn\States\ATNState;
-use Antlr4\Atn\States\DecisionState;
-use Antlr4\Atn\States\RuleStartState;
-use Antlr4\Atn\States\RuleStopState;
-use Antlr4\Atn\States\TokensStartState;
+use \Antlr4\Atn\Actions\LexerAction;
+use \Antlr4\Atn\States\ATNState;
+use \Antlr4\Atn\States\DecisionState;
+use \Antlr4\Atn\States\RuleStartState;
+use \Antlr4\Atn\States\RuleStopState;
+use \Antlr4\Atn\States\TokensStartState;
 use \Antlr4\LL1Analyzer;
 use \Antlr4\IntervalSet;
-use Antlr4\RuleContext;
+use \Antlr4\RuleContext;
 use \Antlr4\Token;
 
 class ATN
 {
+    const GRAMMAR_TYPE_LEXER = 0;
+    const GRAMMAR_TYPE_PARSER = 1;
+
     const INVALID_ALT_NUMBER = 0;
 
     /**
-     * @var ATNType
+     * @var int
      */
     public $grammarType;
 
@@ -71,7 +74,12 @@ class ATN
      */
     public $modeToStartState;
 
-    function __construct(ATNType $grammarType, int $maxTokenType)
+    /**
+     * ATN constructor.
+     * @param int $grammarType ATNType
+     * @param int $maxTokenType
+     */
+    function __construct(int $grammarType, int $maxTokenType)
     {
         // Used for runtime deserialization of ATNs from strings
         // The type of the ATN.
@@ -106,8 +114,6 @@ class ATN
         $this->lexerActions = null;
 
         $this->modeToStartState = [];
-
-        return $this;
     }
 
     // Compute the set of valid tokens that can occur starting in state {@code s}.
@@ -136,17 +142,11 @@ class ATN
 
     function nextTokens(ATNState $s, RuleContext $ctx=null) : IntervalSet
     {
-        if (!isset($ctx))
-        {
-            return $this->nextTokensNoContext($s);
-        }
-        else
-        {
-            return $this->nextTokensInContext($s, $ctx);
-        }
+        if (!$ctx) return $this->nextTokensNoContext($s);
+        return $this->nextTokensInContext($s, $ctx);
     }
 
-    function addState(ATNState $state)
+    function addState(ATNState $state) : void
     {
         if ($state !== null)
         {
@@ -156,7 +156,7 @@ class ATN
         array_push($this->states, $state);
     }
 
-    function removeState( $state)
+    function removeState(ATNState $state) : void
     {
         $this->states[$state->stateNumber] = null;// just free mem, don't shift states in list
     }
@@ -170,17 +170,11 @@ class ATN
 
     function getDecisionState(int $decision) : DecisionState
     {
-        if (count($this->decisionToState)===0)
-        {
-            return null;
-        }
-        else
-        {
-            return $this->decisionToState[$decision];
-        }
+        if (!count($this->decisionToState)) return null;
+        return $this->decisionToState[$decision];
     }
 
-    function getNumberOfDecisions() { return count($this->decisionToState); }
+    function getNumberOfDecisions() : int { return count($this->decisionToState); }
 
     // Computes the set of input symbols which could follow ATN state number
     // {@code stateNumber} in the specified full {@code context}. This method

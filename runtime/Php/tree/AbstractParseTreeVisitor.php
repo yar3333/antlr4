@@ -74,7 +74,7 @@ class AbstractParseTreeVisitor implements ParseTreeVisitor
 		return $this->defaultResult();
 	}
 
-	/**
+    /**
 	 * Gets the default value returned by visitor methods. This value is
 	 * returned by the default implementations of
 	 * {@link #visitTerminal visitTerminal}, {@link #visitErrorNode visitErrorNode}.
@@ -83,7 +83,8 @@ class AbstractParseTreeVisitor implements ParseTreeVisitor
 	 *
 	 * <p>The base implementation returns {@code null}.</p>
 	 */
-	protected function defaultResult()
+    /** @noinspection ReturnTypeCanBeDeclaredInspection */
+    protected function defaultResult()
 	{
 		return null;
 	}

@@ -122,7 +122,7 @@ class DFAState
     }
 
     // Get the set of all alts mentioned by all ATN configurations in this DFA state.
-    function getAltSet()
+    function getAltSet() : ?Set
     {
         $alts = new Set();
 
@@ -150,7 +150,7 @@ class DFAState
     // {@link ParserATNSimulator//addDFAState} we need to know if any other state
     // exists that has this exact set of ATN configurations. The
     // {@link //stateNumber} is irrelevant.</p>
-    function equals($other)
+    function equals($other) : bool
     {
         // compare set of ATN configurations in this set with other
         return $this === $other || ($other instanceof DFAState && $this->configs->equals($other->configs));
@@ -161,16 +161,16 @@ class DFAState
         $s = $this->stateNumber . ":" . $this->configs;
         if ($this->isAcceptState)
         {
-            $s = $s . "=>";
+            $s .= "=>";
             if ($this->predicates !== null)
-                $s = $s . "[" . implode(", ", $this->predicates) . "]";
+                $s .= "[" . implode(", ", $this->predicates) . "]";
             else
-                $s = $s . $this->prediction;
+                $s .= $this->prediction;
         }
         return $s;
     }
 
-    function hashCode()
+    function hashCode() : int
     {
         $hash = new Hash();
         $hash->update($this->configs);

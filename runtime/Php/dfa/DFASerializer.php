@@ -27,12 +27,12 @@ class DFASerializer
     function __construct(DFA $dfa, Vocabulary $vocabulary=null)
 	{
         $this->dfa = $dfa;
-        $this->vocabulary = $vocabulary ? $vocabulary : new VocabularyImpl(null , null);
+        $this->vocabulary = $vocabulary ?: new VocabularyImpl(null , null);
     }
 
     function __toString() 
     {
-        if ($this->dfa->s0===null) return null;
+        if ($this->dfa->s0 === null) return "";
 
 		$buf = "";
 
@@ -56,7 +56,7 @@ class DFASerializer
 			}
 		}
 
-		return $buf!=="" ? $buf : null;
+		return $buf;
     }
     
     function getEdgeLabel(int $i) : string
@@ -73,14 +73,10 @@ class DFASerializer
             {
                 return $baseStateStr . "=>" . Utils::arrayToString($s->predicates);
             }
-            else 
-            {
-                return $baseStateStr . "=>" . $s->prediction;
-            }
+
+            return $baseStateStr . "=>" . $s->prediction;
         }
-        else 
-        {
-            return $baseStateStr;
-        }
+
+        return $baseStateStr;
     }
 }

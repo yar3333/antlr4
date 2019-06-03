@@ -49,9 +49,9 @@ class Hash
                     continue;
                 }
 
-                $k = $k * 0xCC9E2D51;
+                $k *= 0xCC9E2D51;
                 $k = ($k << 15) | ($k >> (32 - 15));
-                $k = $k * 0x1B873593;
+                $k *= 0x1B873593;
 
                 $this->count++;
 
@@ -67,11 +67,11 @@ class Hash
     function finish() : int
     {
         $hash = $this->hash ^ ($this->count * 4);
-        $hash = $hash ^ ($hash >> 16);
-        $hash = $hash * 0x85EBCA6B;
-        $hash = $hash ^ ($hash >> 13);
-        $hash = $hash * 0xC2B2AE35;
-        $hash = $hash ^ ($hash >> 16);
+        $hash ^= $hash >> 16;
+        $hash *= 0x85EBCA6B;
+        $hash ^= $hash >> 13;
+        $hash *= 0xC2B2AE35;
+        $hash ^= $hash >> 16;
         return $hash;
     }
 }

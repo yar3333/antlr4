@@ -54,26 +54,19 @@ class ATNConfigSet
 
     public $cachedHashCode;
 
-    static function hashATNConfig(ATNConfig $c)
+    static function hashATNConfig(ATNConfig $c) : int
     {
         return $c->hashCodeForConfigSet();
     }
 
-    static function equalATNConfigs(?ATNConfig $a, ?ATNConfig $b)
+    static function equalATNConfigs(?ATNConfig $a, ?ATNConfig $b) : bool
     {
-        if ($a===$b)
-        {
-            return true;
-        }
-        else if ($a===null || $b===null)
-        {
-            return false;
-        }
+        if ($a === $b) return true;
+        if ($a === null || $b === null) return false;
         return $a->equalsForConfigSet($b);
     }
 
-
-    function __construct($fullCtx=null)
+    function __construct(bool $fullCtx=true)
     {
         // The reason that we need this is because we don't want the hash map to use
         // the standard hash code and equals. We need all configurations with the
@@ -90,7 +83,7 @@ class ATNConfigSet
         // Indicates that this configuration set is part of a full context
         // LL prediction. It will be used to determine how to merge $. With SLL
         // it's a wildcard whereas it is not for LL context merge.
-        $this->fullCtx = !isset($fullCtx) ? true : $fullCtx;
+        $this->fullCtx = $fullCtx;
 
         // Indicates that the set of configurations is read-only. Do not
         // allow any code to manipulate the set; DFA states will point at
@@ -122,24 +115,20 @@ class ATNConfigSet
     // {@code pi} is the {@link ATNConfig//semanticContext}. We use {@code (s,i,pi)} as key.
     //
     // <p>This method updates {@link //dipsIntoOuterContext} and {@link //hasSemanticContext} when necessary.</p>
-    function add($config, $mergeCache=null)
+    function add($config, $mergeCache=null) : bool
     {
-        if (!isset($mergeCache))
-        {
-            $mergeCache = null;
-        }
-        if ($this->readOnly)
-        {
-            throw new \Exception("This set is readonly");
-        }
+        if ($this->readOnly) throw new \Exception("This set is readonly");
+
         if ($config->semanticContext !== SemanticContext::NONE())
         {
             $this->hasSemanticContext = true;
         }
+
         if ($config->reachesIntoOuterContext > 0)
         {
             $this->dipsIntoOuterContext = true;
         }
+
         $existing = $this->configLookup->add($config);
         if ($existing === $config)
         {
@@ -168,23 +157,24 @@ class ATNConfigSet
         return true;
     }
 
-    function getStates()
+    function getStates() : Set
     {
         $states = new Set();
-        for ($i = 0; $i < count($this->configs); $i++)
-        {
-            $states->add($this->configs[$i]->state);
+        foreach ($this->configs as $c) {
+            $states->add($c->state);
         }
         return $states;
     }
 
-    function getPredicates()
+    /**
+     * @return SemanticContext[]
+     */
+    function getPredicates() : array
     {
         $preds = [];
-        for ($i = 0; $i < count($this->configs); $i++)
+        foreach ($this->configs as $c)
         {
-            $c = $this->configs[$i]->semanticContext;
-            if ($c !== SemanticContext::NONE())
+            if ($c->semanticContext !== SemanticContext::NONE())
             {
                 array_push($preds, $c->semanticContext);
             }
@@ -199,7 +189,7 @@ class ATNConfigSet
 
     function item(int $index) : ATNConfig { return $this->configs[$index]; }
 
-    function optimizeConfigs(ATNSimulator $interpreter)
+    function optimizeConfigs(ATNSimulator $interpreter) : void
     {
         if ($this->readOnly) throw new \Exception("This set is readonly");
         if ($this->configLookup->isEmpty()) return;
@@ -210,7 +200,7 @@ class ATNConfigSet
         }
     }
 
-    function addAll($coll)
+    function addAll($coll) : bool
     {
         for ($i = 0; $i < $coll->length; $i++)
         {
@@ -219,7 +209,7 @@ class ATNConfigSet
         return false;
     }
 
-    function equals($other)
+    function equals($other) : bool
     {
         return $this === $other ||
             ($other instanceof ATNConfigSet &&
@@ -231,14 +221,14 @@ class ATNConfigSet
             $this->dipsIntoOuterContext === $other->dipsIntoOuterContext);
     }
 
-    function hashCode()
+    function hashCode() : int
     {
         $hash = new Hash();
         $this->updateHashCode($hash);
         return $hash->finish();
     }
 
-    function updateHashCode(Hash $hash)
+    function updateHashCode(Hash $hash) : void
     {
         if ($this->readOnly)
         {
@@ -256,9 +246,9 @@ class ATNConfigSet
         }
     }
 
-    function getLength() { return count($this->configs); }
+    function getLength() : int { return count($this->configs); }
 
-    function isEmpty()
+    function isEmpty() : bool
     {
         return count($this->configs) === 0;
     }
@@ -277,7 +267,7 @@ class ATNConfigSet
         return $this->contains($item);
     }
 
-    function clear()
+    function clear() : void
     {
         if ($this->readOnly)
         {
@@ -288,7 +278,7 @@ class ATNConfigSet
         $this->configLookup = new Set();
     }
 
-    function setReadonly($readOnly)
+    function setReadonly(bool $readOnly) : void
     {
         $this->readOnly = $readOnly;
         if ($readOnly)

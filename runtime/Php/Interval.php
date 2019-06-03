@@ -7,7 +7,7 @@ class Interval
 	const INTERVAL_POOL_MAX_VALUE = 1000;
 
 	private static $INVALID;
-	static function INVALID() : self { return self::$INVALID ? self::$INVALID : (self::$INVALID = new Interval(-1,-2)); }
+	static function INVALID() : self { return self::$INVALID ?: (self::$INVALID = new Interval(-1, -2)); }
 
     /**
      * @var int
@@ -26,7 +26,7 @@ class Interval
         $this->stop = $stop;
     }
 
-    function contains(int $item)
+    function contains(int $item) : bool
     {
         return $item >= $this->start && $item < $this->stop;
     }
@@ -34,10 +34,9 @@ class Interval
     function __toString() : string
     {
         if ($this->start === $this->stop - 1) {
-            return $this->start;
-        } else {
-            return $this->start . ".." . ($this->stop - 1);
+            return (string)$this->start;
         }
+        return $this->start . ".." . ($this->stop - 1);
     }
 
     function getLength() : int
@@ -47,7 +46,10 @@ class Interval
 
     function equals($other) : bool
     {
-        return $this == $other;
+        if ($this === $other) return true;
+        if (!($other instanceof self)) return false;
+        return $this->start === $other->start
+            && $this->stop === $other->stop;
     }
 
     /** Does this start completely before other? Disjoint
@@ -99,7 +101,7 @@ class Interval
 
 	function adjacent(Interval $other) : bool
     {
-		return $this->start == $other->stop + 1 || $this->stop == $other->start - 1;
+		return $this->start === $other->stop + 1 || $this->stop === $other->start - 1;
 	}
 
 	function union(Interval $other) : Interval

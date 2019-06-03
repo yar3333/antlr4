@@ -2,6 +2,8 @@
 
 namespace Antlr4\Atn\Semanticcontexts;
 
+use Antlr4\Recognizer;
+use Antlr4\RuleContext;
 use Antlr4\Utils\Hash;
 use Antlr4\Utils\Set;
 use Antlr4\Utils\Utils;
@@ -40,20 +42,11 @@ class SemanticContextAnd extends SemanticContext
         $this->opnds = $operands->values();
     }
 
-    function equals($other)
+    function equals($other) : bool
     {
-        if ($this === $other)
-        {
-            return true;
-        }
-        else if (!($other instanceof SemanticContextAnd))
-        {
-            return false;
-        }
-        else
-        {
-            return $this->opnds === $other->opnds;
-        }
+        if ($this === $other) return true;
+        if (!($other instanceof SemanticContextAnd)) return false;
+        return $this->opnds === $other->opnds;
     }
 
     function updateHashCode(Hash $hash) : void
@@ -63,30 +56,29 @@ class SemanticContextAnd extends SemanticContext
 
     // {@inheritDoc}
     // <p>The evaluation of predicates by this context is short-circuiting, but unordered.</p>
-    function eval($parser, $outerContext)
+    function eval(Recognizer $parser, RuleContext $outerContext) : bool
     {
-        for ($i = 0; $i < count($this->opnds); $i++)
+        foreach ($this->opnds as $opnd)
         {
-            if (!$this->opnds[$i]->eval($parser, $outerContext)) return false;
+            if (!$opnd->eval($parser, $outerContext)) return false;
         }
         return true;
     }
 
-    function evalPrecedence($parser, $outerContext)
+    function evalPrecedence($parser, $outerContext) : ?SemanticContext
     {
         $differs = false;
         $operands = [];
-        for ($i = 0; $i < count($this->opnds); $i++)
+        foreach ($this->opnds as $iValue)
         {
-            $context = $this->opnds[$i];
+            $context = $iValue;
             $evaluated = $context->evalPrecedence($parser, $outerContext);
-            $differs |= ($evaluated !== $context);
-            if ($evaluated === null)
-            {
-                // The AND context is false if any element is false
-                return null;
-            }
-            else if ($evaluated !== SemanticContext::NONE())
+            $differs |= $evaluated !== $context;
+
+            // The AND context is false if any element is false
+            if ($evaluated === null) return null;
+
+            if ($evaluated !== SemanticContext::NONE())
             {
                 // Reduce the result by skipping true elements
                 array_push($operands, $evaluated);
@@ -111,6 +103,6 @@ class SemanticContextAnd extends SemanticContext
         foreach ($this->opnds as $o) {
             $s .= "&& " . $o;
         }
-        return strlen($s) > 3 ? substr($s, 3) : $s;
+        return strlen($s) > 3 ? (string)substr($s, 3) : $s;
     }
 }

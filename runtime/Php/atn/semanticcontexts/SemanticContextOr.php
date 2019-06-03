@@ -46,24 +46,13 @@ class SemanticContextOr extends SemanticContext
         }
 
         $this->opnds = $operands->values();
-
-        return $this;
     }
 
-    function constructor($other)
+    function equals($other) : bool
     {
-        if ($this === $other)
-        {
-            return true;
-        }
-        else if (!($other instanceof SemanticContextOr))
-        {
-            return false;
-        }
-        else
-        {
-            return $this->opnds === $other->opnds;
-        }
+        if ($this === $other) return true;
+        if (!($other instanceof SemanticContextOr)) return false;
+        return $this->opnds === $other->opnds;
     }
 
     function updateHashCode(Hash $hash) : void
@@ -86,7 +75,7 @@ class SemanticContextOr extends SemanticContext
         return false;
     }
 
-    function evalPrecedence($parser, $outerContext)
+    function evalPrecedence($parser, $outerContext) : ?SemanticContext
     {
         $differs = false;
         $operands = [];
@@ -107,9 +96,8 @@ class SemanticContextOr extends SemanticContext
         if (!$differs) return $this;
 
         // all elements were false, so the OR context is false
-        if (count($operands) === 0) return null;
+        if (!$operands) return null;
 
-        // TODO: BUGFIX????
         $result = null;
         foreach ($operands as $o) {
             //return result === null ? o : SemanticContext.orContext(result, o);
@@ -122,6 +110,6 @@ class SemanticContextOr extends SemanticContext
     {
         $s = "";
         foreach ($this->opnds as $o) $s .= "|| " . $o;
-        return strlen($s) > 3 ? substr($s, 3) : $s;
+        return strlen($s) > 3 ? (string)substr($s, 3) : $s;
     }
 }

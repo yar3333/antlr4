@@ -4,6 +4,8 @@ namespace Antlr4\Atn\Actions;
 
 // Implements the {@code channel} lexer action by calling
 // {@link Lexer//setChannel} with the assigned channel.
+use Antlr4\Utils\Hash;
+
 class LexerChannelAction extends LexerAction
 {
     /**
@@ -21,25 +23,21 @@ class LexerChannelAction extends LexerAction
     }
 
     // <p>This action is implemented by calling {@link Lexer//setChannel} with the value provided by {@link //getChannel}.</p>
-    function execute($lexer)
+    function execute($lexer) : void
     {
         $lexer->_channel = $this->channel;
     }
 
-    function updateHashCode($hash)
+    function updateHashCode(Hash $hash) : void
     {
         $hash->update($this->actionType, $this->channel);
     }
 
-    function equals($other)
+    function equals($other) : bool
     {
-        if ($this === $other) {
-            return true;
-        } else if (!($other instanceof LexerChannelAction)) {
-            return false;
-        } else {
-            return $this->channel === $other->channel;
-        }
+        if ($this === $other) return true;
+        if (!($other instanceof LexerChannelAction)) return false;
+        return $this->channel === $other->channel;
     }
 
     function __toString()

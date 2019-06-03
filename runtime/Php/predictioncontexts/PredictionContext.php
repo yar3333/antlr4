@@ -15,7 +15,7 @@ use \Antlr4\Utils\Hash;
 abstract class PredictionContext
 {
     private static $_EMPTY;
-    static function EMPTY() : EmptyPredictionContext { return self::$_EMPTY ? self::$_EMPTY : (self::$_EMPTY = new EmptyPredictionContext()); }
+    static function EMPTY() : EmptyPredictionContext { return self::$_EMPTY ?: (self::$_EMPTY = new EmptyPredictionContext()); }
 
     static $globalNodeCount = 1;
 
@@ -65,22 +65,22 @@ abstract class PredictionContext
     // </pre>
 
     // This means only the {@link //EMPTY} context is in set.
-    function isEmpty()
+    function isEmpty() : bool
     {
         return $this === PredictionContext::EMPTY();
     }
 
-    function hasEmptyPath()
+    function hasEmptyPath() : bool
     {
         return $this->getReturnState($this->getLength() - 1) === PredictionContext::EMPTY_RETURN_STATE;
     }
 
-    function hashCode()
+    function hashCode() : int
     {
         return $this->cachedHashCode;
     }
 
-    function updateHashCode(Hash $hash)
+    function updateHashCode(Hash $hash) : void
     {
         $hash->update($this->cachedHashCode);
     }
@@ -441,8 +441,8 @@ abstract class PredictionContext
                     $mergedParents[$k] = $mergedParent;
                     $mergedReturnStates[$k] = $payload;
                 }
-                $i += 1;// hop over left one as usual
-                $j += 1;// but also skip one in right side since we merge
+                $i++;// hop over left one as usual
+                $j++;// but also skip one in right side since we merge
             }
 
             else if ($a->returnStates[$i] < $b->returnStates[$j])
@@ -450,16 +450,16 @@ abstract class PredictionContext
                 // copy a[i] to M
                 $mergedParents[$k] = $a_parent;
                 $mergedReturnStates[$k] = $a->returnStates[$i];
-                $i += 1;
+                $i++;
             }
             else
             {
                 // b > a, copy b[j] to M
                 $mergedParents[$k] = $b_parent;
                 $mergedReturnStates[$k] = $b->returnStates[$j];
-                $j += 1;
+                $j++;
             }
-            $k += 1;
+            $k++;
         }
 
         // copy over any payloads remaining in either array
@@ -469,7 +469,7 @@ abstract class PredictionContext
             {
                 $mergedParents[$k] = $a->parents[$p];
                 $mergedReturnStates[$k] = $a->returnStates[$p];
-                $k += 1;
+                $k++;
             }
         }
         else
@@ -478,7 +478,7 @@ abstract class PredictionContext
             {
                 $mergedParents[$k] = $b->parents[$p];
                 $mergedReturnStates[$k] = $b->returnStates[$p];
-                $k += 1;
+                $k++;
             }
         }
 
@@ -501,6 +501,8 @@ abstract class PredictionContext
             $mergedReturnStates = array_slice($mergedReturnStates, 0, $k);
         }
 
+        self::combineCommonParents($mergedParents);
+
         $M = new ArrayPredictionContext($mergedParents, $mergedReturnStates);
 
         // if we created same array as a or b, return that instead
@@ -521,7 +523,6 @@ abstract class PredictionContext
             }
             return $b;
         }
-        self::combineCommonParents($mergedParents);
 
         if ($mergeCache !== null)
         {
@@ -530,22 +531,21 @@ abstract class PredictionContext
         return $M;
     }
 
-    // Make pass over all <em>M</em> {@code parents}; merge any {@code equals()} ones.
-    static function combineCommonParents(array $parents)
+    private static function combineCommonParents(array &$parents) : void
     {
         $uniqueParents = [];
 
-        for ($p = 0; $p < count($parents); $p++)
+        foreach ($parents as $parent)
         {
-            $parent = $parents[$p];
-            if (!(array_key_exists($parent, $uniqueParents)))
+            if (!array_key_exists($parent, $uniqueParents))
             {
                 $uniqueParents[$parent] = $parent;
             }
         }
-        for ($q = 0; $q < count($parents); $q++)
+
+        foreach ($parents as $i => $parent)
         {
-            $parents[$q] = $uniqueParents[$parents[$q]];
+            $parents[$i] = $uniqueParents[$parent];
         }
     }
 

@@ -134,24 +134,17 @@ class ATNState
         return (string)$this->stateNumber;
     }
 
-    function equals($other)
+    function equals($other) : bool
     {
-        if ($other instanceof ATNState)
-        {
-            return $this->stateNumber===$other->stateNumber;
-        }
-        else
-        {
-            return false;
-        }
+        return $other instanceof ATNState && $this->stateNumber === $other->stateNumber;
     }
 
-    function isNonGreedyExitState()
+    function isNonGreedyExitState() : bool
     {
         return false;
     }
 
-    function addTransition($trans, $index=null)
+    function addTransition($trans, $index=null) : void
     {
         if (!isset($index)) $index = -1;
 
@@ -164,7 +157,7 @@ class ATNState
             $this->epsilonOnlyTransitions = false;
         }
 
-        if ($index===-1)
+        if ($index === -1)
         {
             array_push($this->transitions, $trans);
         }

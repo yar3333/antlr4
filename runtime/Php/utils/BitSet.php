@@ -13,7 +13,6 @@ class BitSet
     function __construct()
     {
         $this->data = [];
-        return $this;
     }
 
     function add($value) : void
@@ -33,7 +32,7 @@ class BitSet
 
     function contains($value) : bool
     {
-        return $this->data[$value] === true;
+        return $this->data[$value] ?? false;
     }
 
     function values() : array
@@ -63,7 +62,7 @@ class BitSet
 
     function length() : int
     {
-        return count($this->values());
+        return count($this->data);
     }
 
     function __toString()

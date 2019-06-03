@@ -14,17 +14,17 @@ class FailedPredicateException extends RecognitionException
     /**
      * @var int
      */
-    private $ruleIndex;
+    public $ruleIndex;
 
     /**
      * @var int
      */
-    private $predicateIndex;
+    public $predicateIndex;
 
     /**
      * @var string
      */
-    private $predicate;
+    public $predicate;
 
     function __construct(Parser $recognizer, string $predicate, string $message=null)
     {
@@ -36,16 +36,18 @@ class FailedPredicateException extends RecognitionException
         ]);
         $s = $recognizer->getInterpreter()->atn->states[$recognizer->getState()];
         $trans = $s->transitions[0];
-        if ($trans instanceof PredicateTransition) {
+        if ($trans instanceof PredicateTransition)
+        {
             $this->ruleIndex = $trans->ruleIndex;
             $this->predicateIndex = $trans->predIndex;
-        } else {
+        }
+        else
+        {
             $this->ruleIndex = 0;
             $this->predicateIndex = 0;
         }
         $this->predicate = $predicate;
         $this->offendingToken = $recognizer->getCurrentToken();
-        return $this;
     }
 
     function formatMessage(string $predicate, string $message)

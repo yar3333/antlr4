@@ -46,25 +46,21 @@ class LexerIndexedCustomAction extends LexerAction
     }
 
     // <p>This method calls {@link //execute} on the result of {@link //getAction} using the provided {@code lexer}.</p>
-    function execute(Lexer $lexer)
+    function execute(Lexer $lexer) : void
     {
         // assume the input stream position was properly set by the calling code
         $this->action->execute($lexer);
     }
 
-    function updateHashCode(Hash $hash)
+    function updateHashCode(Hash $hash) : void
     {
         $hash->update($this->actionType, $this->offset, $this->action);
     }
 
-    function equals(LexerAction $other)
+    function equals(LexerAction $other) : bool
     {
-        if ($this === $other) {
-            return true;
-        } else if (!($other instanceof LexerIndexedCustomAction)) {
-            return false;
-        } else {
-            return $this->offset === $other->offset && $this->action === $other->action;
-        }
+        if ($this === $other) return true;
+        if (!($other instanceof LexerIndexedCustomAction)) return false;
+        return $this->offset === $other->offset && $this->action === $other->action;
     }
 }

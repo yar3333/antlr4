@@ -31,7 +31,7 @@ class SimState
         $this->reset();
     }
 
-    function reset()
+    function reset() : void
     {
         $this->index = -1;
         $this->line = 0;

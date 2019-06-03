@@ -1,4 +1,5 @@
 <?php
+/** @noinspection ReturnTypeCanBeDeclaredInspection */
 
 namespace Antlr4\Tree;
 
@@ -17,7 +18,7 @@ interface ParseTree extends SyntaxTree
      * @param mixed $type
      * @return ParseTree
      */
-    function getChild(int $i, $type=null);
+    function getChild(int $i, string $type=null);
 
     /** Set the parent for this node.
      *

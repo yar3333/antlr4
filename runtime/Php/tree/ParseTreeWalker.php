@@ -7,9 +7,9 @@ use Antlr4\ParserRuleContext;
 class ParseTreeWalker
 {
     private static $DEFAULT;
-    static function DEFAULT(): ParseTreeWalker { return self::$DEFAULT ? self::$DEFAULT : (self::$DEFAULT = new ParseTreeWalker()); }
+    static function DEFAULT(): ParseTreeWalker { return self::$DEFAULT ?: (self::$DEFAULT = new ParseTreeWalker()); }
 
-    function walk(ParseTreeListener $listener, ParseTree $t)
+    function walk(ParseTreeListener $listener, ParseTree $t) : void
     {
 		if ( $t instanceof ErrorNode) {
 			$listener->visitErrorNode($t);
@@ -35,7 +35,7 @@ class ParseTreeWalker
     // {@link ParseTreeListener//enterEveryRule} and a
     // {@link RuleContext}-specific event. First we trigger the generic and then
     // the rule specific. We to them in reverse order upon finishing the node.
-    function enterRule(ParseTreeListener $listener, RuleNode $r)
+    function enterRule(ParseTreeListener $listener, RuleNode $r) : void
     {
         /** @var ParserRuleContext $ctx */
         $ctx = $r->getRuleContext();
@@ -43,7 +43,7 @@ class ParseTreeWalker
         $ctx->enterRule($listener);
     }
 
-    function exitRule(ParseTreeListener $listener, RuleNode $r)
+    function exitRule(ParseTreeListener $listener, RuleNode $r) : void
     {
         /** @var ParserRuleContext $ctx */
         $ctx = $r->getRuleContext();

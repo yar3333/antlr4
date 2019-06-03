@@ -21,11 +21,14 @@ class ATNConfig
 {
  	const SUPPRESS_PRECEDENCE_FILTER = 0x40000000;
 
-   /**
+    /**
      * @var ATNState
      */
     public $state;
 
+    /**
+     * @var int
+     */
     public $alt;
 
     /**
@@ -38,35 +41,33 @@ class ATNConfig
      */
     public $semanticContext;
 
+    /**
+     * @var int
+     */
     public $reachesIntoOuterContext;
 
     public $precedenceFilterSuppressed;
 
     private static function checkParams(object $params, $isCfg=false) : object
     {
-        if (!isset($params))
+        if (!$params)
         {
             $result = (object)[ 'state'=>null, 'alt'=>null, 'context'=>null, 'semanticContext'=>null ];
-            if($isCfg)
-            {
-                $result->reachesIntoOuterContext = 0;
-            }
+            if ($isCfg) $result->reachesIntoOuterContext = 0;
             return $result;
         }
-        else
+
+        $props = (object)[];
+        $props->state = $params->state ?? null;
+        $props->alt = $params->alt ?? null;
+        $props->context = $params->context ?? null;
+        $props->semanticContext = $params->semanticContext ?? null;
+        if ($isCfg)
         {
-            $props = (object)[];
-            $props->state = $params->state || null;
-            $props->alt = isset($params->alt) ? $params->alt : null;
-            $props->context = $params->context || null;
-            $props->semanticContext = $params->semanticContext || null;
-            if($isCfg)
-            {
-                $props->reachesIntoOuterContext = $params->reachesIntoOuterContext || 0;
-                $props->precedenceFilterSuppressed = $params->precedenceFilterSuppressed || false;
-            }
-            return $props;
+            $props->reachesIntoOuterContext = $params->reachesIntoOuterContext ?? 0;
+            $props->precedenceFilterSuppressed = $params->precedenceFilterSuppressed ?? false;
         }
+        return $props;
     }
 
     function __construct(object $params, object $config)
@@ -76,19 +77,17 @@ class ATNConfig
         $config = self::checkParams($config, true);
 
         // The ATN state associated with this configuration///
-        $this->state = $params->state!==null ? $params->state : $config->state;
+        $this->state = $params->state ?: $config->state;
 
         // What alt (or lexer rule) is predicted by this configuration///
-        $this->alt = $params->alt!==null ? $params->alt : $config->alt;
+        $this->alt = $params->alt ?: $config->alt;
 
         // The stack of invoking states leading to the rule/states associated
         //  with this config.  We track only those contexts pushed during
         //  execution of the ATN simulator.
-        $this->context = $params->context!==null ? $params->context : $config->context;
+        $this->context = $params->context ?: $config->context;
 
-        $this->semanticContext = $params->semanticContext!==null
-                                ? $params->semanticContext
-                                : ($config->semanticContext!==null ? $config->semanticContext : SemanticContext::NONE());
+        $this->semanticContext = $params->semanticContext ?: ($config->semanticContext ?: SemanticContext::NONE());
 
         // We cannot execute predicates dependent upon local context unless
         // we know for sure we are in the correct context. Because there is
@@ -103,15 +102,15 @@ class ATNConfig
         $this->precedenceFilterSuppressed = $config->precedenceFilterSuppressed;
     }
 
-    function checkContext(object $params, object $config)
+    function checkContext(object $params, object $config) : void
     {
-        if (!isset($params->context) && (!isset($config) || !isset($config->context)))
+        if (!isset($params->context) && !isset($config->context))
         {
             $this->context = null;
         }
     }
 
-    function hashCode()
+    function hashCode() : int
     {
         $hash = new Hash();
         $this->updateHashCode($hash);
@@ -119,7 +118,7 @@ class ATNConfig
     }
 
 
-    function updateHashCode(Hash $hash)
+    function updateHashCode(Hash $hash) : void
     {
         $hash->update($this->state->stateNumber, $this->alt, $this->context, $this->semanticContext);
     }
@@ -127,28 +126,21 @@ class ATNConfig
     // An ATN configuration is equal to another if both have
     // the same state, they predict the same alternative, and
     // syntactic/semantic contexts are the same.
-    function equals($other)
+    function equals($other) : bool
     {
-        if ($this === $other)
-        {
-            return true;
-        }
-        else if (! ($other instanceof ATNConfig))
-        {
-            return false;
-        }
-        else
-        {
-            return $this->state->stateNumber===$other->state->stateNumber &&
-                $this->alt===$other->alt &&
-                ($this->context===null ? $other->context===null : $this->context->equals($other->context)) &&
-                $this->semanticContext->equals($other->semanticContext) &&
-                $this->precedenceFilterSuppressed===$other->precedenceFilterSuppressed;
-        }
+        if ($this === $other) return true;
+
+        if (!($other instanceof ATNConfig)) return false;
+
+        return $this->state->stateNumber === $other->state->stateNumber &&
+            $this->alt === $other->alt &&
+            ($this->context === null ? $other->context === null : $this->context->equals($other->context)) &&
+            $this->semanticContext->equals($other->semanticContext) &&
+            $this->precedenceFilterSuppressed === $other->precedenceFilterSuppressed;
     }
 
 
-    function hashCodeForConfigSet()
+    function hashCodeForConfigSet() : int
     {
         $hash = new Hash();
         $hash->update($this->state->stateNumber, $this->alt, $this->semanticContext);
@@ -156,56 +148,34 @@ class ATNConfig
     }
 
 
-    function equalsForConfigSet($other)
+    function equalsForConfigSet($other) : bool
     {
-        if ($this === $other)
-        {
-            return true;
-        }
-        else if (!($other instanceof ATNConfig))
-        {
-            return false;
-        }
-        else
-        {
-            return $this->state->stateNumber===$other->state->stateNumber &&
-                $this->alt===$other->alt &&
-                $this->semanticContext->equals($other->semanticContext);
-        }
+        if ($this === $other) return true;
+        if (!($other instanceof ATNConfig)) return false;
+
+        return $this->state->stateNumber === $other->state->stateNumber &&
+            $this->alt === $other->alt &&
+            $this->semanticContext->equals($other->semanticContext);
     }
 	/**
 	 * This method gets the value of the {@link #reachesIntoOuterContext} field
 	 * as it existed prior to the introduction of the
 	 * {@link #isPrecedenceFilterSuppressed} method.
 	 */
-	function getOuterContextDepth() : int {
+	function getOuterContextDepth() : int
+    {
 		return $this->reachesIntoOuterContext & ~self::SUPPRESS_PRECEDENCE_FILTER;
 	}
 
-	/**
-	 * @param Recognizer $recog
-	 * @param bool $showAlt
-	 * @return string
-	 */
-	public function toString(Recognizer $recog, bool $showAlt) : string
+	function toString(Recognizer $recog, bool $showAlt) : string
 	{
 		$buf = '(';
 		$buf .= $this->state;
-		if ($showAlt)
-		{
-            $buf .= ",";
-            $buf .= $this->alt;
-        }
-        if ($this->context!==null)
-        {
-            $buf .= ",[";
-            $buf .= $this->context;
-			$buf .= "]";
-        }
+		if ($showAlt) $buf .= "," . $this->alt;
+        if ($this->context) $buf .= ",[" . $this->context . "]";
         if ($this->semanticContext && $this->semanticContext !== SemanticContext::NONE())
         {
-            $buf .= ",";
-            $buf .= $this->semanticContext;
+            $buf .= "," . $this->semanticContext;
         }
         if ($this->getOuterContextDepth() > 0)
         {
@@ -219,9 +189,9 @@ class ATNConfig
     {
         return
             "(" . $this->state . "," . $this->alt .
-                ($this->context!==null ? ",[" . $this->context . "]" : "") .
-                ($this->semanticContext !== SemanticContext::NONE() ? "," . $this->semanticContext : "") .
-                ($this->reachesIntoOuterContext>0 ? ",up=" . $this->reachesIntoOuterContext : "") .
+                ($this->context ? ",[" . $this->context . "]" : "") .
+                ($this->semanticContext && $this->semanticContext !== SemanticContext::NONE() ? "," . $this->semanticContext : "") .
+                ($this->reachesIntoOuterContext > 0 ? ",up=" . $this->reachesIntoOuterContext : "") .
             ")";
     }
 }

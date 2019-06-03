@@ -65,6 +65,9 @@ abstract class Lexer extends Recognizer
 
     public $_modeStack;
 
+    /**
+     * @var int
+     */
     public $_mode;
 
     public $_text;
@@ -117,7 +120,7 @@ abstract class Lexer extends Recognizer
         $this->_text = null;
     }
 
-    function reset()
+    function reset() : void
     {
         // wack Lexer state variables
         if ($this->_input !== null)
@@ -140,7 +143,7 @@ abstract class Lexer extends Recognizer
     }
 
     // Return a token from this source; i.e., match a token on the char stream.
-    function nextToken()
+    function nextToken() : ?Token
     {
         if ($this->_input === null) throw new \Exception("nextToken requires a non-null input stream.");
 
@@ -226,22 +229,22 @@ abstract class Lexer extends Recognizer
     // if token==null at end of any token rule, it creates one for you
     // and emits it.
     // /
-    function skip()
+    function skip() : void
     {
         $this->_type = Lexer::SKIP;
     }
 
-    function more()
+    function more() : void
     {
         $this->_type = Lexer::MORE;
     }
 
-    function mode($m)
+    function mode(int $m) : void
     {
         $this->_mode = $m;
     }
 
-    function pushMode($m)
+    function pushMode(int $m) : void
     {
         if ($this->_interp->debug)
         {
@@ -251,7 +254,7 @@ abstract class Lexer extends Recognizer
         $this->mode($m);
     }
 
-    function popMode()
+    function popMode() : int
     {
         if (count($this->_modeStack) === 0)
         {
@@ -266,8 +269,8 @@ abstract class Lexer extends Recognizer
     }
 
     // Set the char stream and reset the lexer
-    function getInputStream() { return $this->_input; }
-    function setInputStream($input)
+    function getInputStream() : CharStream { return $this->_input; }
+    function setInputStream($input) : void
     {
             $this->_input = null;
             $this->_tokenFactorySourcePair = [ $this, $this->_input ];
@@ -276,14 +279,14 @@ abstract class Lexer extends Recognizer
             $this->_tokenFactorySourcePair = [ $this, $this->_input ];
     }
 
-    function getSourceName() { return $this->_input->getSourceName(); }
+    function getSourceName() : string { return $this->_input->getSourceName(); }
 
     // By default does not support multiple emits per nextToken invocation
     // for efficiency reasons. Subclass and override this method, nextToken,
     // and getToken (to push tokens into a list and pull from that list
     // rather than a single variable as this implementation does).
     // /
-    function emitToken($token)
+    function emitToken($token) : void
     {
         $this->_token = $token;
     }
@@ -294,7 +297,7 @@ abstract class Lexer extends Recognizer
     // use that to set the token's text. Override this method to emit
     // custom Token objects or provide a new factory.
     // /
-    function emit()
+    function emit() : Token
     {
         $t = $this->_factory->createEx
         (
@@ -332,14 +335,14 @@ abstract class Lexer extends Recognizer
 
     // TODO: LOOKS LIKE ERROR: function getType() { return $this->type; }
     // FIXED `type` TO `_type`
-    function getType() { return $this->_type; }
-    function setType($type) { $this->_type = $type; }
+    function getType() : int { return $this->_type; }
+    function setType($type) : void { $this->_type = $type; }
 
-    function getLine() { return $this->_interp->line; }
-    function setLine($line) { $this->_interp->line = $line; }
+    function getLine() : int { return $this->_interp->line; }
+    function setLine($line) : void { $this->_interp->line = $line; }
 
-    function getColumn() { return $this->_interp->column; }
-    function setColumn($column) { $this->_interp->column = $column; }
+    function getColumn() : int { return $this->_interp->column; }
+    function setColumn(int $column) : void { $this->_interp->column = $column; }
 
     // What is the index of the current character of lookahead?
     function getCharIndex() : int
@@ -349,29 +352,22 @@ abstract class Lexer extends Recognizer
 
     // Return the text matched so far for the current token or any text override.
     // Set the complete text of this token; it wipes any previous changes to the text.
-    function getText()
+    function getText() : string
     {
-        if ($this->_text !== null)
-        {
-            return $this->_text;
-        }
-        else
-        {
-            return $this->_interp->getText($this->_input);
-        }
+        return $this->_text ?: $this->_interp->getText($this->_input);
     }
-    function setText($text)
+    function setText(string $text) : void
     {
         $this->_text = $text;
     }
 
     // Return a list of all Token objects in input char stream.
     // Forces load of all tokens. Does not include EOF token.
-    function getAllTokens()
+    function getAllTokens() : array
     {
         $tokens = [];
         $t = $this->nextToken();
-        while ($t->type !== Token::EOF)
+        while ($t && $t->type !== Token::EOF)
         {
             array_push($tokens, $t);
             $t = $this->nextToken();
@@ -379,11 +375,11 @@ abstract class Lexer extends Recognizer
         return $tokens;
     }
 
-    function notifyListeners($e)
+    function notifyListeners($e) : void
     {
         $start = $this->_tokenStartCharIndex;
         $stop = $this->_input->index();
-        $text = $this->_input->getText(new Interval($start, $stop));
+        $text = $this->_input->getText($start, $stop);
         $msg = "token recognition error at: '" . $this->getErrorDisplay($text) . "'";
         $listener = $this->getErrorListenerDispatch();
         $listener->syntaxError($this, null, $this->_tokenStartLine, $this->_tokenStartColumn, $msg, $e);
@@ -422,7 +418,7 @@ abstract class Lexer extends Recognizer
         }
     }
 
-    function getCharErrorDisplay($c)
+    function getCharErrorDisplay($c) : string
     {
         return "'" . $this->getErrorDisplayForChar($c) . "'";
     }
@@ -432,7 +428,7 @@ abstract class Lexer extends Recognizer
     // it all works out. You can instead use the rule invocation stack
     // to do sophisticated error recovery if you are in a fragment rule.
     // /
-    function recover($re)
+    function recover($re) : void
     {
         if ($this->_input->LA(1) !== Token::EOF)
         {

@@ -68,7 +68,6 @@ class DFA
                 $this->s0 = $precedenceState;
             }
         }
-        return $this;
     }
 
     // Get the start state for a specific precedence value.
@@ -79,9 +78,9 @@ class DFA
     //
     // @throws IllegalStateException if this is not a precedence DFA.
     // @see //isPrecedenceDfa()
-    function getPrecedenceStartState($precedence)
+    function getPrecedenceStartState($precedence) : ?DFAState
     {
-        if (!($this->precedenceDfa))
+        if (!$this->precedenceDfa)
         {
             throw new \Exception("Only precedence DFAs may contain a precedence start state.");
         }
@@ -90,7 +89,7 @@ class DFA
         {
             return null;
         }
-        return $this->s0->edges[$precedence] || null;
+        return $this->s0->edges[$precedence] ?? null;
     }
 
     // Set the start state for a specific precedence value.
@@ -101,16 +100,14 @@ class DFA
     // @throws IllegalStateException if this is not a precedence DFA.
     // @see //isPrecedenceDfa()
     //
-    function setPrecedenceStartState($precedence, $startState)
+    function setPrecedenceStartState($precedence, $startState) : void
     {
-        if (!($this->precedenceDfa))
+        if (!$this->precedenceDfa)
         {
             throw new \Exception("Only precedence DFAs may contain a precedence start state.");
         }
-        if ($precedence < 0)
-        {
-            return;
-        }
+
+        if ($precedence < 0) return;
 
     // synchronization on s0 here is ok. when the DFA is turned into a
     // precedence DFA, s0 will be initialized once and not updated again
@@ -151,7 +148,7 @@ class DFA
 		return (string)$serializer;
 	}
 
-    function toLexerString()
+    function toLexerString() : string
     {
         if ($this->s0 === null) return "";
         $serializer = new LexerDFASerializer($this);

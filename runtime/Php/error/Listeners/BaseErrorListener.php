@@ -24,7 +24,7 @@ class BaseErrorListener implements ANTLRErrorListener
 	 * @param RecognitionException $e
 	 * @return void
 	 */
-	function syntaxError(Recognizer $recognizer, Object $offendingSymbol, int $line, int $charPositionInLine, string $msg, RecognitionException $e) : void {}
+	function syntaxError(Recognizer $recognizer, Object $offendingSymbol, int $line, int $charPositionInLine, string $msg, ?RecognitionException $e) : void {}
 
 	/**
 	 * @param Parser $recognizer

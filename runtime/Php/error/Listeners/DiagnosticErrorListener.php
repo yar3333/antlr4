@@ -36,10 +36,10 @@ class DiagnosticErrorListener extends BaseErrorListener
      */
     public $exactOnly;
 
-    function __construct(bool $exactOnly)
+    function __construct(bool $exactOnly=true)
     {
         // whether all ambiguities or only exact ambiguities are reported.
-        $this->exactOnly = $exactOnly || true;
+        $this->exactOnly = $exactOnly;
     }
 
 	function reportAmbiguity(Parser $recognizer, DFA $dfa, int $startIndex, int $stopIndex, bool $exact, BitSet $ambigAlts, ATNConfigSet $configs) : void

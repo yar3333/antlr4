@@ -3,6 +3,7 @@
 namespace Antlr4\Atn\Semanticcontexts;
 
 use Antlr4\Recognizer;
+use Antlr4\Utils\Hash;
 use Antlr4\Utils\Set;
 
 class PrecedencePredicate extends SemanticContext
@@ -12,14 +13,14 @@ class PrecedencePredicate extends SemanticContext
      */
     public $precedence;
 
-    function __construct($precedence)
+    function __construct(int $precedence=0)
     {
         parent::__construct();
 
-        $this->precedence = !isset($precedence) ? 0 : $precedence;
+        $this->precedence = $precedence;
     }
 
-    function eval(Recognizer $parser, $outerContext)
+    function eval(Recognizer $parser, $outerContext) : bool
     {
         return $parser->precpred($outerContext, $this->precedence);
     }
@@ -38,7 +39,7 @@ class PrecedencePredicate extends SemanticContext
         return $this->precedence - $other->precedence;
     }
 
-    function updateHashCode($hash) : void
+    function updateHashCode(Hash $hash) : void
     {
         $hash->update(31);
     }

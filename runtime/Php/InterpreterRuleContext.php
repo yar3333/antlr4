@@ -8,6 +8,5 @@ class InterpreterRuleContext extends ParserRuleContext
     {
         parent::__construct($parent, $invokingStateNumber);
         $this->ruleIndex = $ruleIndex;
-        return $this;
     }
 }

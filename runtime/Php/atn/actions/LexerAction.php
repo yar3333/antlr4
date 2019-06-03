@@ -20,19 +20,19 @@ abstract class LexerAction
         $this->isPositionDependent = false;
     }
 
-    function hashCode()
+    function hashCode() : int
     {
         $hash = new Hash();
         $this->updateHashCode($hash);
         return $hash->finish();
     }
 
-    function updateHashCode(Hash $hash)
+    function updateHashCode(Hash $hash) : void
     {
         $hash->update($this->actionType);
     }
 
-    function equals(LexerAction $other)
+    function equals(LexerAction $other) : bool
     {
         return $this === $other;
     }

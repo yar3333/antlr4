@@ -40,6 +40,7 @@ class CommonTokenStream extends BufferedTokenStream
     function __construct(TokenSource $tokenSource, int $channel=Token::DEFAULT_CHANNEL)
     {
         parent::__construct($tokenSource);
+        $this->channel = $channel;
     }
 
     function adjustSeekIndex($i)
@@ -60,7 +61,7 @@ class CommonTokenStream extends BufferedTokenStream
         {
             // skip off-channel tokens
             $i = $this->previousTokenOnChannel($i - 1, $this->channel);
-            $n += 1;
+            $n++;
         }
         if ($i < 0)
         {
@@ -90,20 +91,20 @@ class CommonTokenStream extends BufferedTokenStream
             {
                 $i = $this->nextTokenOnChannel($i + 1, $this->channel);
             }
-            $n += 1;
+            $n++;
         }
         return $this->tokens[$i];
     }
 
     // Count EOF just once.
-    function getNumberOfOnChannelTokens()
+    function getNumberOfOnChannelTokens() : int
     {
         $n = 0;
         $this->fill();
         foreach ($this->tokens as $t)
         {
-            if ( $t->channel===$this->channel) $n += 1;
-            if ($t->type===Token::EOF) break;
+            if ($t->channel === $this->channel) $n++;
+            if ($t->type === Token::EOF) break;
         }
         return $n;
     }

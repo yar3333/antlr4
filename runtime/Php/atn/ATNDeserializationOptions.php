@@ -19,7 +19,7 @@ class ATNDeserializationOptions
 
     public static function defaultOptions() : ATNDeserializationOptions
     {
-        if (!isset(self::$defaultOptions))
+        if (!self::$defaultOptions)
         {
             self::$defaultOptions = new ATNDeserializationOptions();
             self::$defaultOptions->readOnly = true;
@@ -30,12 +30,7 @@ class ATNDeserializationOptions
     function __construct(ATNDeserializationOptions $copyFrom=null)
     {
         $this->readOnly = false;
-        $this->verifyATN = !isset($copyFrom) ? true : $copyFrom->verifyATN;
-        $this->generateRuleBypassTransitions = !isset($copyFrom) ? false : $copyFrom->generateRuleBypassTransitions;
+        $this->verifyATN = !$copyFrom ? true : $copyFrom->verifyATN;
+        $this->generateRuleBypassTransitions = !$copyFrom ? false : $copyFrom->generateRuleBypassTransitions;
     }
-
-    //    def __setattr__(self, key, value):
-    //        if key!="readOnly" and self.readOnly:
-    //            raise Exception("The object is read only.")
-    //        super(type(self), self).__setattr__(key,value)
 }

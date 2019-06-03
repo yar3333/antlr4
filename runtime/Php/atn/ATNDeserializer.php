@@ -16,6 +16,7 @@ use Antlr4\Atn\Actions\LexerPushModeAction;
 use Antlr4\Atn\Actions\LexerSkipAction;
 use Antlr4\Atn\Actions\LexerTypeAction;
 use Antlr4\Atn\States\ATNState;
+use Antlr4\Atn\States\DecisionState;
 use Antlr4\Atn\States\LoopEndState;
 use Antlr4\Atn\States\RuleStopState;
 use Antlr4\Atn\States\StarLoopEntryState;
@@ -72,25 +73,23 @@ class ATNDeserializer
 
     function __construct(ATNDeserializationOptions $options=null)
     {
-        $this->deserializationOptions = $options ? $options : ATNDeserializationOptions::defaultOptions();
+        $this->deserializationOptions = $options ?: ATNDeserializationOptions::defaultOptions();
     }
 
     // Determines if a particular serialized representation of an ATN supports
     // a particular feature, identified by the {@link UUID} used for serializing
     // the ATN at the time the feature was first introduced.
     //
-    // @param feature The {@link UUID} marking the first time the feature was
-    // supported in the serialized ATN.
-    // @param actualUuid The {@link UUID} of the actual serialized ATN which is
-    // currently being deserialized.
+    // @param feature The {@link UUID} marking the first time the feature was supported in the serialized ATN.
+    // @param actualUuid The {@link UUID} of the actual serialized ATN which is currently being deserialized.
     // @return {@code true} if the {@code actualUuid} value represents a
     // serialized ATN at or after the feature identified by {@code feature} was
     // introduced; otherwise, {@code false}.
-    function isFeatureSupported($feature, $actualUuid)
+    function isFeatureSupported(string $feature, string $actualUuid) : bool
     {
-        $idx1 = array_search($feature, self::SUPPORTED_UUIDS);
+        $idx1 = array_search($feature, self::SUPPORTED_UUIDS, true);
         if ($idx1 === false) return false;
-        $idx2 = array_search($actualUuid, self::SUPPORTED_UUIDS);
+        $idx2 = array_search($actualUuid, self::SUPPORTED_UUIDS, true);
         return $idx2 >= $idx1;
     }
 
@@ -106,21 +105,21 @@ class ATNDeserializer
         $sets = [];
 
         // First, deserialize sets with 16-bit arguments <= U+FFFF.
-        $this->readSets($atn, $sets, $this->readInt()->bind($this));
+        $this->readSets($sets, function() { return $this->readInt(); });
 
         // Next, if the ATN was serialized with the Unicode SMP feature,
         // deserialize sets with 32-bit arguments <= U+10FFFF.
 
         if ($this->isFeatureSupported(self::ADDED_UNICODE_SMP, $this->uuid))
         {
-            $this->readSets($atn, $sets, function() { return $this->readInt32(); });
+            $this->readSets($sets, function() { return $this->readInt32(); });
         }
         $this->readEdges($atn, $sets);
         $this->readDecisions($atn);
         $this->readLexerActions($atn);
         $this->markPrecedenceDecisions($atn);
         $this->verifyATN($atn);
-        if ($this->deserializationOptions->generateRuleBypassTransitions && $atn->grammarType === ATNType::PARSER )
+        if ($this->deserializationOptions->generateRuleBypassTransitions && $atn->grammarType === ATN::GRAMMAR_TYPE_PARSER)
         {
             $this->generateRuleBypassTransitions($atn);
             // re-verify after modification
@@ -130,13 +129,13 @@ class ATNDeserializer
     }
 
     // TODO: IS THIS NEED???
-    private function reset_adjust($c)
+    private function reset_adjust($c) : int
     {
         $v = Utils::charCodeAt($c, 0);
-        return $v>1  ? $v-2 : $v + 65533;
+        return $v > 1  ? $v - 2 : $v + 65533;
     }
 
-    function reset(string $data)
+    function reset(string $data) : void
     {
         $temp = []; foreach (str_split($data) as $c) $temp[] = $this->reset_adjust($c);
         // don't adjust the first value since that's the version number
@@ -145,33 +144,33 @@ class ATNDeserializer
         $this->pos = 0;
     }
 
-    function checkVersion()
+    function checkVersion() : void
     {
         $version = $this->readInt();
-        if ( $version !== self::SERIALIZED_VERSION )
+        if ($version !== self::SERIALIZED_VERSION)
         {
             throw new \Exception("Could not deserialize ATN with version " . $version . " (expected " . self::SERIALIZED_VERSION . ").");
         }
     }
 
-    function checkUUID()
+    function checkUUID() : void
     {
         $uuid = $this->readUUID();
-        if (array_search($uuid, self::SUPPORTED_UUIDS) === false)
+        if (!in_array($uuid, self::SUPPORTED_UUIDS, true))
         {
             throw new \Exception("Could not deserialize ATN with UUID: " . $uuid . " (expected " . self::SERIALIZED_UUID . " or a legacy UUID).");
         }
         $this->uuid = $uuid;
     }
 
-    function readATN()
+    function readATN() : ATN
     {
         $grammarType = $this->readInt();
         $maxTokenType = $this->readInt();
         return new ATN($grammarType, $maxTokenType);
     }
 
-    function readStates(ATN $atn)
+    function readStates(ATN $atn) : void
     {
         $loopBackStateNumbers = [];
         $endStateNumbers = [];
@@ -180,7 +179,7 @@ class ATNDeserializer
         {
             $stype = $this->readInt();
             // ignore bad type of states
-            if ($stype===ATNState::INVALID_TYPE)
+            if ($stype === ATNState::INVALID_TYPE)
             {
                 $atn->addState(null);
                 continue;
@@ -206,15 +205,13 @@ class ATNDeserializer
         }
         // delay the assignment of loop back and end states until we know all the
         // state instances have been initialized
-        for ($j=0; $j<count($loopBackStateNumbers); $j++)
+        foreach ($loopBackStateNumbers as $pair)
         {
-            $pair = $loopBackStateNumbers[$j];
             $pair[0]->loopBackState = $atn->states[$pair[1]];
         }
 
-        for ($j=0; $j<count($endStateNumbers); $j++)
+        foreach ($endStateNumbers as $pair)
         {
-            $pair = $endStateNumbers[$j];
             $pair[0]->endState = $atn->states[$pair[1]];
         }
 
@@ -233,10 +230,10 @@ class ATNDeserializer
         }
     }
 
-    function readRules(ATN $atn)
+    function readRules(ATN $atn) : void
     {
         $nrules = $this->readInt();
-        if ($atn->grammarType === ATNType::LEXER )
+        if ($atn->grammarType === ATN::GRAMMAR_TYPE_LEXER)
         {
             $atn->ruleToTokenType = self::initArray($nrules, 0);
         }
@@ -246,7 +243,7 @@ class ATNDeserializer
             $s = $this->readInt();
             $startState = $atn->states[$s];
             $atn->ruleToStartState[$i] = $startState;
-            if ( $atn->grammarType === ATNType::LEXER )
+            if ($atn->grammarType === ATN::GRAMMAR_TYPE_LEXER)
             {
                 $tokenType = $this->readInt();
                 if ($tokenType === 0xFFFF)
@@ -268,7 +265,7 @@ class ATNDeserializer
         }
     }
 
-    function readModes($atn)
+    function readModes(ATN $atn) : void
     {
         $nmodes = $this->readInt();
         for ($i=0; $i<$nmodes; $i++)
@@ -278,16 +275,16 @@ class ATNDeserializer
         }
     }
 
-    function readSets($atn, $sets, $readUnicode)
+    function readSets(array &$sets, callable $readUnicode) : void
     {
         $m = $this->readInt();
-        for ($i=0; $i<$m; $i++)
+        for ($i=0; $i < $m; $i++)
         {
             $iset = new IntervalSet();
             array_push($sets, $iset);
             $n = $this->readInt();
             $containsEof = $this->readInt();
-            if ($containsEof!==0)
+            if ($containsEof !== 0)
             {
                 $iset->addOne(-1);
             }
@@ -300,7 +297,7 @@ class ATNDeserializer
         }
     }
 
-    function readEdges(ATN $atn, $sets)
+    function readEdges(ATN $atn, array &$sets) : void
     {
         $nedges = $this->readInt();
         for ($i=0; $i<$nedges; $i++)
@@ -355,9 +352,8 @@ class ATNDeserializer
             }
             if ($state instanceof \Antlr4\Atn\States\PlusLoopbackState)
             {
-                for ($j=0; $j<count($state->transitions); $j++)
-                {
-                    $target = $state->transitions[$j]->target;
+                foreach ($state->transitions as $t) {
+                    $target = $t->target;
                     if ($target instanceof \Antlr4\Atn\States\PlusBlockStartState)
                     {
                         $target->loopBackState = $state;
@@ -366,9 +362,8 @@ class ATNDeserializer
             }
             else if ($state instanceof \Antlr4\Atn\States\StarLoopbackState)
             {
-                for ($j=0; $j<count($state->transitions); $j++)
-                {
-                    $target = $state->transitions[$j]->target;
+                foreach ($state->transitions as $t) {
+                    $target = $t->target;
                     if ($target instanceof \Antlr4\Atn\States\StarLoopEntryState)
                     {
                         $target->loopBackState = $state;
@@ -378,21 +373,22 @@ class ATNDeserializer
         }
     }
 
-    function readDecisions($atn)
+    function readDecisions(ATN $atn) : void
     {
         $ndecisions = $this->readInt();
-        for ($i=0; $i<$ndecisions; $i++)
+        for ($i = 0; $i < $ndecisions; $i++)
         {
             $s = $this->readInt();
+            /** @var DecisionState $decState */
             $decState = $atn->states[$s];
             array_push($atn->decisionToState, $decState);
             $decState->decision = $i;
         }
     }
 
-    function readLexerActions($atn)
+    function readLexerActions(ATN $atn) : void
     {
-        if ($atn->grammarType === ATNType::LEXER)
+        if ($atn->grammarType === ATN::GRAMMAR_TYPE_LEXER)
         {
             $count = $this->readInt();
             $atn->lexerActions = self::initArray($count, null);
@@ -415,7 +411,7 @@ class ATNDeserializer
         }
     }
 
-    function generateRuleBypassTransitions(ATN $atn)
+    function generateRuleBypassTransitions(ATN $atn) : void
     {
         $count = count($atn->ruleToStartState);
         for ($i=0; $i<$count; $i++)
@@ -428,7 +424,7 @@ class ATNDeserializer
         }
     }
 
-    function generateRuleBypassTransition(ATN $atn, int $idx)
+    function generateRuleBypassTransition(ATN $atn, int $idx) : void
     {
         $bypassStart = new \Antlr4\Atn\States\BasicBlockStartState();
         $bypassStart->ruleIndex = $idx;
@@ -515,7 +511,7 @@ class ATNDeserializer
         }
 
         $maybeLoopEndState = $state->transitions[count($state->transitions) - 1]->target;
-        if (!( $maybeLoopEndState instanceof LoopEndState)) return null;
+        if (!($maybeLoopEndState instanceof LoopEndState)) return null;
 
         if ($maybeLoopEndState->epsilonOnlyTransitions && ($maybeLoopEndState->transitions[0]->target instanceof RuleStopState))
         {
@@ -531,7 +527,7 @@ class ATNDeserializer
     // correct value.
     //
     // @param atn The ATN.
-    function markPrecedenceDecisions($atn)
+    function markPrecedenceDecisions(ATN $atn) : void
     {
         foreach ($atn->states as $state)
         {
@@ -554,7 +550,7 @@ class ATNDeserializer
         }
     }
 
-    function verifyATN($atn)
+    function verifyATN(ATN $atn) : void
     {
         if (!$this->deserializationOptions->verifyATN) return;
 
@@ -619,35 +615,34 @@ class ATNDeserializer
         }
     }
 
-    function checkCondition($condition, $message=null)
+    function checkCondition($condition, $message="IllegalState") : void
     {
         if (!$condition)
         {
-            if (!isset($message)) $message = "IllegalState";
             throw new \Exception($message);
         }
     }
 
-    function readInt()
+    function readInt() : int
     {
         return $this->data[$this->pos++];
     }
 
-    function readInt32()
+    function readInt32() : int
     {
         $low = $this->readInt();
         $high = $this->readInt();
         return $low | ($high << 16);
     }
 
-    function readLong()
+    function readLong() : int
     {
         $low = $this->readInt32();
         $high = $this->readInt32();
         return ($low & 0x00000000FFFFFFFF) | ($high << 32);
     }
 
-    function createByteToHex()
+    function createByteToHex() : array
     {
         $bth = [];
         for ($i = 0; $i < 256; $i++)
@@ -683,16 +678,16 @@ class ATNDeserializer
     /**
      * @param ATN $atn
      * @param int $type
-     * @param $src
+     * @param int $src
      * @param int $trg
-     * @param $arg1
-     * @param $arg2
-     * @param $arg3
+     * @param int $arg1
+     * @param int $arg2
+     * @param int $arg3
      * @param IntervalSet[] $sets
-     * @return Transitions\ActionTransition|Transitions\AtomTransition|Transitions\EpsilonTransition|Transitions\NotSetTransition|Transitions\PrecedencePredicateTransition|Transitions\PredicateTransition|Transitions\RangeTransition|Transitions\RuleTransition|Transitions\SetTransition|Transitions\WildcardTransition
+     * @return Transition
      * @throws \Exception
      */
-    function edgeFactory($atn, $type, $src, $trg, $arg1, $arg2, $arg3, $sets)
+    function edgeFactory(ATN $atn, int $type, int $src, int $trg, int $arg1, int $arg2, int $arg3, array $sets) : Transition
     {
         $target = $atn->states[$trg];
         switch($type)
@@ -777,13 +772,11 @@ class ATNDeserializer
         {
             throw new \Exception("The specified lexer action type " . $type . " is not valid.");
         }
-        else
-        {
-            return $this->actionFactories[$type]($data1, $data2);
-        }
+
+        return $this->actionFactories[$type]($data1, $data2);
     }
 
-    static function initArray($length, $value)
+    static function initArray($length, $value) : array
     {
         $tmp = [];
         for ($i = 0; $i < $length; $i++) $tmp[] = $value;

@@ -332,6 +332,8 @@ class PredictionContextUtils
         $k = 0;// walks target M array
 
         $mergedReturnStates = [];
+
+        // TODO: must be ArrayObject
         $mergedParents = [];
 
         // walk and merge to yield mergedParents, mergedReturnStates
@@ -361,8 +363,8 @@ class PredictionContextUtils
                     $mergedParents[$k] = $mergedParent;
                     $mergedReturnStates[$k] = $payload;
                 }
-                $i += 1;// hop over left one as usual
-                $j += 1;// but also skip one in right side since we merge
+                $i++;// hop over left one as usual
+                $j++;// but also skip one in right side since we merge
             }
 
             else if ($a->returnStates[$i] < $b->returnStates[$j])
@@ -370,16 +372,16 @@ class PredictionContextUtils
                 // copy a[i] to M
                 $mergedParents[$k] = $a_parent;
                 $mergedReturnStates[$k] = $a->returnStates[$i];
-                $i += 1;
+                $i++;
             }
             else
             {
                 // b > a, copy b[j] to M
                 $mergedParents[$k] = $b_parent;
                 $mergedReturnStates[$k] = $b->returnStates[$j];
-                $j += 1;
+                $j++;
             }
-            $k += 1;
+            $k++;
         }
 
         // copy over any payloads remaining in either array
@@ -389,7 +391,7 @@ class PredictionContextUtils
             {
                 $mergedParents[$k] = $a->parents[$p];
                 $mergedReturnStates[$k] = $a->returnStates[$p];
-                $k += 1;
+                $k++;
             }
         }
         else
@@ -398,7 +400,7 @@ class PredictionContextUtils
             {
                 $mergedParents[$k] = $b->parents[$p];
                 $mergedReturnStates[$k] = $b->returnStates[$p];
-                $k += 1;
+                $k++;
             }
         }
 
@@ -450,41 +452,39 @@ class PredictionContextUtils
     }
 
     // Make pass over all <em>M</em> {@code parents}; merge any {@code equals()} ones.
-    static function combineCommonParents(array $parents)
+    static function combineCommonParents(array $parents) : void
     {
         $uniqueParents = [];
 
-        for ($p = 0; $p < count($parents); $p++)
+        foreach ($parents as $parent)
         {
-            $parent = $parents[$p];
-            if (!(array_key_exists($parent, $uniqueParents)))
+            if (!array_key_exists($parent, $uniqueParents))
             {
                 $uniqueParents[$parent] = $parent;
             }
         }
-        for ($q = 0; $q < count($parents); $q++)
-        {
-            $parents[$q] = $uniqueParents[$parents[$q]];
+
+        foreach ($parents as $i => $parent) {
+            $parents[$i] = $uniqueParents[$parent];
         }
     }
 
-    static function getCachedPredictionContext(PredictionContext $context, PredictionContextCache $contextCache, $visited)
+    static function getCachedPredictionContext(PredictionContext $context, PredictionContextCache $contextCache, $visited) : PredictionContext
     {
         if ($context->isEmpty()) return $context;
 
-        $existing = $visited[$context] || null;
+        $existing = $visited[$context] ?? null;
         if ($existing !== null) return $existing;
 
         $existing = $contextCache->get($context);
-        if ($existing !== null)
+        if ($existing)
         {
             $visited[$context] = $existing;
             return $existing;
         }
         $changed = false;
         $parents = [];
-        for ($i = 0; $i < count($parents); $i++)
-        {
+        foreach ($parents as $i => $iValue) {
             $parent = self::getCachedPredictionContext($context->getParent($i), $contextCache, $visited);
             if ($changed || $parent !== $context->getParent($i))
             {
@@ -507,7 +507,7 @@ class PredictionContextUtils
             return $context;
         }
         $updated = null;
-        if (count($parents) == 0)
+        if (count($parents) === 0)
         {
             $updated = PredictionContext::EMPTY();
         }

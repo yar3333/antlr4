@@ -15,8 +15,9 @@ class FileStream extends InputStream
     function __construct($fileName, $decodeToUnicodeCodePoints)
     {
         $data = file_get_contents($fileName/*, "utf8"*/);
+
         parent::__construct($data, $decodeToUnicodeCodePoints);
+
         $this->fileName = $fileName;
-        return $this;
     }
 }

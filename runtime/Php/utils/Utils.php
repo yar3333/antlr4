@@ -4,6 +4,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/** @noinspection UnnecessaryParenthesesInspection */
+
 namespace Antlr4\Utils;
 
 class Utils
@@ -14,9 +16,9 @@ class Utils
     }
 
     //seed = round(random() * pow(2, 32));
-    static function hashCode($obj)
+    static function hashCode($obj) : int
     {
-        $key = is_object($obj) ? ((object)$obj)->toString() : (string)$obj;
+        $key = (string)$obj;
 
         $remainder = strlen($key) & 3;// key.length % 4
         $bytes = strlen($key) - $remainder;
@@ -74,52 +76,52 @@ class Utils
         return $h1 >> 0;
     }
 
-    static function standardEqualsFunction(object $a, object $b)
+    static function standardEqualsFunction(object $a, object $b) : bool
     {
         if ($a === null && $b === null) return true;
         if ($a === null || $b === null) return false;
         return $a->equals($b);
     }
 
-    static function standardHashCodeFunction(object $a)
+    static function standardHashCodeFunction(object $a) : int
     {
         return $a->hashCode();
     }
 
-    static function hashStuff(...$arguments)
+    static function hashStuff(...$arguments) : int
     {
         $hash = new Hash();
         $hash->update($arguments);
         return $hash->finish();
     }
 
-    static function escapeWhitespace($s, $escapeSpaces)
+    static function escapeWhitespace(string $s, bool $escapeSpaces) : bool
     {
-        $s = preg_replace('/\n/g', "\\n", $s);
-        $s = preg_replace('/\r/g', "\\r", $s);
-        $s = preg_replace('/\t/g', "\\t", $s);
+        $s = preg_replace('/\n/', "\\n", $s);
+        $s = preg_replace('/\r/', "\\r", $s);
+        $s = preg_replace('/\t/', "\\t", $s);
 
         if ($escapeSpaces)
         {
-            $s = preg_replace('/ /g', "\u00B7", $s);
+            $s = preg_replace('/ /', "\u00B7", $s);
         }
 
         return $s;
     }
 
-    static function titleCase($str)
+    static function titleCase($str) : string
     {
-        return preg_replace_callback('/\w\S*/g', function($txt) { return mb_strtoupper($txt[0]) . substr($txt, 1); }, $str);
+        return preg_replace_callback('/\w\S*/', function($txt) { return mb_strtoupper($txt[0]) . substr($txt, 1); }, $str);
     }
 
-    static function equalArrays($a, $b)
+    static function equalArrays(?array $a, ?array $b) : bool
     {
         if (!is_array($a) || !is_array($b)) return false;
-        if ($a == $b) return true;
-        if (count($a) != count($b)) return false;
+        if ($a === $b) return true;
+        if (count($a) !== count($b)) return false;
         for ($i = 0; $i < count($a); $i++)
         {
-            if ($a[$i] == $b[$i]) continue;
+            if ($a[$i] === $b[$i]) continue;
             if (!$a[$i]->equals($b[$i])) return false;
         }
         return true;
@@ -147,7 +149,7 @@ class Utils
         return mb_chr($code, 'UTF-8');
     }
 
-    static function arrayMap(array &$arr, \Closure $func) : array
+    static function arrayMap(array $arr, \Closure $func) : array
     {
         return array_map($func, $arr);
     }
@@ -165,5 +167,19 @@ class Utils
         }
 
         return $candidate;
+    }
+
+    /**
+     * @param string[]|\ArrayObject $keys
+     * @return Map<string, Integer>
+     */
+    static function toMap($keys) : Map
+    {
+		$r = new Map();
+		foreach ($keys as $i => $v)
+		{
+		    $r->put($v, $i);
+        }
+        return $r;
     }
 }

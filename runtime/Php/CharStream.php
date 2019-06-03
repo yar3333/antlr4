@@ -10,9 +10,9 @@ interface CharStream extends IntStream
      * stream. This method is guaranteed to not throw an exception if the
      * specified {@code interval} lies entirely within a marked range. For more
      * information about marked ranges, see {@link IntStream#mark}.
-     *
-     * @param Interval $interval an interval within the stream
+     * @param int $start
+     * @param int $stop
      * @return string the text of the specified interval
      */
-    public function getText(Interval $interval) : string;
+    public function getText(int $start, int $stop) : string;
 }

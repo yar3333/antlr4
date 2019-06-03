@@ -21,7 +21,7 @@ class VocabularyImpl implements Vocabulary
      * except {@link Token#EOF}.</p>
      */
     private static $EMPTY_VOCABULARY;
-    static function EMPTY_VOCABULARY() : VocabularyImpl { return self::$EMPTY_VOCABULARY ? self::$EMPTY_VOCABULARY : (self::$EMPTY_VOCABULARY = new self([], [], [])); }
+    static function EMPTY_VOCABULARY() : self { return self::$EMPTY_VOCABULARY ?: (self::$EMPTY_VOCABULARY = new self([], [], [])); }
 
     /**
      * @var string[]
@@ -61,14 +61,14 @@ class VocabularyImpl implements Vocabulary
      * @see #getSymbolicName(int)
      * @see #getDisplayName(int)
      */
-    public function __construct(array $literalNames, array $symbolicNames, array $displayNames=null)
+    public function __construct(?array $literalNames, ?array $symbolicNames, array $displayNames=null)
     {
-        $this->literalNames = $literalNames !== null ? $literalNames : self::EMPTY_NAMES;
-        $this->symbolicNames = $symbolicNames !== null ? $symbolicNames : self::EMPTY_NAMES;
-        $this->displayNames = $displayNames !== null ? $displayNames : self::EMPTY_NAMES;
+        $this->literalNames = $literalNames ?: self::EMPTY_NAMES;
+        $this->symbolicNames = $symbolicNames ?: self::EMPTY_NAMES;
+        $this->displayNames = $displayNames ?: self::EMPTY_NAMES;
 
         // See note here on -1 part: https://github.com/antlr/antlr4/pull/1146
-        $this->maxTokenType = max(count($this->displayNames), max(count($this->literalNames), count($this->symbolicNames))) - 1;
+        $this->maxTokenType = max(count($this->displayNames), count($this->literalNames), count($this->symbolicNames)) - 1;
     }
 
 	/**
@@ -80,25 +80,22 @@ class VocabularyImpl implements Vocabulary
      * {@link #getLiteralName(int)} and {@link #getSymbolicName(int)}, and the
      * value from {@code tokenNames} for the display names.</p>
      *
-     * @param String[] tokenNames The token names, or {@code null} if no token names are
-     * available.
-     * @return Vocabulary A {@link Vocabulary} instance which uses {@code tokenNames} for
-     * the display names of tokens.
+     * @param string[] $tokenNames The token names, or {@code null} if no token names are available.
+     * @return Vocabulary A {@link Vocabulary} instance which uses {@code tokenNames} for the display names of tokens.
      */
-	static function  fromTokenNames(array $tokenNames) : Vocabulary
+	static function fromTokenNames(?array $tokenNames) : Vocabulary
     {
-        if ($tokenNames == null || count($tokenNames) === 0) return self::EMPTY_VOCABULARY();
+        if (!$tokenNames) return self::EMPTY_VOCABULARY();
 
         $literalNames = $tokenNames; // copy array
         $symbolicNames = $tokenNames; // copy array
-        for ($i = 0; $i < count($tokenNames); $i++)
+        foreach ($tokenNames as $i => $tokenName)
         {
-            $tokenName = $tokenNames[$i];
-            if ($tokenName == null) continue;
+            if ($tokenName === null) continue;
 
-            if (!empty($tokenName)) {
+            if ($tokenName !== "") {
                 $firstChar = $tokenName[0];
-                if ($firstChar == '\'')
+                if ($firstChar === '\'')
                 {
                     $symbolicNames[$i] = null;
                     continue;
@@ -134,7 +131,7 @@ class VocabularyImpl implements Vocabulary
             return $this->symbolicNames[$tokenType];
         }
 
-        if ($tokenType == Token::EOF) return "EOF";
+        if ($tokenType === Token::EOF) return "EOF";
 
         return null;
     }
@@ -151,7 +148,7 @@ class VocabularyImpl implements Vocabulary
         if ($literalName !== null) return $literalName;
 
         $symbolicName = $this->getSymbolicName($tokenType);
-        if ($symbolicName != null) return $symbolicName;
+        if ($symbolicName !== null) return $symbolicName;
 
         return (string)$tokenType;
     }

@@ -7,6 +7,8 @@
 namespace Antlr4\Atn;
 
 use \Antlr4\Dfa\DFAState;
+use Antlr4\Predictioncontexts\PredictionContext;
+use Antlr4\Predictioncontexts\PredictionContextCache;
 use Antlr4\Predictioncontexts\PredictionContextUtils;
 
 // The context cache maps all PredictionContext objects that are ==
@@ -31,32 +33,27 @@ use Antlr4\Predictioncontexts\PredictionContextUtils;
 abstract class ATNSimulator
 {
     private static $_ERROR;
-    public static function ERROR() { return self::$_ERROR ? self::$_ERROR : (self::$_ERROR = new DFAState(0x7FFFFFFF, new ATNConfigSet())); }
+    public static function ERROR() : DFAState { return self::$_ERROR ?: (self::$_ERROR = new DFAState(0x7FFFFFFF, new ATNConfigSet())); }
 
     /**
      * @var ATN
      */
     public $atn;
 
+    /**
+     * @var PredictionContextCache
+     */
     public $sharedContextCache;
 
-    function __construct(ATN $atn, $sharedContextCache)
+    function __construct(ATN $atn, PredictionContextCache $sharedContextCache)
     {
         $this->atn = $atn;
         $this->sharedContextCache = $sharedContextCache;
-        return $this;
     }
 
-    /**
-     * @param $context
-     * @return \Antlr4\Predictioncontexts\ArrayPredictionContext|\Antlr4\Predictioncontexts\SingletonPredictionContext|bool|null
-     */
-    function getCachedContext($context)
+    function getCachedContext(PredictionContext $context) : PredictionContext
     {
-        if ($this->sharedContextCache === null)
-        {
-            return $context;
-        }
+        if ($this->sharedContextCache === null) return $context;
         return PredictionContextUtils::getCachedPredictionContext($context, $this->sharedContextCache, []);
     }
 

@@ -2,6 +2,12 @@
 
 namespace Antlr4\Error;
 
+use Antlr4\Error\Exceptions\InputMismatchException;
+use Antlr4\Error\Exceptions\ParseCancellationException;
+use Antlr4\Error\Exceptions\RecognitionException;
+use Antlr4\Parser;
+use Antlr4\Token;
+
 // This implementation of {@link ANTLRErrorStrategy} responds to syntax errors
 // by immediately canceling the parse operation with a
 // {@link ParseCancellationException}. The implementation ensures that the
@@ -28,20 +34,8 @@ namespace Antlr4\Error;
 // {@code myparser.setErrorHandler(new BailErrorStrategy());}</p>
 //
 // @see Parser//setErrorHandler(ANTLRErrorStrategy)
-
-use Antlr4\Error\Exceptions\InputMismatchException;
-use Antlr4\Error\Exceptions\ParseCancellationException;
-use Antlr4\Error\Exceptions\RecognitionException;
-use Antlr4\Parser;
-use Antlr4\Token;
-
 class BailErrorStrategy extends DefaultErrorStrategy
 {
-    function __construct()
-    {
-        parent::__construct();
-    }
-
     // Instead of recovering from exception {@code e}, re-throw it wrapped
     // in a {@link ParseCancellationException} so it is not caught by the
     // rule function catches. Use {@link Exception//getCause()} to get the
@@ -66,7 +60,7 @@ class BailErrorStrategy extends DefaultErrorStrategy
     function recoverInline(Parser $recognizer) : Token
     {
 		$e = new InputMismatchException($recognizer);
-		for ($context = $recognizer->getContext(); $context != null; $context = $context->getParent())
+		for ($context = $recognizer->getContext(); $context; $context = $context->getParent())
 		{
 			$context->exception = $e;
 		}

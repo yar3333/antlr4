@@ -4,11 +4,14 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/** @noinspection SenselessMethodDuplicationInspection */
+
 namespace Antlr4;
 
 use Antlr4\Atn\ATN;
 use Antlr4\Atn\ATNDeserializationOptions;
 use Antlr4\Atn\ATNDeserializer;
+use Antlr4\Atn\ATNSimulator;
 use Antlr4\Atn\ParserATNSimulator;
 use Antlr4\Error\DefaultErrorStrategy;
 use Antlr4\Error\Exceptions\RecognitionException;
@@ -39,7 +42,7 @@ abstract class Parser extends Recognizer
     public $_errHandler;
 
     /**
-     * @var array
+     * @var int[]
      */
     public $_precedenceStack;
 
@@ -78,9 +81,7 @@ abstract class Parser extends Recognizer
         // instance of {@link DefaultErrorStrategy}.
         $this->_errHandler = new DefaultErrorStrategy();
 
-        $this->_precedenceStack = [];
-
-        array_push($this->_precedenceStack, 0);
+        $this->_precedenceStack = [ 0 ];
 
         // The {@link ParserRuleContext} object for the currently executing rule.
         // this is always non-null during the parsing process.
@@ -109,18 +110,14 @@ abstract class Parser extends Recognizer
     }
 
     // reset the parser's state
-    function reset()
+    function reset() : void
     {
-        if ($this->_input !== null)
-        {
-            $this->_input->seek(0);
-        }
+        if ($this->_input) $this->_input->seek(0);
         $this->_errHandler->reset($this);
         $this->_ctx = null;
         $this->_syntaxErrors = 0;
         $this->setTrace(false);
-        $this->_precedenceStack = [];
-        array_push($this->_precedenceStack, 0);
+        $this->_precedenceStack = [ 0 ];
 
 
         $interpreter = $this->getInterpreter();
@@ -142,7 +139,7 @@ abstract class Parser extends Recognizer
     // @return the matched symbol
     // @throws RecognitionException if the current input symbol did not match
     // {@code ttype} and the error strategy could not recover from the mismatched symbol
-    function match($ttype)
+    function match($ttype) : Token
     {
         $t = $this->getCurrentToken();
         if ($t->type === $ttype)
@@ -177,7 +174,7 @@ abstract class Parser extends Recognizer
     // @return the matched symbol
     // @throws RecognitionException if the current input symbol did not match
     // a wildcard and the error strategy could not recover from the mismatched symbol
-    function matchWildcard()
+    function matchWildcard() : Token
     {
         $t = $this->getCurrentToken();
         if ($t->type > 0)
@@ -197,9 +194,12 @@ abstract class Parser extends Recognizer
         return $t;
     }
 
-    function getParseListeners()
+    /**
+     * @return ParseTreeListener[]
+     */
+    function getParseListeners() : array
     {
-        return $this->_parseListeners || [];
+        return $this->_parseListeners ?: [];
     }
 
     // Registers {@code listener} to receive events during the parsing process.
@@ -229,12 +229,10 @@ abstract class Parser extends Recognizer
     // @param listener the listener to add
     //
     // @throws NullPointerException if {@code} listener is {@code null}
-    function addParseListener($listener)
+    function addParseListener($listener) : void
     {
-        if ($listener === null)
-        {
-            throw new \Exception("listener");
-        }
+        if ($listener === null) throw new \Exception("listener");
+
         if ($this->_parseListeners === null)
         {
             $this->_parseListeners = [];
@@ -247,16 +245,18 @@ abstract class Parser extends Recognizer
     // <p>If {@code listener} is {@code null} or has not been added as a parse
     // listener, this method does nothing.</p>
     // @param listener the listener to remove
-    function removeParseListener($listener)
+    function removeParseListener($listener) : void
     {
         if ($this->_parseListeners !== null)
         {
-            $idx = array_search($listener, $this->_parseListeners);
+            $idx = array_search($listener, $this->_parseListeners, true);
+
             if ($idx !== false)
             {
                 array_splice($this->_parseListeners, $idx, 1);
             }
-            if (count($this->_parseListeners) === 0)
+
+            if (!$this->_parseListeners)
             {
                 $this->_parseListeners = null;
             }
@@ -264,13 +264,13 @@ abstract class Parser extends Recognizer
     }
 
     // Remove all parse listeners.
-    function removeParseListeners()
+    function removeParseListeners() : void
     {
         $this->_parseListeners = null;
     }
 
     // Notify any parse listeners of an enter rule event.
-    function triggerEnterRuleEvent()
+    function triggerEnterRuleEvent() : void
     {
         if ($this->_parseListeners !== null)
         {
@@ -286,7 +286,7 @@ abstract class Parser extends Recognizer
     // Notify any parse listeners of an exit rule event.
     //
     // @see //addParseListener
-    function triggerExitRuleEvent()
+    function triggerExitRuleEvent() : void
     {
         if ($this->_parseListeners !== null)
         {
@@ -306,7 +306,7 @@ abstract class Parser extends Recognizer
     }
 
     // Tell our token source and error strategy about a new way to create tokens.//
-    function setTokenFactory(TokenFactory $factory)
+    function setTokenFactory(TokenFactory $factory) : void
     {
         $this->_input->tokenSource()->setTokenFactory($factory);
     }
@@ -377,7 +377,7 @@ abstract class Parser extends Recognizer
     }
 
     // Set the token stream and reset the parser.//
-    function setTokenStream(TokenStream $input)
+    function setTokenStream(TokenStream $input) : void
     {
         $this->_input = null;
         $this->reset();
@@ -391,13 +391,13 @@ abstract class Parser extends Recognizer
         return $this->_input->LT(1);
     }
 
-    function notifyErrorListeners(string $msg, Token $offendingToken=null, RecognitionException $err=null)
+    function notifyErrorListeners(string $msg, Token $offendingToken=null, RecognitionException $err=null) : void
     {
         if ($offendingToken === null)
         {
             $offendingToken = $this->getCurrentToken();
         }
-        $this->_syntaxErrors += 1;
+        $this->_syntaxErrors++;
         $line = $offendingToken->line;
         $column = $offendingToken->column;
         $listener = $this->getErrorListenerDispatch();
@@ -470,7 +470,7 @@ abstract class Parser extends Recognizer
 		return new ErrorNodeImpl($t);
 	}
 
-    protected function addContextToParseTree()
+    protected function addContextToParseTree() : void
     {
         /** @var ParserRuleContext $parent */
         $parent = $this->_ctx->getParent();
@@ -489,7 +489,7 @@ abstract class Parser extends Recognizer
         if ($this->_parseListeners !== null) $this->triggerEnterRuleEvent();
     }
 
-    function exitRule()
+    function exitRule() : void
     {
         $this->_ctx->stop = $this->_input->LT(-1);
         // trigger event on _ctx, before it reverts to parent
@@ -501,7 +501,7 @@ abstract class Parser extends Recognizer
         $this->_ctx = $this->_ctx->getParent();
     }
 
-    function enterOuterAlt(ParserRuleContext $localctx, int $altNum)
+    function enterOuterAlt(ParserRuleContext $localctx, int $altNum) : void
     {
         $localctx->setAltNumber($altNum);
         // if we have new localctx, make sure we replace existing ctx
@@ -522,19 +522,13 @@ abstract class Parser extends Recognizer
     // Get the precedence level for the top-most precedence rule.
     // @return The precedence level for the top-most precedence rule, or -1 if
     // the parser context is not nested within a precedence rule.
-    function getPrecedence()
+    function getPrecedence() : int
     {
-        if (count($this->_precedenceStack) === 0)
-        {
-            return -1;
-        }
-        else
-        {
-            return $this->_precedenceStack[count($this->_precedenceStack)-1];
-        }
+        if (count($this->_precedenceStack) === 0) return -1;
+        return $this->_precedenceStack[count($this->_precedenceStack)-1];
     }
 
-    function enterRecursionRule($localctx, $state, $ruleIndex, $precedence)
+    function enterRecursionRule($localctx, $state, $ruleIndex, $precedence) : void
     {
         $this->setState($state);
         array_push($this->_precedenceStack, $precedence);
@@ -547,7 +541,7 @@ abstract class Parser extends Recognizer
     }
 
     // Like {@link //enterRule} but for recursive rules.
-    function pushNewRecursionContext(ParserRuleContext $localctx, int $state, int $ruleIndex)
+    function pushNewRecursionContext(ParserRuleContext $localctx, int $state, int $ruleIndex) : void
     {
         $previous = $this->_ctx;
         $previous->setParent($localctx);
@@ -566,7 +560,7 @@ abstract class Parser extends Recognizer
         }
     }
 
-    function unrollRecursionContexts(ParserRuleContext $parentCtx)
+    function unrollRecursionContexts(ParserRuleContext $parentCtx) : void
     {
         array_pop($this->_precedenceStack);
         $this->_ctx->stop = $this->_input->LT(-1);
@@ -593,7 +587,7 @@ abstract class Parser extends Recognizer
         }
     }
 
-    function getInvokingContext($ruleIndex)
+    function getInvokingContext($ruleIndex) : ?ParserRuleContext
     {
         $ctx = $this->_ctx;
         while ($ctx)
@@ -604,7 +598,7 @@ abstract class Parser extends Recognizer
         return null;
     }
 
-    function precpred(RuleContext $localctx, int $precedence) : bool
+    function precpred(?RuleContext $localctx, int $precedence) : bool
     {
         return $precedence >= $this->_precedenceStack[count($this->_precedenceStack) - 1];
     }
@@ -627,20 +621,16 @@ abstract class Parser extends Recognizer
     // @param symbol the symbol type to check
     // @return {@code true} if {@code symbol} can follow the current state in
     // the ATN, otherwise {@code false}.
-    function isExpectedToken($symbol)
+    function isExpectedToken($symbol) : bool
     {
         $atn = $this->_interp->atn;
         $ctx = $this->_ctx;
         $s = $atn->states[$this->getState()];
         $following = $atn->nextTokens($s);
-        if ($following->contains($symbol))
-        {
-            return true;
-        }
-        if (!$following->contains(Token::EPSILON))
-        {
-            return false;
-        }
+
+        if ($following->contains($symbol)) return true;
+        if (!$following->contains(Token::EPSILON)) return false;
+
         while ($ctx !== null && $ctx->invokingState >= 0 && $following->contains(Token::EPSILON))
         {
             $invokingState = $atn->states[$ctx->invokingState];
@@ -652,14 +642,8 @@ abstract class Parser extends Recognizer
             }
             $ctx = $ctx->getParent();
         }
-        if ($following->contains(Token::EPSILON) && $symbol === Token::EOF)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+
+        return $following->contains(Token::EPSILON) && $symbol === Token::EOF;
     }
 
     // Computes the set of input symbols which could follow the current parser
@@ -667,12 +651,12 @@ abstract class Parser extends Recognizer
     // respectively.
     //
     // @see ATN//getExpectedTokens(int, RuleContext)
-    function getExpectedTokens()
+    function getExpectedTokens() : IntervalSet
     {
         return $this->_interp->atn->getExpectedTokens($this->getState(), $this->_ctx);
     }
 
-    function getExpectedTokensWithinCurrentRule()
+    function getExpectedTokensWithinCurrentRule() : IntervalSet
     {
         $atn = $this->_interp->atn;
         $s = $atn->states[$this->getState()];
@@ -683,14 +667,8 @@ abstract class Parser extends Recognizer
     function getRuleIndex($ruleName)
     {
         $ruleIndex = $this->getRuleIndexMap()[$ruleName];
-        if ($ruleIndex !== null)
-        {
-            return $ruleIndex;
-        }
-        else
-        {
-            return -1;
-        }
+        if ($ruleIndex !== null) return $ruleIndex;
+        return -1;
     }
 
     // Return List&lt;String&gt; of the rule names in your parser instance
@@ -699,15 +677,12 @@ abstract class Parser extends Recognizer
     // in the ATN a rule is invoked.
     //
     // this is very useful for error messages.
-    function getRuleInvocationStack($p)
+    function getRuleInvocationStack(?ParserRuleContext $p) : array
     {
-        $p = $p || null;
-        if ($p === null)
-        {
-            $p = $this->_ctx;
-        }
+        if (!$p) $p = $this->_ctx;
+
         $stack = [];
-        while ($p !== null)
+        while ($p)
         {
             // compute what follows who invoked us
             $ruleIndex = $p->ruleIndex;
@@ -725,13 +700,13 @@ abstract class Parser extends Recognizer
     }
 
     // For debugging and other purposes.
-    function getDFAStrings()
+    function getDFAStrings() : string
     {
         return "[" . implode(", ", $this->getInterpreter()->decisionToDFA) . "]";
     }
 
     // For debugging and other purposes.
-    function dumpDFA()
+    function dumpDFA() : void
     {
         $seenOne = false;
         foreach ($this->getInterpreter()->decisionToDFA as $dfa)
@@ -746,14 +721,14 @@ abstract class Parser extends Recognizer
         }
     }
 
-    function getSourceName()
+    function getSourceName() : string
     {
         return $this->_input->getSourceName();
     }
 
     // During a parse is sometimes useful to listen in on the rule entry and exit
     // events as well as token matches. this is for quick and dirty debugging.
-    function setTrace($trace)
+    function setTrace($trace) : void
     {
         if (!$trace)
         {
@@ -777,10 +752,5 @@ abstract class Parser extends Recognizer
     /**
      * @return ParserATNSimulator
      */
-	function getInterpreter()
-    {
-	    /** @var ParserATNSimulator $r */
-	    $r = $this->_interp;
-	    return $r;
-	}
+	function getInterpreter() : ATNSimulator { return $this->_interp; }
 }

@@ -4,19 +4,33 @@ namespace Antlr4;
 
 class DoubleDict
 {
-    function get($a, $b)
+    /**
+     * @var \ArrayObject
+     */
+    private $data;
+
+    function __construct()
     {
-        $d = $this[$a] || null;
-        return $d === null ? null : ($d[$b] || null);
+        $this->data = new \ArrayObject();
     }
 
-    function set($a, $b, $o)
+    function get($a, $b)
     {
-        $d = $this[$a] || null;
-        if ($d === null) {
+        $d = $this->data[$a] ?? null;
+        return $d === null ? null : ($d[$b] ?? null);
+    }
+
+    function set($a, $b, $o) : void
+    {
+        $d = $this->data[$a] ?? null;
+        if ($d === null)
+        {
             $d = [];
-            $this[$a] = $d;
+            $this->data[$a] = $d;
         }
-        $d[$b] = $o;
+        else
+        {
+            $d[$b] = $o;
+        }
     }
 }

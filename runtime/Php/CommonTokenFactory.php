@@ -24,11 +24,14 @@ use Antlr4\Utils\Pair;
 // overhead of copying text for every token unless explicitly requested.</p>
 class CommonTokenFactory implements TokenFactory
 {
+    /**
+     * @var bool
+     */
     public $copyText;
 
-    function __construct(string $copyText)
+    function __construct(bool $copyText=false)
     {
-        $this->copyText = !isset($copyText) ? false : $copyText;
+        $this->copyText = $copyText;
     }
 
     /**
@@ -37,7 +40,7 @@ class CommonTokenFactory implements TokenFactory
      * @var CommonTokenFactory
      */
     private static $DEFAULT;
-    public static function DEFAULT() { return self::$DEFAULT ? self::$DEFAULT : (self::$DEFAULT = new CommonTokenFactory(null)); }
+    static function DEFAULT() : CommonTokenFactory { return self::$DEFAULT ?: (self::$DEFAULT = new CommonTokenFactory(null)); }
 
     /**
      * @param Pair<TokenSource, CharStream> $source
@@ -50,7 +53,7 @@ class CommonTokenFactory implements TokenFactory
      * @param int $column
      * @return CommonToken
      */
-    function createEx(Pair $source, int $type, string $text, int $channel, int $start, int $stop, int $line, int $column)
+    function createEx(Pair $source, int $type, string $text, int $channel, int $start, int $stop, int $line, int $column) : Token
     {
         $t = new CommonToken($source, $type, $channel, $start, $stop);
 
@@ -65,18 +68,13 @@ class CommonTokenFactory implements TokenFactory
         {
             /** @var CharStream $b */
             $b = $source->b;
-            $t->setText($b->getText(new Interval($start, $stop)));
+            $t->setText($b->getText($start, $stop));
         }
 
         return $t;
     }
 
-    /**
-     * @param int $type
-     * @param string $text
-     * @return CommonToken
-     */
-    function create(int $type, string $text)
+    function create(int $type, string $text) : Token
     {
         $t = new CommonToken(null, $type);
         $t->setText($text);

@@ -9,14 +9,14 @@ use Antlr4\Lexer;
 class LexerSkipAction extends LexerAction
 {
     private static $_INSTANCE;
-    static function INSTANCE() { return self::$_INSTANCE ? self::$_INSTANCE : (self::$_INSTANCE = new LexerSkipAction()); }
+    static function INSTANCE() : LexerSkipAction { return self::$_INSTANCE ?: (self::$_INSTANCE = new LexerSkipAction()); }
 
     function __construct()
     {
         parent::__construct(LexerActionType::SKIP);
     }
 
-    function execute(Lexer $lexer)
+    function execute(Lexer $lexer) : void
     {
         $lexer->skip();
     }

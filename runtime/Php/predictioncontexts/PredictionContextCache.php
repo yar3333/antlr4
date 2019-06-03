@@ -35,7 +35,7 @@ class PredictionContextCache
         return $this->cache->get($ctx);
     }
 
-    function size()
+    function size() : int
     {
         return $this->cache->size();
     }

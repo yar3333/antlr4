@@ -4,7 +4,7 @@ namespace Antlr4\Utils;
 
 class MultiMap extends Map
 {
-    function map($key, $value) : void
+    function put($key, $value) : void
     {
 		$elementsForKey = $this->get($key);
 		if ($elementsForKey === null)
@@ -18,7 +18,8 @@ class MultiMap extends Map
     /**
      * @return Pair[]
      */
-	function getPairs() {
+	function getPairs() : array
+    {
 		$pairs = [];
 		foreach ($this->keys() as $key => $values)
 		{

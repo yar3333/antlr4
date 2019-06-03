@@ -63,7 +63,7 @@ class DefaultErrorStrategy implements ErrorStrategy
      * This method is called to enter error recovery mode when a recognition exception is reported.
      * @param Recognizer $recognizer recognizer the parser instance
      */
-    function beginErrorCondition(Recognizer $recognizer)
+    function beginErrorCondition(Recognizer $recognizer) : void
     {
         $this->errorRecoveryMode = true;
     }
@@ -77,7 +77,7 @@ class DefaultErrorStrategy implements ErrorStrategy
      * This method is called to leave error recovery mode after recovering from a recognition exception.
      * @param $recognizer
      */
-    function endErrorCondition($recognizer)
+    function endErrorCondition($recognizer) : void
     {
         $this->errorRecoveryMode = false;
         $this->lastErrorStates = null;
@@ -153,7 +153,7 @@ class DefaultErrorStrategy implements ErrorStrategy
     function recover(Parser $recognizer, RecognitionException $e) : void
     {
         if ($this->lastErrorIndex === $recognizer->getInputStream()->index() &&
-            $this->lastErrorStates && array_search($recognizer->getState(), $this->lastErrorStates) !== false)
+            $this->lastErrorStates && in_array($recognizer->getState(), $this->lastErrorStates, true))
         {
             // uh oh, another error at same token index and previously-visited
             // state in ATN; must be a case where LT(1) is in the recovery
@@ -237,11 +237,8 @@ class DefaultErrorStrategy implements ErrorStrategy
             case ATNState::PLUS_BLOCK_START:
             case ATNState::STAR_LOOP_ENTRY:
                 // report error and recover if possible
-                if ($this->singleTokenDeletion($recognizer) !== null) {
-                    return;
-                } else {
-                    throw new InputMismatchException($recognizer);
-                }
+                if ($this->singleTokenDeletion($recognizer) !== null) return;
+                throw new InputMismatchException($recognizer);
                 break;
             case ATNState::PLUS_LOOP_BACK:
             case ATNState::STAR_LOOP_BACK:
@@ -264,7 +261,7 @@ class DefaultErrorStrategy implements ErrorStrategy
      * @param Parser $recognizer
      * @param NoViableAltException $e
      */
-    function reportNoViableAlternative($recognizer, $e)
+    function reportNoViableAlternative($recognizer, $e) : void
     {
         $tokens = $recognizer->getTokenStream();
         if ($tokens !== null) {
@@ -294,8 +291,9 @@ class DefaultErrorStrategy implements ErrorStrategy
      * @param Parser $recognizer
      * @param RecognitionException $e
      */
-    function Def($recognizer, $e)
+    function def($recognizer, $e) : void
     {
+        /** @noinspection NullPointerExceptionInspection */
         $msg = "mismatched input " . $this->getTokenErrorDisplay($e->offendingToken) . " expecting " . $e->getExpectedTokens()->toStringVocabulary($recognizer->getVocabulary());
         $recognizer->notifyErrorListeners($msg, $e->offendingToken, $e);
     }
@@ -309,7 +307,7 @@ class DefaultErrorStrategy implements ErrorStrategy
      * @param Parser $recognizer
      * @param RecognitionException $e
      */
-    function reportFailedPredicate($recognizer, $e)
+    function reportFailedPredicate($recognizer, $e) : void
     {
         $ruleName = $recognizer->ruleNames[$recognizer->_ctx->ruleIndex];
         $msg = "rule " . $ruleName . " " . $e->getMessage();
@@ -333,7 +331,7 @@ class DefaultErrorStrategy implements ErrorStrategy
     /**
      * @param Parser $recognizer
      */
-    function reportUnwantedToken($recognizer)
+    function reportUnwantedToken($recognizer) : void
     {
         if ($this->inErrorRecoveryMode($recognizer)) return;
 
@@ -341,9 +339,8 @@ class DefaultErrorStrategy implements ErrorStrategy
         $t = $recognizer->getCurrentToken();
         $tokenName = $this->getTokenErrorDisplay($t);
         $expecting = $this->getExpectedTokens($recognizer);
-        $msg = "extraneous input " . $tokenName . " expecting " .
-            $expecting->toStringVocabulary($recognizer->getVocabulary());
-        $recognizer->notifyErrorListeners($msg, $t, null);
+        $msg = "extraneous input " . $tokenName . " expecting " . $expecting->toStringVocabulary($recognizer->getVocabulary());
+        $recognizer->notifyErrorListeners($msg, $t);
     }
 
     // This method is called to report a syntax error which requires the
@@ -361,7 +358,7 @@ class DefaultErrorStrategy implements ErrorStrategy
     // {@link Parser//notifyErrorListeners}.</p>
     //
     // @param Parser $recognizer the parser instance
-    function reportMissingToken(Parser $recognizer)
+    function reportMissingToken(Parser $recognizer) : void
     {
         if ($this->inErrorRecoveryMode($recognizer)) return;
 
@@ -369,7 +366,7 @@ class DefaultErrorStrategy implements ErrorStrategy
         $t = $recognizer->getCurrentToken();
         $expecting = $this->getExpectedTokens($recognizer);
         $msg = "missing " . $expecting->toStringVocabulary($recognizer->getVocabulary()) . " at " . $this->getTokenErrorDisplay($t);
-        $recognizer->notifyErrorListeners($msg, $t, null);
+        $recognizer->notifyErrorListeners($msg, $t);
     }
 
     // <p>The default implementation attempts to recover from the mismatched input
@@ -473,9 +470,9 @@ class DefaultErrorStrategy implements ErrorStrategy
         if ($expectingAtLL2->contains($currentSymbolType)) {
             $this->reportMissingToken($recognizer);
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     // This method implements the single-token deletion inline error recovery
@@ -533,7 +530,7 @@ class DefaultErrorStrategy implements ErrorStrategy
     // a CommonToken of the appropriate type. The text will be the token.
     // If you change what tokens must be created by the lexer,
     // override this method to create the appropriate tokens.
-    function getMissingSymbol(Parser $recognizer)
+    function getMissingSymbol(Parser $recognizer) : Token
     {
         $currentSymbol = $recognizer->getCurrentToken();
         $expecting = $this->getExpectedTokens($recognizer);
@@ -551,7 +548,7 @@ class DefaultErrorStrategy implements ErrorStrategy
         return $recognizer->getTokenFactory()->createEx($current->source, $expectedTokenType, $tokenText, Token::DEFAULT_CHANNEL, -1, -1, $current->line, $current->column);
     }
 
-    function getExpectedTokens(Parser $recognizer)
+    function getExpectedTokens(Parser $recognizer) : IntervalSet
     {
         return $recognizer->getExpectedTokens();
     }
@@ -563,12 +560,11 @@ class DefaultErrorStrategy implements ErrorStrategy
     // the token). This is better than forcing you to override a method in
     // your token objects because you don't have to go modify your lexer
     // so that it creates a new Java type.
-    function getTokenErrorDisplay($t)
+    function getTokenErrorDisplay(Token $t) : string
     {
-        if ($t === null) {
-            return "<no token>";
-        }
-        $s = $t->text;
+        if ($t === null) return "<no token>";
+
+        $s = $t->getText();
         if ($s === null) {
             if ($t->type === Token::EOF) {
                 $s = "<EOF>";
@@ -579,12 +575,12 @@ class DefaultErrorStrategy implements ErrorStrategy
         return $this->escapeWSAndQuote($s);
     }
 
-    function escapeWSAndQuote($s)
+    function escapeWSAndQuote($s) : string
     {
-        $s = preg_replace('/\n/g', "\\n", $s);
-        $s = preg_replace('/\r/g', "\\r", $s);
-        $s = preg_replace('/\t/g', "\\t", $s);
-        return "'" . $s . "'";
+        $s = preg_replace('/\n/', "\\n", $s);
+        $s = preg_replace('/\r/', "\\r", $s);
+        $s = preg_replace('/\t/', "\\t", $s);
+        return "'$s'";
     }
 
     // Compute the error recovery set for the current rule. During
@@ -697,10 +693,11 @@ class DefaultErrorStrategy implements ErrorStrategy
     }
 
     // Consume tokens until one matches the given token set.//
-    function consumeUntil(Parser $recognizer, IntervalSet $set)
+    function consumeUntil(Parser $recognizer, IntervalSet $set) : void
     {
         $ttype = $recognizer->getTokenStream()->LA(1);
-        while ($ttype !== Token::EOF && !$set->contains($ttype)) {
+        while ($ttype !== Token::EOF && !$set->contains($ttype))
+        {
             $recognizer->consume();
             $ttype = $recognizer->getTokenStream()->LA(1);
         }
@@ -719,7 +716,8 @@ class DefaultErrorStrategy implements ErrorStrategy
 	protected function reportInputMismatch(Parser $recognizer, InputMismatchException $e) : void
     {
 		/** @var string $msg */
-		$msg = "mismatched input " . $this->getTokenErrorDisplay($e->offendingToken) . " expecting " . $e->getExpectedTokens()->toStringVocabulary($recognizer->getVocabulary());
+        /** @noinspection NullPointerExceptionInspection */
+        $msg = "mismatched input " . $this->getTokenErrorDisplay($e->offendingToken) . " expecting " . $e->getExpectedTokens()->toStringVocabulary($recognizer->getVocabulary());
 		$recognizer->notifyErrorListeners($msg, $e->offendingToken, $e);
 	}
 }

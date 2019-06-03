@@ -38,7 +38,7 @@ class Trees
         $res = "(" . $s . " ";
         if ($childCount > 0)
         {
-            $res .= self::toStringTree($tree->getChild(0), $ruleNames, null);
+            $res .= self::toStringTree($tree->getChild(0), $ruleNames);
         }
         for ($i=1; $i<$childCount; $i++)
         {
@@ -64,7 +64,7 @@ class Trees
            if ($t instanceof RuleContext)
            {
                $altNumber = $t->getAltNumber();
-               if ($altNumber != ATN::INVALID_ALT_NUMBER)
+               if ($altNumber !== ATN::INVALID_ALT_NUMBER)
                {
                    return $ruleNames[$t->getRuleContext()->ruleIndex] . ":" . $altNumber;
                }
@@ -92,7 +92,12 @@ class Trees
     }
 
     // Return ordered list of all children of this node
-    static function getChildren(Tree $t)
+
+    /**
+     * @param Tree $t
+     * @return Tree[]
+     */
+    static function getChildren(Tree $t) : array
     {
         $list = [];
         for($i=0; $i < $t->getChildCount(); $i++)
@@ -119,52 +124,52 @@ class Trees
         return $ancestors;
     }
 
-    static function findAllTokenNodes(ParseTree $t, int $ttype)
+    static function findAllTokenNodes(ParseTree $t, int $ttype) : array
     {
         return self::findAllNodes($t, $ttype, true);
     }
 
-    static function findAllRuleNodes(ParseTree $t, int $ruleIndex)
+    static function findAllRuleNodes(ParseTree $t, int $ruleIndex) : array
     {
         return self::findAllNodes($t, $ruleIndex, false);
     }
 
-    static function findAllNodes(ParseTree $t, int $index, bool $findTokens)
+    static function findAllNodes(ParseTree $t, int $index, bool $findTokens) : array
     {
-        $nodes = [];
+        $nodes = new \ArrayObject();
         self::_findAllNodes($t, $index, $findTokens, $nodes);
-        return $nodes;
+        return $nodes->getArrayCopy();
     }
 
-    static function _findAllNodes(ParseTree $t, int $index, bool $findTokens, array $nodes)
+    static function _findAllNodes(ParseTree $t, int $index, bool $findTokens, \ArrayObject $nodes) : void
     {
         // check this node (the root) first
         if ($findTokens && ($t instanceof TerminalNode))
         {
-            if($t->getSymbol()->type===$index)
+            if ($t->getSymbol()->type === $index)
             {
-                array_push($nodes, $t);
+                $nodes->append($t);
             }
         }
         else if(!$findTokens && ($t instanceof ParserRuleContext))
         {
-            if($t->ruleIndex===$index)
+            if ($t->ruleIndex === $index)
             {
-                array_push($nodes, $t);
+                $nodes->append($t);
             }
         }
 
         // check children
-        for ($i=0; $i<$t->getChildCount(); $i++)
+        for ($i = 0; $i < $t->getChildCount(); $i++)
         {
             self::_findAllNodes($t->getChild($i), $index, $findTokens, $nodes);
         }
     }
 
-    static function descendants(ParseTree $t)
+    static function descendants(ParseTree $t) : array
     {
         $nodes = [$t];
-        for ($i=0; $i<$t->getChildCount(); $i++)
+        for ($i = 0; $i < $t->getChildCount(); $i++)
         {
             $nodes = array_merge($nodes, self::descendants($t->getChild($i)));
         }

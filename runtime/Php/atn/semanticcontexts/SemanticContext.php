@@ -19,7 +19,7 @@ abstract class SemanticContext
 {
     //The default {@link SemanticContext}, which is semantically equivalent to a predicate of the form {@code {true}?}.
     private static $_NONE;
-    public static function NONE() : SemanticContextPredicate { return self::$_NONE ? self::$_NONE : (self::$_NONE = new SemanticContextPredicate()); }
+    public static function NONE() : SemanticContextPredicate { return self::$_NONE ?: (self::$_NONE = new SemanticContextPredicate()); }
 
     function __construct() {}
 

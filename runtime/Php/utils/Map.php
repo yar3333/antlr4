@@ -26,35 +26,29 @@ class Map
     function __construct(\Closure $hashFunction=null, \Closure $equalsFunction=null)
     {
         $this->data = [];
-        $this->hashFunction = isset($hashFunction) ? $hashFunction : (function ($a) {
-            return Utils::standardHashCodeFunction($a);
-        });
-        $this->equalsFunction = isset($equalsFunction) ? $equalsFunction : (function ($a, $b) {
-            return Utils::standardEqualsFunction($a, $b);
-        });
+        $this->hashFunction = $hashFunction ?: function ($a) { return Utils::standardHashCodeFunction($a); };
+        $this->equalsFunction = $equalsFunction ?: function ($a, $b) { return Utils::standardEqualsFunction($a, $b); };
     }
 
-    function size()
+    function size() : int
     {
         $l = 0;
         foreach ($this->data as $hashKey => $v) {
             if (strpos($hashKey, "hash_") === 0) {
-                $l = $l + count($this->data[$hashKey]);
+                $l += count($this->data[$hashKey]);
             }
         }
         return $l;
     }
 
-    function put($key, $value)
+    function put($key, $value) : void
     {
         $hashKey = "hash_" . $this->hashFunction->call($key);
-        if (isset($this->data[$hashKey]))
-        {
+
+        if (isset($this->data[$hashKey])) {
             $entries = $this->data[$hashKey];
-            foreach ($entries as $entry)
-            {
-                if ($this->equalsFunction->call($key, $entry['key']))
-                {
+            foreach ($entries as $entry) {
+                if ($this->equalsFunction->call($key, $entry['key'])) {
                     $oldValue = $entry['value'];
                     $entry['value'] = $value;
                     return $oldValue;
@@ -63,14 +57,12 @@ class Map
             array_push($entries, ['key' => $key, 'value' => $value]);
             return $value;
         }
-        else
-        {
-            $this->data[$hashKey] = [['key' => $key, 'value' => $value]];
-            return $value;
-        }
+
+        $this->data[$hashKey] = [['key' => $key, 'value' => $value]];
+        return $value;
     }
 
-    function containsKey($key)
+    function containsKey($key) : bool
     {
         $hashKey = "hash_" . $this->hashFunction->call($key);
         if (isset($this->data[$hashKey]))
@@ -98,7 +90,7 @@ class Map
         return null;
     }
 
-    function entries()
+    function entries() : array
     {
         $l = [];
         foreach ($this->data as $key => $value)

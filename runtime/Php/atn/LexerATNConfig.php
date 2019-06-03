@@ -22,39 +22,39 @@ class LexerATNConfig extends ATNConfig
         parent::__construct($params, $config);
 
         // This is the backing field for {@link //getLexerActionExecutor}.
-        $lexerActionExecutor = $params->lexerActionExecutor || null;
+        $lexerActionExecutor = $params->lexerActionExecutor ?? null;
         $this->lexerActionExecutor = $lexerActionExecutor || ($config !== null ? $config->lexerActionExecutor : null);
         $this->passedThroughNonGreedyDecision = $config !== null ? $this->checkNonGreedyDecision($config, $this->state) : false;
     }
 
-    function updateHashCode(Hash $hash)
+    function updateHashCode(Hash $hash) : void
     {
         $hash->update($this->state->stateNumber, $this->alt, $this->context, $this->semanticContext, $this->passedThroughNonGreedyDecision, $this->lexerActionExecutor);
     }
 
-    function equals($other)
+    function equals($other) : bool
     {
         return $this === $other ||
             (
                 $other instanceof LexerATNConfig &&
-                $this->passedThroughNonGreedyDecision == $other->passedThroughNonGreedyDecision &&
+                $this->passedThroughNonGreedyDecision === $other->passedThroughNonGreedyDecision &&
                 ($this->lexerActionExecutor ? $this->lexerActionExecutor->equals($other->lexerActionExecutor) : !$other->lexerActionExecutor) &&
                 parent::equals($other)
             );
     }
 
-    function hashCodeForConfigSet()
+    function hashCodeForConfigSet() : int
     {
         return $this->hashCode();
     }
 
-    function equalsForConfigSet($other)
+    function equalsForConfigSet($other) : bool
     {
         return $this->equals($other);
     }
 
-    function checkNonGreedyDecision(object $source, $target)
+    function checkNonGreedyDecision(object $source, $target) : bool
     {
-        return $source->passedThroughNonGreedyDecision || ($target instanceof DecisionState) && $target->nonGreedy;
+        return $source->passedThroughNonGreedyDecision || (($target instanceof DecisionState) && $target->nonGreedy);
     }
 }

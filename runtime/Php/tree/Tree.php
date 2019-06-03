@@ -4,6 +4,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/** @noinspection ReturnTypeCanBeDeclaredInspection */
+
 namespace Antlr4\Tree;
 
 use Antlr4\Parser;
@@ -35,7 +37,7 @@ interface Tree
      * @param mixed $type
      * @return Tree
      */
-    function getChild(int $i, $type=null);
+    function getChild(int $i, string $type=null);
 
     /** How many children are there? If there is none, then this
      *  node represents a leaf node.

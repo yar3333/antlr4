@@ -9,7 +9,7 @@ class EmptyPredictionContext extends SingletonPredictionContext
         parent::__construct(null, PredictionContext::EMPTY_RETURN_STATE);
     }
 
-    function isEmpty()
+    function isEmpty() : bool
     {
         return true;
     }
@@ -17,11 +17,6 @@ class EmptyPredictionContext extends SingletonPredictionContext
     function getParent(int $index=null) : PredictionContext
     {
         return null;
-    }
-
-    function getReturnState(int $index): int
-    {
-        return $this->returnState;
     }
 
     function equals($other) : bool

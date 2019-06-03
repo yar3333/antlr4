@@ -23,7 +23,7 @@ class ProxyErrorListener implements ANTLRErrorListener
         $this->delegates = $delegates;
     }
 
-   	function syntaxError(Recognizer $recognizer, Object $offendingSymbol, int $line, int $charPositionInLine, string $msg, RecognitionException $e) : void
+   	function syntaxError(Recognizer $recognizer, Object $offendingSymbol, int $line, int $charPositionInLine, string $msg, ?RecognitionException $e) : void
     {
         foreach ($this->delegates as $d)
         {

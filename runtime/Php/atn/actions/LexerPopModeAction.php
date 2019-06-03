@@ -13,18 +13,13 @@ class LexerPopModeAction extends LexerAction
     function __construct()
     {
         parent::__construct(LexerActionType::POP_MODE);
-        return $this;
     }
 
     private static $_INSTANCE;
-
-    public static function INSTANCE()
-    {
-        return self::$_INSTANCE ? self::$_INSTANCE : (self::$_INSTANCE = new LexerPopModeAction());
-    }
+    public static function INSTANCE() : LexerPopModeAction { return self::$_INSTANCE ?: (self::$_INSTANCE = new LexerPopModeAction()); }
 
     // <p>This action is implemented by calling {@link Lexer//popMode}.</p>
-    function execute(Lexer $lexer)
+    function execute(Lexer $lexer) : void
     {
         $lexer->popMode();
     }

@@ -12,26 +12,9 @@ namespace Antlr4;
 // code points up to U+FFFF).
 class CharStreams
 {
-    function fromString($str)
+    static function fromString($str) : InputStream
     {
         return new InputStream($str, true);
-    }
-
-    // Creates an InputStream from a Buffer given the
-    // encoding of the bytes in that buffer (defaults to 'utf8' if
-    // encoding is null).
-    /*function fromBuffer2($buffer, $encoding)
-    {
-        return new InputStream($buffer->toString($encoding), true);
-    }*/
-
-    // Synchronously creates an InputStream given a path to a file
-    // on disk and the encoding of the bytes in that file (defaults to
-    // 'utf8' if encoding is null).
-    function fromPathSync($path, $encoding)
-    {
-        $data = file_get_contents($path);
-        return new InputStream($data, true);
     }
 }
 

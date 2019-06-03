@@ -7,9 +7,9 @@
 namespace Antlr4\Error\Exceptions;
 
 use \Antlr4\InputStream;
-use Antlr4\IntervalSet;
+use \Antlr4\IntervalSet;
 use \Antlr4\Parser;
-use Antlr4\Token;
+use \Antlr4\Token;
 
 // The root of the ANTLR exception hierarchy. In general, ANTLR tracks just
 // 3 kinds of errors: prediction errors, failed predicate errors, and
@@ -60,7 +60,7 @@ class RecognitionException extends \Exception
         // edge we couldn't match.
         $this->offendingState = -1;
 
-        if ($this->recognizer!==null)
+        if ($this->recognizer)
         {
             $this->offendingState = $this->recognizer->getState();
         }
@@ -78,14 +78,8 @@ class RecognitionException extends \Exception
     // state in the ATN, or {@code null} if the information is not available.
     function getExpectedTokens() : ?IntervalSet
     {
-        if ($this->recognizer!==null)
-        {
-            return $this->recognizer->getATN()->getExpectedTokens($this->offendingState, $this->ctx);
-        }
-        else
-        {
-            return null;
-        }
+        if (!$this->recognizer) return null;
+        return $this->recognizer->getATN()->getExpectedTokens($this->offendingState, $this->ctx);
     }
 
     function __toString()

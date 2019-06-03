@@ -31,12 +31,11 @@ class LexerActionExecutor
 
     function __construct(?array $lexerActions)
     {
-        $this->lexerActions = $lexerActions === null ? [] : $lexerActions;
+        $this->lexerActions = $lexerActions ?: [];
 
         // Caches the result of {@link //hashCode} since the hash code is an element
         // of the performance-critical {@link LexerATNConfig//hashCode} operation.
         $this->cachedHashCode = Utils::hashStuff($lexerActions);// "".join([str(la) for la in lexerActions]))
-        return $this;
     }
 
     // Creates a {@link LexerActionExecutor} which executes the actions for
@@ -52,7 +51,7 @@ class LexerActionExecutor
     //
     // @return A {@link LexerActionExecutor} for executing the combine actions
     // of {@code lexerActionExecutor} and {@code lexerAction}.
-    static function append(?LexerActionExecutor $lexerActionExecutor, $lexerAction)
+    static function append(?LexerActionExecutor $lexerActionExecutor, $lexerAction) : LexerActionExecutor
     {
         if ($lexerActionExecutor === null)
         {
@@ -131,7 +130,7 @@ class LexerActionExecutor
     // @param startIndex The token start index. This value may be passed to
     // {@link IntStream//seek} to set the {@code input} position to the beginning
     // of the token.
-    function execute($lexer, InputStream $input, $startIndex)
+    function execute($lexer, InputStream $input, $startIndex) : void
     {
         $requiresSeek = false;
         $stopIndex = $input->index();
@@ -163,17 +162,17 @@ class LexerActionExecutor
         }
     }
 
-    function hashCode()
+    function hashCode() : int
     {
         return $this->cachedHashCode;
     }
 
-    function updateHashCode(Hash $hash)
+    function updateHashCode(Hash $hash) : void
     {
         $hash->update($this->cachedHashCode);
     }
 
-    function equals($other)
+    function equals($other) : bool
     {
         if ($this === $other)
         {
@@ -183,11 +182,11 @@ class LexerActionExecutor
         {
             return false;
         }
-        else if ($this->cachedHashCode != $other->cachedHashCode)
+        else if ($this->cachedHashCode !== $other->cachedHashCode)
         {
             return false;
         }
-        else if (count($this->lexerActions) != count($other->lexerActions))
+        else if (count($this->lexerActions) !== count($other->lexerActions))
         {
             return false;
         }

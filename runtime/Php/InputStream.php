@@ -11,7 +11,7 @@ use Antlr4\Utils\Utils;
 /**
  * Vacuum all input from a string and then treat it like a buffer.
  */
-class InputStream
+class InputStream implements CharStream
 {
     /**
      * @var int
@@ -47,15 +47,15 @@ class InputStream
     // as a series of Unicode code points.
     // Otherwise, the input is treated as a series of 16-bit UTF-16 code
     // units.
-    function __construct(string $data, bool $decodeToUnicodeCodePoints)
+    function __construct(string $data, bool $decodeToUnicodeCodePoints=false)
     {
         $this->name = "<empty>";
         $this->strdata = $data;
-        $this->decodeToUnicodeCodePoints = $decodeToUnicodeCodePoints || false;
+        $this->decodeToUnicodeCodePoints = $decodeToUnicodeCodePoints;
         self::_loadString($this);
     }
 
-    static function _loadString(InputStream $stream)
+    static function _loadString(InputStream $stream) : void
     {
         $stream->_index = 0;
         $stream->data = [];
@@ -79,28 +79,28 @@ class InputStream
         $stream->_size = count($stream->data);
     }
 
-    function index(){ return $this->_index; }
+    function index() : int { return $this->_index; }
 
-    function size(){ return $this->_size; }
+    function size() : int { return $this->_size; }
 
     // Reset the stream so that it's in the same state it was
     // when the object was created *except* the data array is not touched.
-    function reset()
+    function reset() : void
     {
         $this->_index = 0;
     }
 
-    function consume()
+    function consume() : void
     {
         if ($this->_index >= $this->_size)
         {
             // assert this.LA(1) == Token.EOF
             throw new \Exception("cannot consume EOF");
         }
-        $this->_index += 1;
+        $this->_index++;
     }
 
-    function LA(int $offset)
+    function LA(int $offset) : int
     {
         if ($offset === 0)
         {
@@ -108,7 +108,7 @@ class InputStream
         }
         if ($offset < 0)
         {
-            $offset += 1;// e.g., translate LA(-1) to use offset=0
+            $offset++;// e.g., translate LA(-1) to use offset=0
         }
         $pos = $this->_index + $offset - 1;
         if ($pos < 0 || $pos >= $this->_size)
@@ -119,24 +119,24 @@ class InputStream
         return $this->data[$pos];
     }
 
-    function LT(int $offset)
+    function LT(int $offset) : int
     {
         return $this->LA($offset);
     }
 
     // mark/release do nothing; we have entire buffer
-    function mark()
+    function mark() : int
     {
         return -1;
     }
 
-    function release($marker)
+    function release($marker) : void
     {
     }
 
     // consume() ahead until p==_index; can't just set p=_index as we must
     // update line and column. If we seek backwards, just set p
-    function seek(int $_index)
+    function seek(int $_index) : void
     {
         if ($_index <= $this->_index)
         {
@@ -153,26 +153,20 @@ class InputStream
         {
             $stop = $this->_size - 1;
         }
-        if ($start >= $this->_size)
+
+        if ($start >= $this->_size) return "";
+
+        if ($this->decodeToUnicodeCodePoints)
         {
-            return "";
-        }
-        else
-        {
-            if ($this->decodeToUnicodeCodePoints)
+            $result = "";
+            for ($i = $start; $i <= $stop; $i++)
             {
-                $result = "";
-                for ($i = $start; $i <= $stop; $i++)
-                {
-                    $result .= Utils::fromCodePoint($this->data[$i]);
-                }
-                return $result;
+                $result .= Utils::fromCodePoint($this->data[$i]);
             }
-            else
-            {
-                return substr($this->strdata, $start, $stop - $start + 1);
-            }
+            return $result;
         }
+
+        return substr($this->strdata, $start, $stop - $start + 1);
     }
 
     function __toString() : string
@@ -180,8 +174,8 @@ class InputStream
         return $this->strdata;
     }
 
-    function get($index) { return $this->data[$index]; }
+    function get(int $index) : int { return $this->data[$index]; }
 
-    function getSourceName() { return ""; }
+    function getSourceName() : string { return ""; }
 }
 

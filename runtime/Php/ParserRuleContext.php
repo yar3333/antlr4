@@ -1,4 +1,6 @@
 <?php
+/** @noinspection SenselessMethodDuplicationInspection */
+/** @noinspection ReturnTypeCanBeDeclaredInspection */
 
 namespace Antlr4;
 
@@ -30,8 +32,10 @@ namespace Antlr4;
 //  group values such as this aggregate.  The getters/setters are there to
 //  satisfy the superclass interface.
 use Antlr4\Error\Exceptions\RecognitionException;
+use Antlr4\Tree\ErrorNode;
 use Antlr4\Tree\ErrorNodeImpl;
 use Antlr4\Tree\ParseTree;
+use Antlr4\Tree\ParseTreeListener;
 use Antlr4\Tree\TerminalNode;
 use Antlr4\Tree\TerminalNodeImpl;
 
@@ -59,7 +63,7 @@ class ParserRuleContext extends RuleContext
      */
     public $exception;
 
-    function __construct(RuleContext $parent=null, int $invokingStateNumber=null)
+    function __construct(ParserRuleContext $parent=null, int $invokingStateNumber=null)
     {
         parent::__construct($parent, $invokingStateNumber);
 
@@ -79,11 +83,7 @@ class ParserRuleContext extends RuleContext
         $this->exception = null;
     }
 
-    /**
-     * COPY a ctx (I'm deliberately not using copy constructor)
-     * @param ParserRuleContext $ctx
-     */
-    function copyFrom($ctx) : void
+    function copyFrom(ParserRuleContext $ctx) : void
     {
         // from RuleContext
         $this->parentCtx = $ctx->parentCtx;
@@ -107,16 +107,16 @@ class ParserRuleContext extends RuleContext
         }
     }
 
-    function enterRule($listener)
+    function enterRule(ParseTreeListener $listener) : void
     {
     }
 
-    function exitRule($listener)
+    function exitRule(ParseTreeListener $listener) : void
     {
     }
 
     // Does not set parent link; other add methods do that
-    function addChild($child)
+    function addChild(ParseTree $child)
     {
         if (!isset($this->children))
         {
@@ -129,7 +129,7 @@ class ParserRuleContext extends RuleContext
     // Used by enterOuterAlt to toss out a RuleContext previously added as
     // we entered a rule. If we have // label, we will need to remove
     // generic ruleContext object.
-    function removeLastChild()
+    function removeLastChild() : void
     {
         if (!isset($this->children))
         {
@@ -137,7 +137,7 @@ class ParserRuleContext extends RuleContext
         }
     }
 
-    function addTokenNode($token)
+    function addTokenNode($token) : TerminalNode
     {
         $node = new TerminalNodeImpl($token);
         $this->addChild($node);
@@ -145,7 +145,7 @@ class ParserRuleContext extends RuleContext
         return $node;
     }
 
-    function addErrorNode($badToken)
+    function addErrorNode($badToken) : ErrorNode
     {
         $node = new ErrorNodeImpl($badToken);
         $this->addChild($node);
@@ -153,7 +153,12 @@ class ParserRuleContext extends RuleContext
         return $node;
     }
 
-    function getChild(int $i, $type=null)
+    /**
+     * @param int $i
+     * @param string $type
+     * @return ParseTree
+     */
+    function getChild(int $i, string $type=null)
     {
         if ($this->children === null || $i < 0 || $i >= count($this->children))
         {
@@ -165,8 +170,8 @@ class ParserRuleContext extends RuleContext
         {
             if ($child instanceof $type)
             {
-                if ($i===0) return $child;
-                $i -= 1;
+                if ($i === 0) return $child;
+                $i--;
             }
         }
         return null;
@@ -184,92 +189,69 @@ class ParserRuleContext extends RuleContext
             {
                 if ($child->getSymbol()->type === $ttype)
                 {
-                    if($i===0)
-                    {
-                        return $child;
-                    }
-                    else
-                    {
-                        $i -= 1;
-                    }
+                    if ($i === 0) return $child;
+                    $i--;
                 }
             }
         }
         return null;
     }
 
-    function getTokens($ttype )
+    function getTokens($ttype) : array
     {
-        if ($this->children === null)
+        if ($this->children === null) return [];
+
+        $tokens = [];
+        foreach ($this->children as $child)
         {
-            return [];
-        }
-        else
-        {
-            $tokens = [];
-            foreach ($this->children as $child)
+            if ($child instanceof TerminalNode)
             {
-                if ($child instanceof TerminalNode)
+                if ($child->getSymbol()->type === $ttype)
                 {
-                    if ($child->getSymbol()->type === $ttype)
-                    {
-                        array_push($tokens, $child);
-                    }
+                    array_push($tokens, $child);
                 }
             }
-            return $tokens;
         }
+        return $tokens;
     }
 
-    function getTypedRuleContext($ctxType, $i)
+    function getTypedRuleContext(string $ctxType, int $i) : ParseTree
     {
         return $this->getChild($i, $ctxType);
     }
 
-    function getTypedRuleContexts($ctxType)
+    function getTypedRuleContexts(string $ctxType) : array
     {
-        if ($this->children=== null)
+        if ($this->children=== null) return [];
+
+        $contexts = [];
+        foreach ($this->children as $child)
         {
-            return [];
-        }
-        else
-        {
-            $contexts = [];
-            foreach ($this->children as $child)
+            if ($child instanceof $ctxType)
             {
-                if ($child instanceof $ctxType)
-                {
-                    array_push($contexts, $child);
-                }
+                array_push($contexts, $child);
             }
-            return $contexts;
         }
+        return $contexts;
     }
 
     function getChildCount() : int
     {
-        return !isset($this->children) ? 0 : count($this->children);
+        return $this->children ? count($this->children) : 0;
     }
 
     function getSourceInterval() : Interval
     {
-        if ($this->start === null || $this->stop === null)
-        {
-            return Interval::INVALID();
-        }
-        else
-        {
-            return new Interval($this->start->tokenIndex, $this->stop->tokenIndex);
-        }
+        if ($this->start === null || $this->stop === null) return Interval::INVALID();
+        return new Interval($this->start->tokenIndex, $this->stop->tokenIndex);
     }
 
     /**
-     * @return ParserRuleContext
+     * @return self
      */
-    public function getParent()
+    function getParent()
     {
-        /** @var ParserRuleContext $r */
-        $r = $this->parentCtx;
-        return $r;
+        /** @noinspection PhpIncompatibleReturnTypeInspection */
+        return $this->parentCtx;
     }
 }

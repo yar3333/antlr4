@@ -18,16 +18,16 @@ class AltDict
     function get($key)
     {
         $key = "k-" . $key;
-        return isset($this->data[$key]) ? $this->data[$key] : null;
+        return $this->data[$key] ?? null;
     }
 
-    function put($key, $value)
+    function put($key, $value) : void
     {
         $key = "k-" . $key;
         $this->data[$key] = $value;
     }
 
-    function values()
+    function values() : array
     {
         return array_values($this->data);
     }

@@ -37,12 +37,12 @@ class ArrayPredictionContext extends PredictionContext
         $this->returnStates = $returnStates;
     }
 
-    public static function fromOne(SingletonPredictionContext $a)
+    public static function fromOne(SingletonPredictionContext $a) : self
     {
         return new ArrayPredictionContext([$a->getParent()], [$a->returnState]);
     }
 
-    function isEmpty()
+    function isEmpty() : bool
     {
         // since EMPTY_RETURN_STATE can only appear in the last position, we don't need to verify that size==1
         return $this->returnStates[0] === PredictionContext::EMPTY_RETURN_STATE;
@@ -88,17 +88,17 @@ class ArrayPredictionContext extends PredictionContext
         $s = "[";
         for ($i = 0; $i < count($this->returnStates); $i++) {
             if ($i > 0) {
-                $s = $s . ", ";
+                $s .= ", ";
             }
             if ($this->returnStates[$i] === PredictionContext::EMPTY_RETURN_STATE) {
-                $s = $s . '$';
+                $s .= '$';
                 continue;
             }
-            $s = $s . $this->returnStates[$i];
+            $s .= $this->returnStates[$i];
             if ($this->parents[$i] !== null) {
-                $s = $s . " " . $this->parents[$i];
+                $s .= " " . $this->parents[$i];
             } else {
-                $s = $s . "null";
+                $s .= "null";
             }
         }
         return $s . "]";
