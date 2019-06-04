@@ -13,29 +13,17 @@ class IntervalSet
     /**
      * @var Interval[]
      */
-    public $intervals;
+    private $intervals = [];
 
     /**
      * @var bool
      */
-    public $readOnly;
-
-    function __construct()
-    {
-        $this->intervals = null;
-        $this->readOnly = false;
-    }
+    public $readOnly = false;
 
     function first() : int
     {
-        if ($this->intervals === null || count($this->intervals)===0)
-        {
-            return Token::INVALID_TYPE;
-        }
-        else
-        {
-            return $this->intervals[0]->start;
-        }
+        if (!$this->intervals) return Token::INVALID_TYPE;
+        return $this->intervals[0]->start;
     }
 
     function addOne(int $v) : void
@@ -90,7 +78,7 @@ class IntervalSet
 			if ($addition->startsBeforeDisjoint($r))
 			{
 				// insert before r
-				array_splice($this->intervals, $i, 0, $addition);
+				array_splice($this->intervals, $i, 0, [$addition]);
 				return;
 			}
 			// if disjoint and after r, a future iteration will handle it
@@ -142,15 +130,12 @@ class IntervalSet
         return $result;
     }
 
-    function contains($item) : bool
+    function contains(int $item) : bool
     {
-        if (!$this->intervals) return false;
-
-        foreach ($this->intervals as $interval) {
-            if ($interval->contains($item))
-            {
-                return true;
-            }
+        /** @var Interval $interval */
+        foreach ($this->intervals as $interval)
+        {
+            if ($interval->contains($item)) return true;
         }
         return false;
     }
@@ -164,87 +149,80 @@ class IntervalSet
 
     function removeRange(Interval $v) : void
     {
-        if($v->start === $v->stop - 1)
+        if ($v->start === $v->stop - 1) { $this->removeOne($v->start); return; }
+
+        $k = 0;
+        for ($n = 0; $n < count($this->intervals); $n++)
         {
-            $this->removeOne($v->start);
-        }
-        else if ($this->intervals!==null)
-        {
-            $k = 0;
-            for($n=0; $n<count($this->intervals); $n++)
+            $i = $this->intervals[$k];
+
+            if ($v->stop <= $i->start) return;
+
+            // check for including range, split it
+            if ($v->start > $i->start && $v->stop < $i->stop)
             {
-                $i = $this->intervals[$k];
-                // intervals are ordered
-                if ($v->stop <= $i->start) return;
-
-                // check for including range, split it
-                if ($v->start>$i->start && $v->stop<$i->stop)
-                {
-                    $this->intervals[$k] = new Interval($i->start, $v->start);
-                    $x = new Interval($v->stop, $i->stop);
-                    array_splice($this->intervals, $k, 0, $x);
-                    return;
-                }
-
-                // check for included range, remove it
-                if ($v->start<=$i->start && $v->stop>=$i->stop)
-                {
-                    array_splice($this->intervals, $k, 1);
-                    $k--;// need another pass
-                }
-                // check for lower boundary
-                else if ($v->start<$i->stop)
-                {
-                    $this->intervals[$k] = new Interval($i->start, $v->start);
-                }
-                // check for upper boundary
-                else if($v->stop<$i->stop)
-                {
-                    $this->intervals[$k] = new Interval($v->stop, $i->stop);
-                }
-                $k++;
+                $this->intervals[$k] = new Interval($i->start, $v->start);
+                $x = new Interval($v->stop, $i->stop);
+                array_splice($this->intervals, $k, 0, [$x]);
+                return;
             }
+
+            // check for included range, remove it
+            if ($v->start <= $i->start && $v->stop>=$i->stop)
+            {
+                array_splice($this->intervals, $k, 1);
+                $k--;// need another pass
+            }
+            // check for lower boundary
+            else if ($v->start < $i->stop)
+            {
+                $this->intervals[$k] = new Interval($i->start, $v->start);
+            }
+            // check for upper boundary
+            else if ($v->stop < $i->stop)
+            {
+                $this->intervals[$k] = new Interval($v->stop, $i->stop);
+            }
+
+            $k++;
         }
     }
 
     function removeOne(int $v) : void
     {
-        if ($this->intervals !== null)
+        foreach ($this->intervals as $k => $i)
         {
-            foreach ($this->intervals as $k => $i)
+            // intervals is ordered
+            if ($v < $i->start) return;
+
+            // check for single value range
+            if ($v === $i->start && $v === $i->stop - 1)
             {
-                // intervals is ordered
-                if ($v < $i->start) return;
+                array_splice($this->intervals, $k, 1);
+                return;
+            }
 
-                // check for single value range
-                if ($v === $i->start && $v === $i->stop - 1)
-                {
-                    array_splice($this->intervals, $k, 1);
-                    return;
-                }
+            // check for lower boundary
+            if ($v === $i->start)
+            {
+                $this->intervals[$k] = new Interval($i->start + 1, $i->stop);
+                return;
+            }
 
-                // check for lower boundary
-                if ($v === $i->start)
-                {
-                    $this->intervals[$k] = new Interval($i->start + 1, $i->stop);
-                    return;
-                }
+            // check for upper boundary
+            if ($v === $i->stop - 1)
+            {
+                $this->intervals[$k] = new Interval($i->start, $i->stop - 1);
+                return;
+            }
 
-                // check for upper boundary
-                if ($v === $i->stop - 1)
-                {
-                    $this->intervals[$k] = new Interval($i->start, $i->stop - 1);
-                    return;
-                }
-
-                // split existing range
-                if ($v < $i->stop - 1)
-                {
-                    $x = new Interval($i->start, $v);
-                    $i->start = $v + 1;
-                    array_splice($this->intervals, $k, 0, $x);
-                    return;
-                }
+            // split existing range
+            if ($v < $i->stop - 1)
+            {
+                $x = new Interval($i->start, $v);
+                $i->start = $v + 1;
+                array_splice($this->intervals, $k, 0, [$x]);
+                return;
             }
         }
     }
@@ -271,9 +249,9 @@ class IntervalSet
 			$I = $iter->current(); $iter->next();
 			$a = $I->start;
 			$b = $I->stop;
-			if ($a===$b)
+			if ($a === $b)
 			{
-				if ($a===Token::EOF) $buf .= "<EOF>";
+				if ($a === Token::EOF) $buf .= "<EOF>";
 				else if ($elemAreChar) $buf .= "'" . Utils::fromCodePoint($a) . "'";
 				else $buf .= $a;
 			}
@@ -297,9 +275,9 @@ class IntervalSet
 
     function toStringVocabulary(Vocabulary $vocabulary) : string
     {
-		$buf = "";
 		if (!$this->intervals) return "{}";
 
+		$buf = "";
 		if ($this->size() > 1)
 		{
 			$buf .= "{";

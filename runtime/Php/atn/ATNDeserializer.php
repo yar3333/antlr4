@@ -53,7 +53,7 @@ class ATNDeserializer
     public $deserializationOptions;
 
     /**
-     * @var string
+     * @var int[]
      */
     public $data;
 
@@ -137,7 +137,7 @@ class ATNDeserializer
 
     function reset(string $data) : void
     {
-        $temp = []; foreach (str_split($data) as $c) $temp[] = $this->reset_adjust($c);
+        $temp = []; foreach (preg_split('//u', $data, null, PREG_SPLIT_NO_EMPTY) as $c) $temp[] = $this->reset_adjust($c);
         // don't adjust the first value since that's the version number
         $temp[0] = Utils::charCodeAt($data, 0);
         $this->data = $temp;
@@ -642,37 +642,18 @@ class ATNDeserializer
         return ($low & 0x00000000FFFFFFFF) | ($high << 32);
     }
 
-    function createByteToHex() : array
-    {
-        $bth = [];
-        for ($i = 0; $i < 256; $i++)
-        {
-            $bth[$i] = mb_strtoupper(mb_substr(dechex($i + 0x100), 1));
-        }
-        return $bth;
-    }
-
     function readUUID() : string
     {
-        $byteToHex = $this->createByteToHex();
-
         $bb = [];
-        for ($i=7; $i>=0; $i--)
+        for ($i=0; $i < 8; $i++)
         {
             $int = $this->readInt();
-            /* jshint bitwise: false */
-            $bb[2*$i+1] = $int & 0xFF;
-            $bb[2*$i] = ($int >> 8) & 0xFF;
+            $bb[] = $int & 0xFF;
+            $bb[] = ($int >> 8) & 0xFF;
         }
-        return
-            $byteToHex[$bb[0]] . $byteToHex[$bb[1]] .
-            $byteToHex[$bb[2]] . $byteToHex[$bb[3]] . '-' .
-            $byteToHex[$bb[4]] . $byteToHex[$bb[5]] . '-' .
-            $byteToHex[$bb[6]] . $byteToHex[$bb[7]] . '-' .
-            $byteToHex[$bb[8]] . $byteToHex[$bb[9]] . '-' .
-            $byteToHex[$bb[10]] . $byteToHex[$bb[11]] .
-            $byteToHex[$bb[12]] . $byteToHex[$bb[13]] .
-            $byteToHex[$bb[14]] . $byteToHex[$bb[15]];
+        $bb = array_reverse($bb);
+        $hex = strtoupper(bin2hex(implode(array_map("chr", $bb))));
+        return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split($hex, 4));
     }
 
     /**

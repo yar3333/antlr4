@@ -105,9 +105,9 @@ abstract class PredictionContext
     // Convert a {@link RuleContext} tree to a {@link PredictionContext} graph.
     // Return {@link //EMPTY} if {@code outerContext} is empty or null.
     // /
-    static function predictionContextFromRuleContext(ATN $atn, ParserRuleContext $outerContext)
+    static function fromRuleContext(ATN $atn, RuleContext $outerContext)
     {
-        if (!$outerContext) $outerContext = ParserRuleContext::EMPTY();
+        if (!$outerContext) $outerContext = RuleContext::EMPTY();
 
         // if we are in RuleContext of start rule, s, then PredictionContext
         // is EMPTY. Nobody called us. (if we are empty, return empty)
@@ -117,7 +117,7 @@ abstract class PredictionContext
         }
 
         // If we have a parent, convert it to a PredictionContext graph
-        $parent = self::predictionContextFromRuleContext($atn, $outerContext->getParent());
+        $parent = self::fromRuleContext($atn, $outerContext->getParent());
         $state = $atn->states[$outerContext->invokingState];
         $transition = $state->transitions[0];
 

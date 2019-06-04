@@ -17,14 +17,12 @@ class LexerATNConfig extends ATNConfig
      */
     public $passedThroughNonGreedyDecision;
 
-    function __construct(object $params, object $config)
+    function __construct(?object $params, ?self $config)
     {
         parent::__construct($params, $config);
 
-        // This is the backing field for {@link //getLexerActionExecutor}.
-        $lexerActionExecutor = $params->lexerActionExecutor ?? null;
-        $this->lexerActionExecutor = $lexerActionExecutor || ($config !== null ? $config->lexerActionExecutor : null);
-        $this->passedThroughNonGreedyDecision = $config !== null ? $this->checkNonGreedyDecision($config, $this->state) : false;
+        $this->lexerActionExecutor = $params->lexerActionExecutor ?? ($config->lexerActionExecutor ?? null);
+        $this->passedThroughNonGreedyDecision = $config ? $this->checkNonGreedyDecision($config, $this->state) : false;
     }
 
     function updateHashCode(Hash $hash) : void

@@ -48,12 +48,10 @@ class CommonTokenStream extends BufferedTokenStream
         return $this->nextTokenOnChannel($i, $this->channel);
     }
 
-    function LB($k) : Token
+    function LB($k) : ?Token
     {
-        if ($k===0 || $this->index-$k<0)
-        {
-            return null;
-        }
+        if ($k === 0 || $this->index-$k < 0) return null;
+
         $i = $this->index;
         $n = 1;
         // find k good tokens looking backwards
@@ -70,13 +68,11 @@ class CommonTokenStream extends BufferedTokenStream
         return $this->tokens[$i];
     }
 
-    function LT(int $k) : Token
+    function LT(int $k) : ?Token
     {
         $this->lazyInit();
-        if ($k === 0)
-        {
-            return null;
-        }
+        if ($k === 0) return null;
+
         if ($k < 0)
         {
             return $this->LB(-$k);

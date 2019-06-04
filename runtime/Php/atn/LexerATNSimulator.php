@@ -13,7 +13,6 @@ use \Antlr4\Atn\Transitions\RuleTransition;
 use \Antlr4\CharStream;
 use \Antlr4\Dfa\DFA;
 use \Antlr4\Dfa\DFAState;
-use \Antlr4\InputStream;
 use \Antlr4\Predictioncontexts\PredictionContext;
 use \Antlr4\Predictioncontexts\SingletonPredictionContext;
 use \Antlr4\Token;
@@ -76,7 +75,7 @@ class LexerATNSimulator extends ATNSimulator
     /**
      * @var int
      */
-    public $column;
+    public $charPositionInLine;
 
     /**
      * @var int
@@ -106,7 +105,7 @@ class LexerATNSimulator extends ATNSimulator
 
         // The index of the character relative to the beginning of the line
         // 0..n-1///
-        $this->column = 0;
+        $this->charPositionInLine = 0;
 
         $this->mode = Lexer::DEFAULT_MODE;
 
@@ -114,15 +113,15 @@ class LexerATNSimulator extends ATNSimulator
         $this->prevAccept = new SimState();
     }
 
-    function copyState($simulator) : void
+    function copyState(LexerATNSimulator $simulator) : void
     {
-        $this->column = $simulator->column;
+        $this->charPositionInLine = $simulator->charPositionInLine;
         $this->line = $simulator->line;
         $this->mode = $simulator->mode;
         $this->startIndex = $simulator->startIndex;
     }
 
-    function match(CharStream $input, int $mode)
+    function match(CharStream $input, int $mode) : int
     {
         self::$match_calls++;
 
@@ -150,11 +149,11 @@ class LexerATNSimulator extends ATNSimulator
         $this->prevAccept->reset();
         $this->startIndex = -1;
         $this->line = 1;
-        $this->column = 0;
+        $this->charPositionInLine = 0;
         $this->mode = Lexer::DEFAULT_MODE;
     }
 
-    function matchATN($input)
+    function matchATN(CharStream $input) : int
     {
         $startState = $this->atn->modeToStartState[$this->mode];
 
@@ -182,7 +181,7 @@ class LexerATNSimulator extends ATNSimulator
         return $predict;
     }
 
-    function execATN(CharStream $input, $ds0)
+    function execATN(CharStream $input, DFAState $ds0) : int
     {
         if ($this->debug)
         {
@@ -263,22 +262,20 @@ class LexerATNSimulator extends ATNSimulator
     // @param t The next input symbol
     // @return The existing target DFA state for the given input symbol
     // {@code t}, or {@code null} if the target state for this edge is not already cached
-    function getExistingTargetState($s, $t)
+    function getExistingTargetState(DFAState $s, int $t)
     {
         if ($s->edges === null || $t < LexerATNSimulator::MIN_DFA_EDGE || $t > LexerATNSimulator::MAX_DFA_EDGE)
         {
             return null;
         }
 
-        $target = $s->edges[$t - LexerATNSimulator::MIN_DFA_EDGE];
-        if(!isset($target))
-        {
-            $target = null;
-        }
+        $target = $s->edges[$t - LexerATNSimulator::MIN_DFA_EDGE] ?? null;
+
         if ($this->debug && $target !== null)
         {
             //$console->log("reuse state " + s.stateNumber + " edge to " . $target->stateNumber);
         }
+
         return $target;
     }
 
@@ -292,7 +289,7 @@ class LexerATNSimulator extends ATNSimulator
     // @return The computed target DFA state for the given input symbol
     // {@code t}. If {@code t} does not lead to a valid DFA state, this method
     // returns {@link //ERROR}.
-    function computeTargetState($input, $s, $t)
+    function computeTargetState(CharStream $input, DFAState $s, int $t)
     {
         $reach = new OrderedATNConfigSet();
         // if we don't find an existing DFA state
@@ -315,18 +312,18 @@ class LexerATNSimulator extends ATNSimulator
         return $this->addDFAEdge($s, $t, null, $reach);
     }
 
-    function failOrAccept($prevAccept, $input, $reach, $t)
+    function failOrAccept(SimState $prevAccept, CharStream $input, ATNConfigSet $reach, int $t) : int
     {
         if ($this->prevAccept->dfaState !== null)
         {
             $lexerActionExecutor = $prevAccept->dfaState->lexerActionExecutor;
-            $this->accept($input, $lexerActionExecutor, $this->startIndex, $prevAccept->index, $prevAccept->line, $prevAccept->column);
+            $this->accept($input, $lexerActionExecutor, $this->startIndex, $prevAccept->index, $prevAccept->line, $prevAccept->charPos);
             return $prevAccept->dfaState->prediction;
         }
         else
         {
             // if no accept and EOF is first char, return EOF
-            if ($t === Token::EOF && $input->index === $this->startIndex)
+            if ($t === Token::EOF && $input->index() === $this->startIndex)
             {
                 return Token::EOF;
             }
@@ -379,7 +376,7 @@ class LexerATNSimulator extends ATNSimulator
         }
     }
 
-    function accept(InputStream $input, LexerActionExecutor $lexerActionExecutor, int $startIndex, int $index, int $line, int $charPos) : void
+    function accept(CharStream $input, ?LexerActionExecutor $lexerActionExecutor, int $startIndex, int $index, int $line, int $charPos) : void
 	{
         if ($this->debug)
         {
@@ -388,8 +385,8 @@ class LexerATNSimulator extends ATNSimulator
         // seek to after last char in token
         $input->seek($index);
         $this->line = $line;
-        $this->column = $charPos;
-        if ($lexerActionExecutor !== null && $this->recog !== null)
+        $this->charPositionInLine = $charPos;
+        if ($lexerActionExecutor && $this->recog)
         {
             $lexerActionExecutor->execute($this->recog, $input, $startIndex);
         }
@@ -411,7 +408,8 @@ class LexerATNSimulator extends ATNSimulator
     {
         $initialContext = PredictionContext::EMPTY();
         $configs = new OrderedATNConfigSet();
-        foreach ($p->transitions as $i => $t) {
+        foreach ($p->transitions as $i => $t)
+        {
             $target = $t->target;
             $cfg = new LexerATNConfig((object)[ 'state'=>$target, 'alt'=>$i+1, 'context'=>$initialContext ], null);
             $this->closure($input, $cfg, $configs, false, false, false);
@@ -613,7 +611,7 @@ class LexerATNSimulator extends ATNSimulator
         if ($this->recog === null) return true;
         if (!$speculative) return $this->recog->sempred(null, $ruleIndex, $predIndex);
 
-        $savedcolumn = $this->column;
+        $savedcolumn = $this->charPositionInLine;
         $savedLine = $this->line;
         $index = $input->index();
         $marker = $input->mark();
@@ -624,24 +622,24 @@ class LexerATNSimulator extends ATNSimulator
         }
         finally
         {
-            $this->column = $savedcolumn;
+            $this->charPositionInLine = $savedcolumn;
             $this->line = $savedLine;
             $input->seek($index);
             $input->release($marker);
         }
     }
 
-    function captureSimState($settings, $input, $dfaState) : void
+    function captureSimState(SimState $settings, CharStream $input, DFAState $dfaState) : void
     {
-        $settings->index = $input->index;
+        $settings->index = $input->index();
         $settings->line = $this->line;
-        $settings->column = $this->column;
+        $settings->charPos = $this->charPositionInLine;
         $settings->dfaState = $dfaState;
     }
 
-    function addDFAEdge($from_, $tk, $to, ATNConfigSet $cfgs=null)
+    function addDFAEdge(DFAState $from, int $tk, ?DFAState $to, ATNConfigSet $cfgs=null)
     {
-        if ($to === null && $cfgs !== null)
+        if (!$to && $cfgs)
         {
             // leading to this call, ATNConfigSet.hasSemanticContext is used as a
             // marker indicating dynamic predicate evaluation makes this edge
@@ -673,12 +671,12 @@ class LexerATNSimulator extends ATNSimulator
         {
             //$console->log("EDGE " + from_ + " -> " + to + " upon " . $tk);
         }
-        if ($from_->edges === null)
+        if ($from->edges === null)
         {
             // make room for tokens 1..n and -1 masquerading as index 0
-            $from_->edges = [];
+            $from->edges = [];
         }
-        $from_->edges[$tk - LexerATNSimulator::MIN_DFA_EDGE] = $to;// connect
+        $from->edges[$tk - LexerATNSimulator::MIN_DFA_EDGE] = $to;// connect
 
         return $to;
     }
@@ -687,7 +685,7 @@ class LexerATNSimulator extends ATNSimulator
     // configurations already. This method also detects the first
     // configuration containing an ATN rule stop state. Later, when
     // traversing the DFA, we will know which rule to accept.
-    function addDFAState(ATNConfigSet $configs)
+    function addDFAState(ATNConfigSet $configs) : DFAState
     {
         $proposed = new DFAState(null, $configs);
 
@@ -707,17 +705,19 @@ class LexerATNSimulator extends ATNSimulator
             $proposed->lexerActionExecutor = $firstConfigWithRuleStopState->lexerActionExecutor;
             $proposed->prediction = $this->atn->ruleToTokenType[$firstConfigWithRuleStopState->state->ruleIndex];
         }
+
+        /** @var DFA $dfa */
         $dfa = $this->decisionToDFA[$this->mode];
+
         $existing = $dfa->states->get($proposed);
-        if ($existing!==null)
-        {
-            return $existing;
-        }
+        if ($existing) return $existing;
+
         $newState = $proposed;
-        $newState->stateNumber = $dfa->states->length;
+        $newState->stateNumber = $dfa->states->length();
         $configs->setReadonly(true);
         $newState->configs = $configs;
         $dfa->states->add($newState);
+
         return $newState;
     }
 
@@ -739,11 +739,11 @@ class LexerATNSimulator extends ATNSimulator
         if ($curChar === mb_ord("\n", 'UTF-8'))
         {
             $this->line++;
-            $this->column = 0;
+            $this->charPositionInLine = 0;
         }
         else
         {
-            $this->column++;
+            $this->charPositionInLine++;
         }
         $input->consume();
     }
@@ -760,4 +760,3 @@ class LexerATNSimulator extends ATNSimulator
         }
     }
 }
-

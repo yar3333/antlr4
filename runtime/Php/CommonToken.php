@@ -27,12 +27,14 @@ class CommonToken extends Token
 
         if ($this->source->a)
         {
-            $this->line = $this->source->a->line;
-            $this->column = $this->source->a->column;
+            /** @var TokenSource $a */
+            $a = $this->source->a;
+            $this->line = $a->getLine();
+            $this->charPositionInLine = $a->getCharPositionInLine();
         }
         else
         {
-            $this->column = -1;
+            $this->charPositionInLine = -1;
         }
     }
 
@@ -57,7 +59,7 @@ class CommonToken extends Token
         $t = new CommonToken($this->source, $this->type, $this->channel, $this->start, $this->stop);
         $t->tokenIndex = $this->tokenIndex;
         $t->line = $this->line;
-        $t->column = $this->column;
+        $t->charPositionInLine = $this->charPositionInLine;
         $t->setText($this->getText());
         return $t;
     }
@@ -90,6 +92,6 @@ class CommonToken extends Token
         return "[@" . $this->tokenIndex . "," . $this->start . ":" . $this->stop . "='" .
             $txt . "',<" . $this->type . ">" .
             ($this->channel > 0 ? ",channel=" . $this->channel : "") . "," .
-            $this->line . ":" . $this->column . "]";
+            $this->line . ":" . $this->charPositionInLine . "]";
     }
 }

@@ -6,11 +6,12 @@
 
 namespace Antlr4\Atn;
 
-use Antlr4\Atn\Actions\LexerAction;
-use Antlr4\InputStream;
-use Antlr4\Utils\Hash;
+use \Antlr4\Atn\Actions\LexerAction;
+use \Antlr4\CharStream;
+use \Antlr4\Lexer;
+use \Antlr4\Utils\Hash;
 use \Antlr4\Utils\Utils;
-use Antlr4\Atn\Actions\LexerIndexedCustomAction;
+use \Antlr4\Atn\Actions\LexerIndexedCustomAction;
 
 // Represents an executor for a sequence of lexer actions which traversed during
 // the matching operation of a lexer rule (token).
@@ -89,7 +90,7 @@ class LexerActionExecutor
     // @return A {@link LexerActionExecutor} which stores input stream offsets
     // for all position-dependent lexer actions.
     // /
-    function fixOffsetBeforeMatch($offset)
+    function fixOffsetBeforeMatch(int $offset)
     {
         $updatedLexerActions = null;
         for ($i = 0; $i < count($this->lexerActions); $i++)
@@ -130,7 +131,7 @@ class LexerActionExecutor
     // @param startIndex The token start index. This value may be passed to
     // {@link IntStream//seek} to set the {@code input} position to the beginning
     // of the token.
-    function execute($lexer, InputStream $input, $startIndex) : void
+    function execute(Lexer $lexer, CharStream $input, int $startIndex) : void
     {
         $requiresSeek = false;
         $stopIndex = $input->index();

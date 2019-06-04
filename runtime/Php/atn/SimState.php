@@ -19,7 +19,7 @@ class SimState
     /**
      * @var int
      */
-    public $column;
+    public $charPos;
 
     /**
      * @var DFAState
@@ -35,7 +35,7 @@ class SimState
     {
         $this->index = -1;
         $this->line = 0;
-        $this->column = -1;
+        $this->charPos = -1;
         $this->dfaState = null;
     }
 }

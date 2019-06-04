@@ -545,7 +545,7 @@ class DefaultErrorStrategy implements ErrorStrategy
         if ($current->type === Token::EOF && $lookback !== null) {
             $current = $lookback;
         }
-        return $recognizer->getTokenFactory()->createEx($current->source, $expectedTokenType, $tokenText, Token::DEFAULT_CHANNEL, -1, -1, $current->line, $current->column);
+        return $recognizer->getTokenFactory()->createEx($current->source, $expectedTokenType, $tokenText, Token::DEFAULT_CHANNEL, -1, -1, $current->line, $current->charPositionInLine);
     }
 
     function getExpectedTokens(Parser $recognizer) : IntervalSet

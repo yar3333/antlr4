@@ -5,13 +5,13 @@
  */
 
 /** @noinspection SenselessMethodDuplicationInspection */
+/** @noinspection ReturnTypeCanBeDeclaredInspection */
 
 namespace Antlr4;
 
 use Antlr4\Atn\ATN;
 use Antlr4\Atn\ATNDeserializationOptions;
 use Antlr4\Atn\ATNDeserializer;
-use Antlr4\Atn\ATNSimulator;
 use Antlr4\Atn\ParserATNSimulator;
 use Antlr4\Error\DefaultErrorStrategy;
 use Antlr4\Error\Exceptions\RecognitionException;
@@ -399,7 +399,7 @@ abstract class Parser extends Recognizer
         }
         $this->_syntaxErrors++;
         $line = $offendingToken->line;
-        $column = $offendingToken->column;
+        $column = $offendingToken->charPositionInLine;
         $listener = $this->getErrorListenerDispatch();
         $listener->syntaxError($this, $offendingToken, $line, $column, $msg, $err);
     }
@@ -560,7 +560,7 @@ abstract class Parser extends Recognizer
         }
     }
 
-    function unrollRecursionContexts(ParserRuleContext $parentCtx) : void
+    function unrollRecursionContexts(?ParserRuleContext $parentCtx) : void
     {
         array_pop($this->_precedenceStack);
         $this->_ctx->stop = $this->_input->LT(-1);
@@ -711,7 +711,7 @@ abstract class Parser extends Recognizer
         $seenOne = false;
         foreach ($this->getInterpreter()->decisionToDFA as $dfa)
         {
-            if (!$dfa->states()->isEmpty())
+            if (!$dfa->states->isEmpty())
             {
                 if ($seenOne) $this->printer->println();
                 $this->printer->println("Decision " . $dfa->decision . ":");
@@ -752,5 +752,9 @@ abstract class Parser extends Recognizer
     /**
      * @return ParserATNSimulator
      */
-	function getInterpreter() : ATNSimulator { return $this->_interp; }
+	function getInterpreter()
+    {
+        /** @noinspection PhpIncompatibleReturnTypeInspection */
+        return $this->_interp;
+	}
 }

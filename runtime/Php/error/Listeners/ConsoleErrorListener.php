@@ -20,8 +20,8 @@ class ConsoleErrorListener extends BaseErrorListener
     // <pre>
     // line <em>line</em>:<em>charPositionInLine</em> <em>msg</em>
     // </pre>
-	function syntaxError(Recognizer $recognizer, Object $offendingSymbol, int $line, int $charPositionInLine, string $msg, ?RecognitionException $e) : void
+	function syntaxError(Recognizer $recognizer, ?object $offendingSymbol, int $line, int $charPositionInLine, string $msg, ?RecognitionException $e) : void
     {
-        //$console->error("line " + line + ":" + column + " " . $msg);
+        //$console->error("line " . $line . ":" . $charPositionInLine . " " . $msg);
     }
 }

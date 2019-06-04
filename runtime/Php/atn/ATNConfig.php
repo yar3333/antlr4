@@ -48,7 +48,7 @@ class ATNConfig
 
     public $precedenceFilterSuppressed;
 
-    private static function checkParams(object $params, $isCfg=false) : object
+    private static function checkParams(?object $params, $isCfg=false) : object
     {
         if (!$params)
         {
@@ -70,11 +70,10 @@ class ATNConfig
         return $props;
     }
 
-    function __construct(object $params, object $config)
+    function __construct(?object $params, ?ATNConfig $_config)
     {
-        $this->checkContext($params, $config);
         $params = self::checkParams($params);
-        $config = self::checkParams($config, true);
+        $config = self::checkParams($_config, true);
 
         // The ATN state associated with this configuration///
         $this->state = $params->state ?: $config->state;
@@ -99,15 +98,7 @@ class ATNConfig
         // outer context: depth &gt; 0.  Note that it may not be totally
         // accurate depth since I don't ever decrement. TODO: make it a boolean then
         $this->reachesIntoOuterContext = $config->reachesIntoOuterContext;
-        $this->precedenceFilterSuppressed = $config->precedenceFilterSuppressed;
-    }
-
-    function checkContext(object $params, object $config) : void
-    {
-        if (!isset($params->context) && !isset($config->context))
-        {
-            $this->context = null;
-        }
+        $this->precedenceFilterSuppressed = $config->precedenceFilterSuppressed ?? false;
     }
 
     function hashCode() : int

@@ -120,7 +120,7 @@ class ATN
     //  If {@code ctx} is null, the set of tokens will not include what can follow
     //  the rule surrounding {@code s}. In other words, the set will be
     //  restricted to tokens reachable staying within {@code s}'s rule.
-    private function nextTokensInContext(ATNState $s, RuleContext $ctx) : IntervalSet
+    private function nextTokensInContext(ATNState $s, ?RuleContext $ctx) : IntervalSet
     {
         $anal = new LL1Analyzer($this);
         return $anal->LOOK($s, null, $ctx);

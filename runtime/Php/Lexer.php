@@ -6,6 +6,7 @@
 
 namespace Antlr4;
 
+use Antlr4\Atn\ATNSimulator;
 use Antlr4\Atn\LexerATNSimulator;
 use Antlr4\Error\Exceptions\LexerNoViableAltException;
 use Antlr4\Error\Exceptions\RecognitionException;
@@ -15,7 +16,7 @@ use Antlr4\Utils\Utils;
 // A lexer is recognizer that draws input symbols from a character stream.
 //  lexer grammars result in a subclass of this object. A Lexer object
 //  uses simplified match() and error recovery mechanisms in the interest of speed.
-abstract class Lexer extends Recognizer
+abstract class Lexer extends Recognizer implements TokenSource
 {
     const DEFAULT_MODE = 0;
     const MORE = -2;
@@ -29,48 +30,48 @@ abstract class Lexer extends Recognizer
     /**
      * @var CharStream
      */
-    public $_input;
+    protected $_input;
 
     /**
      * @var TokenFactory
      */
-    public $_factory;
+    protected $_factory;
 
     /**
-     * @var Pair<TokenSource, CharStream>
+     * @var Pair Pair<TokenSource, CharStream>
      */
     protected $_tokenFactorySourcePair;
 
     /**
      * @var LexerATNSimulator
      */
-    public $_interp;
+    protected $_interp;
 
     /**
      * @var Token
      */
-    public $_token;
+    protected $_token;
 
-    public $_tokenStartCharIndex;
+    protected $_tokenStartCharIndex;
 
-    public $_tokenStartLine;
+    protected $_tokenStartLine;
 
-    public $_tokenStartColumn;
+    protected $_tokenStartColumn;
 
-    public $_hitEOF;
+    protected $_hitEOF;
 
     public $_channel;
 
-    public $_type;
+    protected $_type;
 
-    public $_modeStack;
+    protected $_modeStack;
 
     /**
      * @var int
      */
-    public $_mode;
+    protected $_mode;
 
-    public $_text;
+    protected $_text;
 
     function __construct(CharStream $input)
     {
@@ -78,7 +79,7 @@ abstract class Lexer extends Recognizer
 
         $this->_input = $input;
         $this->_factory = CommonTokenFactory::DEFAULT();
-        $this->_tokenFactorySourcePair = [ $this, $input ];
+        $this->_tokenFactorySourcePair = new Pair($this, $input);
 
         $this->_interp = null;// child classes must populate this
 
@@ -143,7 +144,7 @@ abstract class Lexer extends Recognizer
     }
 
     // Return a token from this source; i.e., match a token on the char stream.
-    function nextToken() : ?Token
+    function nextToken() : Token
     {
         if ($this->_input === null) throw new \Exception("nextToken requires a non-null input stream.");
 
@@ -162,7 +163,7 @@ abstract class Lexer extends Recognizer
                 $this->_token = null;
                 $this->_channel = Token::DEFAULT_CHANNEL;
                 $this->_tokenStartCharIndex = $this->_input->index();
-                $this->_tokenStartColumn = $this->_interp->column;
+                $this->_tokenStartColumn = $this->_interp->charPositionInLine;
                 $this->_tokenStartLine = $this->_interp->line;
                 $this->_text = null;
                 $continueOuter = false;
@@ -273,10 +274,10 @@ abstract class Lexer extends Recognizer
     function setInputStream($input) : void
     {
             $this->_input = null;
-            $this->_tokenFactorySourcePair = [ $this, $this->_input ];
+            $this->_tokenFactorySourcePair = new Pair($this, $this->_input);
             $this->reset();
             $this->_input = $input;
-            $this->_tokenFactorySourcePair = [ $this, $this->_input ];
+            $this->_tokenFactorySourcePair = new Pair($this, $this->_input);
     }
 
     function getSourceName() : string { return $this->_input->getSourceName(); }
@@ -341,8 +342,8 @@ abstract class Lexer extends Recognizer
     function getLine() : int { return $this->_interp->line; }
     function setLine($line) : void { $this->_interp->line = $line; }
 
-    function getColumn() : int { return $this->_interp->column; }
-    function setColumn(int $column) : void { $this->_interp->column = $column; }
+    function getColumn() : int { return $this->_interp->charPositionInLine; }
+    function setColumn(int $column) : void { $this->_interp->charPositionInLine = $column; }
 
     // What is the index of the current character of lookahead?
     function getCharIndex() : int
@@ -444,4 +445,14 @@ abstract class Lexer extends Recognizer
             }
         }
     }
+
+    function getTokenFactory() : TokenFactory { return $this->_factory; }
+    function setTokenFactory(TokenFactory $factory) : void { $this->_factory = $factory; }
+
+    /**
+     * @return LexerATNSimulator
+     */
+	function getInterpreter(): ATNSimulator { return parent::getInterpreter(); }
+
+    function getCharPositionInLine() : int { return $this->getInterpreter()->charPositionInLine; }
 }

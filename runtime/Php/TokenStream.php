@@ -19,7 +19,7 @@ interface TokenStream extends IntStream
      * @param int $k
      * @return Token
      */
-    function LT(int $k): Token;
+    function LT(int $k): ?Token;
 
     /**
      * Gets the {@link Token} at the specified {@code index} in the stream. When

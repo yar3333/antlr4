@@ -40,7 +40,7 @@ class CommonTokenFactory implements TokenFactory
      * @var CommonTokenFactory
      */
     private static $DEFAULT;
-    static function DEFAULT() : CommonTokenFactory { return self::$DEFAULT ?: (self::$DEFAULT = new CommonTokenFactory(null)); }
+    static function DEFAULT() : CommonTokenFactory { return self::$DEFAULT ?: (self::$DEFAULT = new CommonTokenFactory()); }
 
     /**
      * @param Pair<TokenSource, CharStream> $source
@@ -53,12 +53,12 @@ class CommonTokenFactory implements TokenFactory
      * @param int $column
      * @return CommonToken
      */
-    function createEx(Pair $source, int $type, string $text, int $channel, int $start, int $stop, int $line, int $column) : Token
+    function createEx(Pair $source, int $type, ?string $text, int $channel, int $start, int $stop, int $line, int $column) : Token
     {
         $t = new CommonToken($source, $type, $channel, $start, $stop);
 
         $t->line = $line;
-        $t->column = $column;
+        $t->charPositionInLine = $column;
 
         if ($text !== null)
         {

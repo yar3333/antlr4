@@ -19,10 +19,12 @@ class SingletonPredictionContext extends PredictionContext
      */
     public $returnState;
 
-    function __construct(PredictionContext $parent, int $returnState)
+    function __construct(?PredictionContext $parent, int $returnState)
     {
         $hashCode = 0;
-        if ($parent !== null) {
+
+        if ($parent)
+        {
             $hash = new Hash();
             $hash->update($parent, $returnState);
             $hashCode = $hash->finish();

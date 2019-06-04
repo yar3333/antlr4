@@ -77,7 +77,7 @@ class  Token
      * beginning of the line at which it occurs, 0..n-1
      * @var 
      */
-    public $column;
+    public $charPositionInLine;
 
     /**
      * text of the token.
@@ -94,7 +94,7 @@ class  Token
         $this->stop = null;// optional; return -1 if not implemented.
         $this->tokenIndex = null;// from 0..n-1 of the token object in the input stream
         $this->line = null;// line=1..n of the 1st character
-        $this->column = null;// beginning of the line at which it occurs, 0..n-1
+        $this->charPositionInLine = null;// beginning of the line at which it occurs, 0..n-1
         $this->_text = null;// text of the token.
     }
 

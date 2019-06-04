@@ -41,7 +41,7 @@ class Map
         return $l;
     }
 
-    function put($key, $value) : void
+    function put($key, $value)
     {
         $hashKey = "hash_" . $this->hashFunction->call($key);
 

@@ -142,13 +142,10 @@ class BufferedTokenStream implements TokenStream
     // Add {@code n} elements to buffer.
     //
     // @return The actual number of elements added to the buffer.
-    // /
-    function fetch($n)
+    function fetch(int $n) : int
     {
-        if ($this->fetchedEOF)
-        {
-            return 0;
-        }
+        if ($this->fetchedEOF) return 0;
+
         for ($i = 0; $i < $n; $i++)
         {
             $t = $this->tokenSource->nextToken();
@@ -166,14 +163,8 @@ class BufferedTokenStream implements TokenStream
     // Get all tokens from start..stop inclusively
     function getTokens(int $start, int $stop, ?Set $types)
     {
-        if (!isset($types))
-        {
-            $types = null;
-        }
-        if ($start < 0 || $stop < 0)
-        {
-            return null;
-        }
+        if ($start < 0 || $stop < 0) return null;
+
         $this->lazyInit();
         $subset = [];
         if ($stop >= count($this->tokens))
@@ -183,10 +174,8 @@ class BufferedTokenStream implements TokenStream
         for ($i = $start; $i < $stop; $i++)
         {
             $t = $this->tokens[$i];
-            if ($t->type === Token::EOF)
-            {
-                break;
-            }
+            if ($t->type === Token::EOF) break;
+
             if ($types === null || $types->contains($t->type))
             {
                 array_push($subset, $t);
@@ -200,16 +189,13 @@ class BufferedTokenStream implements TokenStream
         return $this->LT($i)->type;
     }
 
-    function LB(int $k) : Token
+    function LB(int $k) : ?Token
     {
-        if ($this->index - $k < 0)
-        {
-            return null;
-        }
+        if ($this->index - $k < 0) return null;
         return $this->tokens[$this->index - $k];
     }
 
-    function LT(int $k) : Token
+    function LT(int $k) : ?Token
     {
         $this->lazyInit();
 

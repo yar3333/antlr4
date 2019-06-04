@@ -80,7 +80,7 @@ class LL1Analyzer
     // @return The set of tokens that can follow {@code s} in the ATN in the
     // specified {@code ctx}.
     ///
-    function LOOK(ATNState $s, ATNState $stopState, RuleContext $ctx) : IntervalSet
+    function LOOK(ATNState $s, ?ATNState $stopState, ?RuleContext $ctx) : IntervalSet
     {
         $r = new IntervalSet();
         $seeThruPreds = true;// ignore preds; get all lookahead
@@ -106,7 +106,7 @@ class LL1Analyzer
     // @param calledRuleStack A set used for preventing left recursion in the ATN from causing a stack overflow. Outside code should pass {@code new BitSet()} for this argument.
     // @param seeThruPreds {@code true} to true semantic predicates as implicitly {@code true} and "see through them", otherwise {@code false} to treat semantic predicates as opaque and add {@link //HIT_PRED} to the result if one is encountered.
     // @param addEOF Add {@link Token//EOF} to the result if the end of the outermost context is reached. This parameter has no effect if {@code ctx} is {@code null}.
-    function _LOOK(ATNState $s, ATNState $stopState, ?PredictionContext $ctx, IntervalSet $look, Set $lookBusy, BitSet $calledRuleStack, bool $seeThruPreds, bool $addEOF) : void
+    function _LOOK(ATNState $s, ?ATNState $stopState, ?PredictionContext $ctx, IntervalSet $look, Set $lookBusy, BitSet $calledRuleStack, bool $seeThruPreds, bool $addEOF) : void
     {
         $c = new ATNConfig((object)[ 'state'=>$s, 'alt'=>0, 'context'=>$ctx ], null);
 

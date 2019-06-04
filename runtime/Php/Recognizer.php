@@ -1,8 +1,11 @@
 <?php
+
 /* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
+
+/** @noinspection ReturnTypeCanBeDeclaredInspection */
 
 namespace Antlr4;
 
@@ -137,7 +140,7 @@ abstract class Recognizer
     function getErrorHeader(RecognitionException $e) : string
     {
         $line = $e->offendingToken->line;
-        $column = $e->offendingToken->column;
+        $column = $e->offendingToken->charPositionInLine;
         return "line " . $line . ":" . $column;
     }
 
@@ -203,7 +206,10 @@ abstract class Recognizer
     function getState() : int { return $this->_stateNumber; }
     function setState($state) : void { $this->_stateNumber = $state; }
 
-    function getInterpreter() : ATNSimulator { return $this->_interp; }
+    /**
+     * @return ATNSimulator
+     */
+    function getInterpreter() { return $this->_interp; }
 
     /**
      * If this recognizer was generated, it will have a serialized ATN

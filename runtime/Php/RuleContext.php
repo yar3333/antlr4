@@ -49,7 +49,7 @@ class RuleContext implements RuleNode
      */
     public $invokingState;
 
-    function __construct(?RuleContext $parent, int $invokingState=-1)
+    function __construct(?RuleContext $parent, ?int $invokingState=null)
     {
         // What context invoked this rule?
         $this->parentCtx = $parent;
@@ -57,7 +57,7 @@ class RuleContext implements RuleNode
         // What state invoked the rule associated with this context?
         // The "return address" is the followState of invokingState
         // If parent is null, this should be -1.
-        $this->invokingState = $invokingState;
+        $this->invokingState = $invokingState ?: -1;
     }
 
     function depth() : int
@@ -208,7 +208,7 @@ class RuleContext implements RuleNode
      */
     function getParent() { return $this->parentCtx; }
 
-    function setParent(RuleContext $ctx): void { $this->parentCtx = $ctx; }
+    function setParent(?RuleContext $ctx): void { $this->parentCtx = $ctx; }
 
     function toStringTree(Parser $recog = null): string
     {

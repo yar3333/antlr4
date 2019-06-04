@@ -14,16 +14,16 @@ class Set implements \IteratorAggregate
     public $data;
 
     /**
-     * @var \Closure
+     * @var callable
      */
     public $hashFunction;
 
     /**
-     * @var \Closure
+     * @var callable
      */
     public $equalsFunction;
 
-    function __construct(\Closure $hashFunction=null, \Closure $equalsFunction=null)
+    function __construct(callable $hashFunction=null, callable $equalsFunction=null)
     {
         $this->data = [];
         $this->hashFunction = $hashFunction ?: function ($a) { return Utils::standardHashCodeFunction($a); };
@@ -50,18 +50,16 @@ class Set implements \IteratorAggregate
 
     function add($value)
     {
-        $hash = $this->hashFunction->call($value);
+        $hash = ($this->hashFunction)($value);
         $key = "hash_" . $hash;
 
         if (isset($this->data[$key]))
         {
+            /** @var array $values */
             $values = $this->data[$key];
-            for ($i = 0; $i < $values->length; $i++)
+            foreach ($values as $v)
             {
-                if ($this->equalsFunction->call($value, $values[$i]))
-                {
-                    return $values[$i];
-                }
+                if (($this->equalsFunction)($value, $v)) return $v;
             }
             array_push($values, $value);
             return $value;
@@ -78,14 +76,14 @@ class Set implements \IteratorAggregate
 
     function get($value)
     {
-        $hash = $this->hashFunction->call($value);
+        $hash = ($this->hashFunction)($value);
         $key = "hash_" . $hash;
         if (isset($this->data[$key]))
         {
             $values = $this->data[$key];
             foreach ($values as $i => $v)
             {
-                if ($this->equalsFunction->call($value, $v)) return $values[$i];
+                if (($this->equalsFunction)($value, $v)) return $values[$i];
             }
         }
         return null;

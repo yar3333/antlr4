@@ -58,6 +58,14 @@ public class PhpTarget extends Target {
     public String getVersion() {
         return "4.7.2";
     }
+	
+	@Override
+	public String encodeIntAsCharEscape(int v) {
+		if (v < Character.MIN_VALUE || v > Character.MAX_VALUE) {
+			throw new IllegalArgumentException(String.format("Cannot encode the specified value: %d", v));
+		}
+		return String.format("\\u{%X}", v & 0xFFFF);
+	}
 
     public Set<String> getBadWords() {
 		if (badWords.isEmpty()) {
@@ -118,6 +126,6 @@ public class PhpTarget extends Target {
 
 	@Override
 	protected void appendUnicodeEscapedCodePoint(int codePoint, StringBuilder sb) {
-		UnicodeEscapes.appendJavaStyleEscapedCodePoint(codePoint, sb);
+		UnicodeEscapes.appendPythonStyleEscapedCodePoint(codePoint, sb);
 	}
 }

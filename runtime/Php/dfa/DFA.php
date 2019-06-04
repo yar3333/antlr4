@@ -7,6 +7,7 @@
 namespace Antlr4\Dfa;
 
 use Antlr4\Atn\ATNConfigSet;
+use Antlr4\Atn\States\DecisionState;
 use Antlr4\Atn\States\StarLoopEntryState;
 use Antlr4\Utils\Set;
 use Antlr4\Vocabulary;
@@ -14,10 +15,13 @@ use Antlr4\Vocabulary;
 class DFA
 {
     /**
-     * @var Set
+     * @var Set Map<DFAState, DFAState>();
      */
-    private $_states;
+    public $states;
 
+    /**
+     * @var DecisionState
+     */
     public $atnStartState;
 
     /**
@@ -48,7 +52,7 @@ class DFA
 
         // A set of all DFA states. Use {@link Map} so we can get old state back
         // ({@link Set} only allows you to see if it's there).
-        $this->_states = new Set();
+        $this->states = new Set();
         $this->s0 = null;
 
         // {@code true} if this DFA is for a precedence decision; otherwise,
@@ -109,21 +113,19 @@ class DFA
 
         if ($precedence < 0) return;
 
-    // synchronization on s0 here is ok. when the DFA is turned into a
-    // precedence DFA, s0 will be initialized once and not updated again
-    // s0.edges is never null for a precedence DFA
+        // synchronization on s0 here is ok. when the DFA is turned into a
+        // precedence DFA, s0 will be initialized once and not updated again
+        // s0.edges is never null for a precedence DFA
         $this->s0->edges[$precedence] = $startState;
     }
-
-    function states() : Set { return $this->_states; }
 
     /**
      * Return a list of all states in this DFA, ordered by state number.
      * @return DFAState[]
      */
-    function sortedStates() : array
+    function getStates() : array
     {
-        $list = $this->_states->values();
+        $list = $this->states->values();
         usort($list, function($a, $b)
         {
             return $a->stateNumber - $b->stateNumber;

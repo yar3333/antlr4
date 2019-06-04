@@ -36,18 +36,16 @@ class DFASerializer
 
 		$buf = "";
 
-		/** @var DFAState[] $states */
-		$states = $this->dfa->states();
-
-		foreach ($states as $s)
+		/** @var DFAState $s */
+		foreach ($this->dfa->states as $s)
 		{
 			$n = 0;
-			if ($s->edges!==null) $n = count($s->edges);
+			if ($s->edges !== null) $n = count($s->edges);
 			for ($i=0; $i<$n; $i++)
 			{
 				/** @var DFAState $t */
 				$t = $s->edges[$i];
-				if ($t!==null && $t->stateNumber !== 0x7FFFFFFF)
+				if ($t !== null && $t->stateNumber !== 0x7FFFFFFF)
 				{
 					$buf .= $this->getStateString($s);
 					$label = $this->getEdgeLabel($i);

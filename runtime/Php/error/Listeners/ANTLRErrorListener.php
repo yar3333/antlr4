@@ -19,14 +19,14 @@ interface ANTLRErrorListener
 {
 	/**
 	 * @param Recognizer $recognizer
-	 * @param Object $offendingSymbol
+	 * @param object $offendingSymbol
 	 * @param int $line
 	 * @param int $charPositionInLine
 	 * @param string $msg
 	 * @param RecognitionException $e
 	 * @return void
 	 */
-	function syntaxError(Recognizer $recognizer, Object $offendingSymbol, int $line, int $charPositionInLine, string $msg, ?RecognitionException $e) : void;
+	function syntaxError(Recognizer $recognizer, ?object $offendingSymbol, int $line, int $charPositionInLine, string $msg, ?RecognitionException $e) : void;
 
 	/**
 	 * @param Parser $recognizer
