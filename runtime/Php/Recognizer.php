@@ -119,7 +119,7 @@ abstract class Recognizer
 	function getRuleIndexMap() : array
     {
 		$ruleNames = $this->getRuleNames();
-		if ($ruleNames === null) throw new \Exception("The current recognizer does not provide a list of rule names.");
+		if ($ruleNames === null) throw new \RuntimeException("The current recognizer does not provide a list of rule names.");
 
         $result = self::$ruleIndexMapCache[spl_object_hash($ruleNames)];
         if ($result === null) {
@@ -220,7 +220,7 @@ abstract class Recognizer
      */
     function getSerializedATN() : string
     {
-        throw new \Exception("there is no serialized ATN");
+        throw new \RuntimeException("there is no serialized ATN");
     }
 
 	function action(RuleContext $_localctx, int $ruleIndex, int $actionIndex) : void {}

@@ -18,8 +18,6 @@ class ProxyErrorListener implements ANTLRErrorListener
 
     function __construct(array $delegates)
     {
-        if ($delegates === null) throw new \Exception("delegates");
-
         $this->delegates = $delegates;
     }
 

@@ -50,9 +50,9 @@ class FailedPredicateException extends RecognitionException
         $this->offendingToken = $recognizer->getCurrentToken();
     }
 
-    function formatMessage(string $predicate, string $message)
+    function formatMessage(string $predicate, ?string $message)
     {
         if ($message !== null) return $message;
-        return new \Exception("failed predicate: {" . $predicate . "}?");
+        return "failed predicate: {" . $predicate . "}?";
     }
 }

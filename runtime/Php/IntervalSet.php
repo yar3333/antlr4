@@ -38,12 +38,11 @@ class IntervalSet
 
     protected function addInterval(Interval $addition) : void
     {
-        if ($this->readOnly) throw new \Exception("can't alter readonly IntervalSet");
-		//System.out.println("add "+addition+" to "+intervals.toString());
-		if ($addition->stop < $addition->start)
-		{
-			return;
-		}
+        if ($this->readOnly) throw new \RuntimeException("can't alter readonly IntervalSet");
+
+        //System.out.println("add "+addition+" to "+intervals.toString());
+		if ($addition->stop < $addition->start) return;
+
 		// find position in list
 		// Use iterators as we modify list in place
 		for ($i = 0; $i < count($this->intervals);)

@@ -149,7 +149,7 @@ class ATNDeserializer
         $version = $this->readInt();
         if ($version !== self::SERIALIZED_VERSION)
         {
-            throw new \Exception("Could not deserialize ATN with version " . $version . " (expected " . self::SERIALIZED_VERSION . ").");
+            throw new \RuntimeException("Could not deserialize ATN with version " . $version . " (expected " . self::SERIALIZED_VERSION . ").");
         }
     }
 
@@ -158,7 +158,7 @@ class ATNDeserializer
         $uuid = $this->readUUID();
         if (!in_array($uuid, self::SUPPORTED_UUIDS, true))
         {
-            throw new \Exception("Could not deserialize ATN with UUID: " . $uuid . " (expected " . self::SERIALIZED_UUID . " or a legacy UUID).");
+            throw new \RuntimeException("Could not deserialize ATN with UUID: " . $uuid . " (expected " . self::SERIALIZED_UUID . " or a legacy UUID).");
         }
         $this->uuid = $uuid;
     }
@@ -339,15 +339,11 @@ class ATNDeserializer
             if ($state instanceof \Antlr4\Atn\States\BlockStartState)
             {
                 // we need to know the end state to set its start state
-                if ($state->endState === null)
-                {
-                    throw new \Exception("IllegalState");
-                }
+                if ($state->endState === null) throw new \RuntimeException("IllegalState");
+
                 // block end states can only be associated to a single block start state
-                if ( $state->endState->startState !== null)
-                {
-                    throw new \Exception("IllegalState");
-                }
+                if ( $state->endState->startState !== null) throw new \RuntimeException("IllegalState");
+
                 $state->endState->startState = $state;
             }
             if ($state instanceof \Antlr4\Atn\States\PlusLoopbackState)
@@ -456,10 +452,8 @@ class ATNDeserializer
                     break;
                 }
             }
-            if ($excludeTransition === null)
-            {
-                throw new \Exception("Couldn't identify final state of the precedence rule prefix section.");
-            }
+
+            if ($excludeTransition === null) throw new \RuntimeException("Couldn't identify final state of the precedence rule prefix section.");
         }
         else
         {
@@ -580,7 +574,7 @@ class ATNDeserializer
                 }
                 else
                 {
-                    throw new \Exception("IllegalState");
+                    throw new \RuntimeException("IllegalState");
                 }
             }
             else if ($state instanceof \Antlr4\Atn\States\StarLoopbackState)
@@ -619,7 +613,7 @@ class ATNDeserializer
     {
         if (!$condition)
         {
-            throw new \Exception($message);
+            throw new \RuntimeException($message);
         }
     }
 
@@ -695,7 +689,7 @@ class ATNDeserializer
             case Transition::WILDCARD:
                 return new \Antlr4\Atn\Transitions\WildcardTransition($target);
             default:
-                throw new \Exception("The specified transition type: " . $type . " is not valid.");
+                throw new \RuntimeException("The specified transition type: " . $type . " is not valid.");
         }
     }
 
@@ -722,7 +716,7 @@ class ATNDeserializer
 
         if ($type > count($this->stateFactories) || $this->stateFactories[$type] === null)
         {
-            throw new \Exception("The specified state type " . $type . " is not valid.");
+            throw new \RuntimeException("The specified state type " . $type . " is not valid.");
         }
 
         $s = $this->stateFactories[$type]();
@@ -752,7 +746,7 @@ class ATNDeserializer
         }
         if ($type > count($this->actionFactories) || $this->actionFactories[$type] === null)
         {
-            throw new \Exception("The specified lexer action type " . $type . " is not valid.");
+            throw new \RuntimeException("The specified lexer action type " . $type . " is not valid.");
         }
 
         return $this->actionFactories[$type]($data1, $data2);

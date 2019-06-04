@@ -114,7 +114,7 @@ class BufferedTokenStream implements TokenStream
 
         if (!$skipEofCheck && $this->LA(1) === Token::EOF)
         {
-            throw new \Exception("cannot consume EOF");
+            throw new \RuntimeException("cannot consume EOF");
         }
         if ($this->sync($this->index + 1))
         {
@@ -299,7 +299,7 @@ class BufferedTokenStream implements TokenStream
         $this->lazyInit();
         if ($tokenIndex < 0 || $tokenIndex >= count($this->tokens))
         {
-            throw new \Exception( $tokenIndex . " not in 0.." . (count($this->tokens) - 1));
+            throw new \RuntimeException($tokenIndex . " not in 0.." . (count($this->tokens) - 1));
         }
         $nextOnChannel = $this->nextTokenOnChannel($tokenIndex + 1, Lexer::DEFAULT_TOKEN_CHANNEL);
         $from_ = $tokenIndex + 1;
@@ -319,7 +319,7 @@ class BufferedTokenStream implements TokenStream
 
         if ($tokenIndex < 0 || $tokenIndex >= count($this->tokens))
         {
-            throw new \Exception($tokenIndex . " not in 0.." . (count($this->tokens) - 1));
+            throw new \RuntimeException($tokenIndex . " not in 0.." . (count($this->tokens) - 1));
         }
 
         $prevOnChannel = $this->previousTokenOnChannel($tokenIndex - 1, Lexer::DEFAULT_TOKEN_CHANNEL);

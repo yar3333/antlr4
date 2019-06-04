@@ -117,7 +117,7 @@ class ATNConfigSet
     // <p>This method updates {@link //dipsIntoOuterContext} and {@link //hasSemanticContext} when necessary.</p>
     function add($config, $mergeCache=null) : bool
     {
-        if ($this->readOnly) throw new \Exception("This set is readonly");
+        if ($this->readOnly) throw new \RuntimeException("This set is readonly");
 
         if ($config->semanticContext !== SemanticContext::NONE())
         {
@@ -191,7 +191,7 @@ class ATNConfigSet
 
     function optimizeConfigs(ATNSimulator $interpreter) : void
     {
-        if ($this->readOnly) throw new \Exception("This set is readonly");
+        if ($this->readOnly) throw new \RuntimeException("This set is readonly");
         if ($this->configLookup->isEmpty()) return;
 
         foreach ($this->configs as $config)
@@ -255,10 +255,8 @@ class ATNConfigSet
 
     function contains(object $item) : bool
     {
-        if ($this->configLookup === null)
-        {
-            throw new \Exception("This method is not implemented for readonly sets.");
-        }
+        if (!$this->configLookup) throw new \RuntimeException("This method is not implemented for readonly sets.");
+
         return $this->configLookup->contains($item);
     }
 
@@ -269,10 +267,8 @@ class ATNConfigSet
 
     function clear() : void
     {
-        if ($this->readOnly)
-        {
-            throw new \Exception("This set is readonly");
-        }
+        if ($this->readOnly) throw new \RuntimeException("This set is readonly");
+
         $this->configs = [];
         $this->cachedHashCode = -1;
         $this->configLookup = new Set();

@@ -95,7 +95,7 @@ class InputStream implements CharStream
         if ($this->_index >= $this->_size)
         {
             // assert this.LA(1) == Token.EOF
-            throw new \Exception("cannot consume EOF");
+            throw new \RuntimeException("cannot consume EOF");
         }
         $this->_index++;
     }

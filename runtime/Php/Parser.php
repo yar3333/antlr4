@@ -229,10 +229,8 @@ abstract class Parser extends Recognizer
     // @param listener the listener to add
     //
     // @throws NullPointerException if {@code} listener is {@code null}
-    function addParseListener($listener) : void
+    function addParseListener(ParseTreeListener $listener) : void
     {
-        if ($listener === null) throw new \Exception("listener");
-
         if ($this->_parseListeners === null)
         {
             $this->_parseListeners = [];
@@ -245,21 +243,20 @@ abstract class Parser extends Recognizer
     // <p>If {@code listener} is {@code null} or has not been added as a parse
     // listener, this method does nothing.</p>
     // @param listener the listener to remove
-    function removeParseListener($listener) : void
+    function removeParseListener(?ParseTreeListener $listener) : void
     {
-        if ($this->_parseListeners !== null)
+        if ($this->_parseListeners === null) return;
+
+        $idx = array_search($listener, $this->_parseListeners, true);
+
+        if ($idx !== false)
         {
-            $idx = array_search($listener, $this->_parseListeners, true);
+            array_splice($this->_parseListeners, $idx, 1);
+        }
 
-            if ($idx !== false)
-            {
-                array_splice($this->_parseListeners, $idx, 1);
-            }
-
-            if (!$this->_parseListeners)
-            {
-                $this->_parseListeners = null;
-            }
+        if (!$this->_parseListeners)
+        {
+            $this->_parseListeners = null;
         }
     }
 
@@ -318,7 +315,7 @@ abstract class Parser extends Recognizer
         $serializedAtn = $this->getSerializedATN();
         if ($serializedAtn === null)
         {
-            throw new \Exception("The current parser does not support an ATN with bypass alternatives.");
+            throw new \RuntimeException("The current parser does not support an ATN with bypass alternatives.");
         }
         $result = self::$bypassAltsAtnCache[$serializedAtn];
         if ($result === null)
@@ -355,7 +352,7 @@ abstract class Parser extends Recognizer
         }
         if ($lexer === null)
         {
-            throw new \Exception("Parser can't discover a lexer to use");
+            throw new \RuntimeException("Parser can't discover a lexer to use");
         }
         $m = new ParseTreePatternMatcher($lexer, $this);
         return $m->compile($pattern, $patternRuleIndex);

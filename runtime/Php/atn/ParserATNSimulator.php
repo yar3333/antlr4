@@ -1407,9 +1407,9 @@ class ParserATNSimulator extends ATNSimulator
         if (self::$debug || self::$debug_closure)
         {
             //$console->log("closure(" . $config->toString($this->parser, true) . ")");
-            if ($config->reachesIntoOuterContext>50)
+            if ($config->reachesIntoOuterContext > 50)
             {
-                throw new \Exception("problem");
+                throw new \RuntimeException("problem");
             }
         }
 

@@ -194,8 +194,9 @@ class ATN
     {
         if ($stateNumber < 0 || $stateNumber >= count($this->states))
         {
-            throw new \Exception("Invalid state number.");
+            throw new \RuntimeException("Invalid state number.");
         }
+
         $s = $this->states[$stateNumber];
         $following = $this->nextTokens($s);
         if (!$following->contains(Token::EPSILON))

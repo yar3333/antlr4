@@ -82,17 +82,13 @@ class DFA
     //
     // @throws IllegalStateException if this is not a precedence DFA.
     // @see //isPrecedenceDfa()
-    function getPrecedenceStartState($precedence) : ?DFAState
+    function getPrecedenceStartState(int $precedence) : ?DFAState
     {
-        if (!$this->precedenceDfa)
-        {
-            throw new \Exception("Only precedence DFAs may contain a precedence start state.");
-        }
+        if (!$this->precedenceDfa) throw new \RuntimeException("Only precedence DFAs may contain a precedence start state.");
+
         // s0.edges is never null for a precedence DFA
-        if ($precedence < 0 || $precedence >= count($this->s0->edges))
-        {
-            return null;
-        }
+        if ($precedence < 0 || $precedence >= count($this->s0->edges)) return null;
+
         return $this->s0->edges[$precedence] ?? null;
     }
 
@@ -106,10 +102,8 @@ class DFA
     //
     function setPrecedenceStartState($precedence, $startState) : void
     {
-        if (!$this->precedenceDfa)
-        {
-            throw new \Exception("Only precedence DFAs may contain a precedence start state.");
-        }
+        if (!$this->precedenceDfa) throw new \RuntimeException("Only precedence DFAs may contain a precedence start state.");
+
 
         if ($precedence < 0) return;
 

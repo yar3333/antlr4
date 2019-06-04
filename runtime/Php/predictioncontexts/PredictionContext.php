@@ -138,9 +138,6 @@ abstract class PredictionContext
 
     static function merge(PredictionContext $a, PredictionContext $b, bool $rootIsWildcard, $mergeCache)
     {
-		if ($a === null) throw new \Exception("a must not be null.");
-		if ($b === null) throw new \Exception("b must not be null.");
-
 		// share same graph if both same
 		if ($a===$b || $a->equals($b)) return $a;
 

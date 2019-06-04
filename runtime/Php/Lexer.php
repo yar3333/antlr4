@@ -146,7 +146,7 @@ abstract class Lexer extends Recognizer implements TokenSource
     // Return a token from this source; i.e., match a token on the char stream.
     function nextToken() : Token
     {
-        if ($this->_input === null) throw new \Exception("nextToken requires a non-null input stream.");
+        if ($this->_input === null) throw new \RuntimeException("nextToken requires a non-null input stream.");
 
         // Mark start location in char stream so unbuffered streams are
         // guaranteed at least have text of current token
@@ -259,7 +259,7 @@ abstract class Lexer extends Recognizer implements TokenSource
     {
         if (count($this->_modeStack) === 0)
         {
-            throw new \Exception("Empty Stack");
+            throw new \RuntimeException("Empty Stack");
         }
         if ($this->_interp->debug)
         {

@@ -504,7 +504,7 @@ class LexerATNSimulator extends ATNSimulator
         }
         else if ($t->serializationType === Transition::PRECEDENCE)
         {
-            throw new \Exception("Precedence predicates are not supported in lexers.");
+            throw new \RuntimeException("Precedence predicates are not supported in lexers.");
         }
         else if ($t->serializationType === Transition::PREDICATE)
         {
