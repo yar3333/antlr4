@@ -6,12 +6,12 @@
 
 namespace Antlr4;
 
-use Antlr4\Atn\ATNSimulator;
-use Antlr4\Atn\LexerATNSimulator;
-use Antlr4\Error\Exceptions\LexerNoViableAltException;
-use Antlr4\Error\Exceptions\RecognitionException;
-use Antlr4\Utils\Pair;
-use Antlr4\Utils\Utils;
+use \Antlr4\Atn\ATNSimulator;
+use \Antlr4\Atn\LexerATNSimulator;
+use \Antlr4\Error\Exceptions\LexerNoViableAltException;
+use \Antlr4\Error\Exceptions\RecognitionException;
+use \Antlr4\Utils\Pair;
+use \Antlr4\Utils\Utils;
 
 // A lexer is recognizer that draws input symbols from a character stream.
 //  lexer grammars result in a subclass of this object. A Lexer object

@@ -2,9 +2,9 @@
 
 namespace Antlr4\Atn\Semanticcontexts;
 
-use Antlr4\Recognizer;
-use Antlr4\Utils\Hash;
-use Antlr4\Utils\Set;
+use \Antlr4\Recognizer;
+use \Antlr4\Utils\Hash;
+use \Antlr4\Utils\Set;
 
 class PrecedencePredicate extends SemanticContext
 {

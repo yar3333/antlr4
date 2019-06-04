@@ -2,22 +2,24 @@
 
 namespace Antlr4\Atn\Transitions;
 
-
-use Antlr4\Atn\Semanticcontexts\PrecedencePredicate;
+use \Antlr4\Atn\Semanticcontexts\PrecedencePredicate;
+use \Antlr4\Atn\States\ATNState;
 
 class PrecedencePredicateTransition extends AbstractPredicateTransition
 {
-    public $serializationType;
+    public $serializationType = Transition::PRECEDENCE;
+    public $isEpsilon = true;
 
+    /**
+     * @var int
+     */
     public $precedence;
 
-    function __construct($target, $precedence)
+    function __construct(ATNState $target, int $precedence)
     {
         parent::__construct($target);
 
-        $this->serializationType = Transition::PRECEDENCE;
         $this->precedence = $precedence;
-        $this->isEpsilon = true;
     }
 
     function matches(int $symbol, int $minVocabSymbol, int $maxVocabSymbol) : bool

@@ -2,10 +2,10 @@
 
 namespace Antlr4\Atn\Semanticcontexts;
 
-use Antlr4\Recognizer;
-use Antlr4\RuleContext;
-use Antlr4\Utils\Hash;
-use Antlr4\Utils\Set;
+use \Antlr4\Recognizer;
+use \Antlr4\RuleContext;
+use \Antlr4\Utils\Hash;
+use \Antlr4\Utils\Set;
 
 // A semantic context which is true whenever at least one of the contained contexts is true.
 class SemanticContextOr extends SemanticContext

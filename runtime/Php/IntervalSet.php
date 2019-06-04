@@ -6,7 +6,7 @@
 
 namespace Antlr4;
 
-use Antlr4\Utils\Utils;
+use \Antlr4\Utils\Utils;
 
 class IntervalSet
 {

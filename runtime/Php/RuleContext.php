@@ -8,12 +8,12 @@
 
 namespace Antlr4;
 
-use Antlr4\Atn\ATN;
-use Antlr4\Tree\ParseTree;
-use Antlr4\Tree\ParseTreeVisitor;
-use Antlr4\Tree\RuleNode;
-use Antlr4\Tree\Trees;
-use Antlr4\Utils\Utils; //('./tree/Tree').RuleNode;
+use \Antlr4\Atn\ATN;
+use \Antlr4\Tree\ParseTree;
+use \Antlr4\Tree\ParseTreeVisitor;
+use \Antlr4\Tree\RuleNode;
+use \Antlr4\Tree\Trees;
+use \Antlr4\Utils\Utils; //('./tree/Tree').RuleNode;
 
 //  A rule context is a record of a single rule invocation. It knows
 //  which context invoked it, if any. If there is no parent context, then

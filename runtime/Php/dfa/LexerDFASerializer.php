@@ -2,7 +2,7 @@
 
 namespace Antlr4\Dfa;
 
-use Antlr4\Utils\Utils;
+use \Antlr4\Utils\Utils;
 
 class LexerDFASerializer extends DFASerializer
 {

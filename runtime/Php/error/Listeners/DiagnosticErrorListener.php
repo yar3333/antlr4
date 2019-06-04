@@ -6,11 +6,11 @@
 
 namespace Antlr4\Error\Listeners;
 
-use Antlr4\Atn\ATNConfigSet;
-use Antlr4\Dfa\DFA;
-use Antlr4\Parser;
-use Antlr4\Utils\BitSet;
-use Antlr4\Interval;
+use \Antlr4\Atn\ATNConfigSet;
+use \Antlr4\Dfa\DFA;
+use \Antlr4\Parser;
+use \Antlr4\Utils\BitSet;
+use \Antlr4\Interval;
 
 // This implementation of {@link ANTLRErrorListener} can be used to identify
 // certain potential correctness and performance problems in grammars. "Reports"

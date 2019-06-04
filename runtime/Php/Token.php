@@ -9,7 +9,7 @@ namespace Antlr4;
 // A token has properties: text, type, line, character position in the line
 // (so we can ignore tabs), token channel, index, and source from which
 // we obtained this token.
-use Antlr4\Utils\Pair;
+use \Antlr4\Utils\Pair;
 
 class  Token
 {

@@ -2,8 +2,8 @@
 
 namespace Antlr4\Error\Listeners;
 
-use Antlr4\Error\Exceptions\RecognitionException;
-use Antlr4\Recognizer;
+use \Antlr4\Error\Exceptions\RecognitionException;
+use \Antlr4\Recognizer;
 
 class ConsoleErrorListener extends BaseErrorListener
 {

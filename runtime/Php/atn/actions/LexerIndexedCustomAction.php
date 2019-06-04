@@ -2,8 +2,8 @@
 
 namespace Antlr4\Atn\Actions;
 
-use Antlr4\Lexer;
-use Antlr4\Utils\Hash;
+use \Antlr4\Lexer;
+use \Antlr4\Utils\Hash;
 
 // This implementation of {@link LexerAction} is used for tracking input offsets
 // for position-dependent actions within a {@link LexerActionExecutor}.

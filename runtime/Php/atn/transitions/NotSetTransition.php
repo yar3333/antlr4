@@ -4,14 +4,7 @@ namespace Antlr4\Atn\Transitions;
 
 class NotSetTransition extends SetTransition
 {
-    public $serializationType;
-
-    function __construct($target, $set)
-    {
-        parent::__construct($target, $set);
-
-        $this->serializationType = Transition::NOT_SET;
-    }
+    public $serializationType = Transition::NOT_SET;
 
     function matches(int $symbol, int $minVocabSymbol, int $maxVocabSymbol) : bool
     {

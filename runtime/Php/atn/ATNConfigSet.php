@@ -6,12 +6,12 @@
 
 namespace Antlr4\Atn;
 
-use Antlr4\Atn\Semanticcontexts\SemanticContext;
-use Antlr4\Predictioncontexts\PredictionContext;
-use Antlr4\Utils\BitSet;
-use Antlr4\Utils\Utils;
-use Antlr4\Utils\Hash;
-use Antlr4\Utils\Set;
+use \Antlr4\Atn\Semanticcontexts\SemanticContext;
+use \Antlr4\Predictioncontexts\PredictionContext;
+use \Antlr4\Utils\BitSet;
+use \Antlr4\Utils\Utils;
+use \Antlr4\Utils\Hash;
+use \Antlr4\Utils\Set;
 
 // Specialized {@link Set}{@code <}{@link ATNConfig}{@code >} that can track
 // info about the set, with support for combining similar configurations using a

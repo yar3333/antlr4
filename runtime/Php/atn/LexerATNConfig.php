@@ -2,8 +2,8 @@
 
 namespace Antlr4\Atn;
 
-use Antlr4\Atn\States\DecisionState;
-use Antlr4\Utils\Hash;
+use \Antlr4\Atn\States\DecisionState;
+use \Antlr4\Utils\Hash;
 
 class LexerATNConfig extends ATNConfig
 {

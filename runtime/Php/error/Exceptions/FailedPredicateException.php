@@ -2,8 +2,8 @@
 
 namespace Antlr4\Error\Exceptions;
 
-use Antlr4\Atn\Transitions\PredicateTransition;
-use Antlr4\Parser;
+use \Antlr4\Atn\Transitions\PredicateTransition;
+use \Antlr4\Parser;
 
 // A semantic predicate failed during validation. Validation of predicates
 // occurs when normally parsing the alternative just like matching a token.
@@ -32,7 +32,7 @@ class FailedPredicateException extends RecognitionException
             'message' => $this->formatMessage($predicate, $message),
             'recognizer' => $recognizer,
             'input' => $recognizer->getInputStream(),
-            'ctx' => $recognizer->_ctx
+            'ctx' => $recognizer->getContext()
         ]);
         $s = $recognizer->getInterpreter()->atn->states[$recognizer->getState()];
         $trans = $s->transitions[0];

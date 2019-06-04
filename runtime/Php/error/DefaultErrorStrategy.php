@@ -2,15 +2,16 @@
 
 namespace Antlr4\Error;
 
-use Antlr4\Atn\States\ATNState;
-use Antlr4\Error\Exceptions\FailedPredicateException;
-use Antlr4\Error\Exceptions\InputMismatchException;
-use Antlr4\Error\Exceptions\NoViableAltException;
-use Antlr4\Error\Exceptions\RecognitionException;
-use Antlr4\IntervalSet;
-use Antlr4\Parser;
-use Antlr4\Recognizer;
-use Antlr4\Token;
+use \Antlr4\Atn\States\ATNState;
+use \Antlr4\Atn\Transitions\RuleTransition;
+use \Antlr4\Error\Exceptions\FailedPredicateException;
+use \Antlr4\Error\Exceptions\InputMismatchException;
+use \Antlr4\Error\Exceptions\NoViableAltException;
+use \Antlr4\Error\Exceptions\RecognitionException;
+use \Antlr4\IntervalSet;
+use \Antlr4\Parser;
+use \Antlr4\Recognizer;
+use \Antlr4\Token;
 
 // This is the default implementation of {@link ANTLRErrorStrategy} used for
 // error reporting and recovery in ANTLR parsers.
@@ -309,7 +310,7 @@ class DefaultErrorStrategy implements ErrorStrategy
      */
     function reportFailedPredicate($recognizer, $e) : void
     {
-        $ruleName = $recognizer->getRuleNames()[$recognizer->_ctx->ruleIndex];
+        $ruleName = $recognizer->getRuleNames()[$recognizer->getContext()->ruleIndex];
         $msg = "rule " . $ruleName . " " . $e->getMessage();
         $recognizer->notifyErrorListeners($msg, $e->offendingToken, $e);
     }
@@ -466,7 +467,7 @@ class DefaultErrorStrategy implements ErrorStrategy
         $atn = $recognizer->getInterpreter()->atn;
         $currentState = $atn->states[$recognizer->getState()];
         $next = $currentState->transitions[0]->target;
-        $expectingAtLL2 = $atn->nextTokens($next, $recognizer->_ctx);
+        $expectingAtLL2 = $atn->nextTokens($next, $recognizer->getContext());
         if ($expectingAtLL2->contains($currentSymbolType)) {
             $this->reportMissingToken($recognizer);
             return true;
@@ -677,13 +678,18 @@ class DefaultErrorStrategy implements ErrorStrategy
     protected function getErrorRecoverySet(Parser $recognizer) : IntervalSet
     {
         $atn = $recognizer->getInterpreter()->atn;
-        $ctx = $recognizer->_ctx;
+        $ctx = $recognizer->getContext();
         $recoverSet = new IntervalSet();
-        while ($ctx !== null && $ctx->invokingState >= 0)
+        while ($ctx && $ctx->invokingState >= 0)
         {
             // compute what follows who invoked us
+            /** @var ATNState $invokingState */
             $invokingState = $atn->states[$ctx->invokingState];
+            /** @var RuleTransition $rt */
             $rt = $invokingState->transitions[0];
+
+            if (!($rt instanceof RuleTransition)) break; // FIXED ERROR
+
             $follow = $atn->nextTokens($rt->followState);
             $recoverSet->addSet($follow);
             $ctx = $ctx->getParent();

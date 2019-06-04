@@ -31,13 +31,12 @@ namespace Antlr4;
 //  I do not use getters for fields of objects that are used simply to
 //  group values such as this aggregate.  The getters/setters are there to
 //  satisfy the superclass interface.
-use Antlr4\Error\Exceptions\RecognitionException;
-use Antlr4\Tree\ErrorNode;
-use Antlr4\Tree\ErrorNodeImpl;
-use Antlr4\Tree\ParseTree;
-use Antlr4\Tree\ParseTreeListener;
-use Antlr4\Tree\TerminalNode;
-use Antlr4\Tree\TerminalNodeImpl;
+use \Antlr4\Error\Exceptions\RecognitionException;
+use \Antlr4\Tree\ErrorNode;
+use \Antlr4\Tree\ErrorNodeImpl;
+use \Antlr4\Tree\ParseTree;
+use \Antlr4\Tree\ParseTreeListener;
+use \Antlr4\Tree\TerminalNode;
 
 class ParserRuleContext extends RuleContext
 {
@@ -116,12 +115,9 @@ class ParserRuleContext extends RuleContext
     }
 
     // Does not set parent link; other add methods do that
-    function addChild(ParseTree $child)
+    function addChild(ParseTree $child) : ParseTree
     {
-        if (!isset($this->children))
-        {
-            $this->children = [];
-        }
+        if ($this->children === null) $this->children = [];
         array_push($this->children, $child);
         return $child;
     }
@@ -137,20 +133,18 @@ class ParserRuleContext extends RuleContext
         }
     }
 
-    function addTokenNode($token) : TerminalNode
+    function addTerminalNode(TerminalNode $t) : TerminalNode
     {
-        $node = new TerminalNodeImpl($token);
-        $this->addChild($node);
-        $node->parentCtx = $this;
-        return $node;
+        $t->setParent($this);
+        /** @noinspection PhpIncompatibleReturnTypeInspection */
+        return $this->addChild($t);
     }
 
-    function addErrorNode($badToken) : ErrorNode
+    function addErrorNode(ErrorNode $errorNode) : ErrorNode
     {
-        $node = new ErrorNodeImpl($badToken);
-        $this->addChild($node);
-        $node->parentCtx = $this;
-        return $node;
+        $errorNode->setParent($this);
+        /** @noinspection PhpIncompatibleReturnTypeInspection */
+        return $this->addChild($errorNode);
     }
 
     /**

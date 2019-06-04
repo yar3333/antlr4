@@ -2,12 +2,12 @@
 
 namespace Antlr4\Error\Listeners;
 
-use Antlr4\Atn\ATNConfigSet;
-use Antlr4\Dfa\DFA;
-use Antlr4\Error\Exceptions\RecognitionException;
-use Antlr4\Parser;
-use Antlr4\Recognizer;
-use Antlr4\Utils\BitSet;
+use \Antlr4\Atn\ATNConfigSet;
+use \Antlr4\Dfa\DFA;
+use \Antlr4\Error\Exceptions\RecognitionException;
+use \Antlr4\Parser;
+use \Antlr4\Recognizer;
+use \Antlr4\Utils\BitSet;
 
 /**
  * Provides an empty default implementation of {@link ANTLRErrorListener}. The

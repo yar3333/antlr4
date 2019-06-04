@@ -2,7 +2,7 @@
 
 namespace Antlr4;
 
-use Antlr4\Utils\Pair;
+use \Antlr4\Utils\Pair;
 
 class CommonToken extends Token
 {

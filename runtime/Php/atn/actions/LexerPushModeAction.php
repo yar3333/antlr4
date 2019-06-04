@@ -2,8 +2,8 @@
 
 namespace Antlr4\Atn\Actions;
 
-use Antlr4\Lexer;
-use Antlr4\Utils\Hash;
+use \Antlr4\Lexer;
+use \Antlr4\Utils\Hash;
 
 // Implements the {@code pushMode} lexer action by calling
 // {@link Lexer//pushMode} with the assigned mode.

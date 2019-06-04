@@ -2,7 +2,7 @@
 
 namespace Antlr4\Atn\Actions;
 
-use Antlr4\Lexer;
+use \Antlr4\Lexer;
 
 // Implements the {@code skip} lexer action by calling {@link Lexer//skip}.
 // <p>The {@code skip} command does not have any parameters, so this action is implemented as a singleton instance exposed by {@link //INSTANCE}.</p>

@@ -6,9 +6,9 @@
 
 namespace Antlr4\Atn\Semanticcontexts;
 
-use Antlr4\Recognizer;
-use Antlr4\RuleContext;
-use Antlr4\Utils\Hash;
+use \Antlr4\Recognizer;
+use \Antlr4\RuleContext;
+use \Antlr4\Utils\Hash;
 
 // A tree structure used to record the semantic context in which
 //  an ATN configuration is valid.  It's either a single predicate,

@@ -9,18 +9,18 @@
 
 namespace Antlr4;
 
-use Antlr4\Atn\ATN;
-use Antlr4\Atn\ATNDeserializationOptions;
-use Antlr4\Atn\ATNDeserializer;
-use Antlr4\Atn\ParserATNSimulator;
-use Antlr4\Error\DefaultErrorStrategy;
-use Antlr4\Error\Exceptions\RecognitionException;
-use Antlr4\Tree\ErrorNode;
-use Antlr4\Tree\ErrorNodeImpl;
-use Antlr4\Tree\ParseTreeListener;
-use Antlr4\Tree\TerminalNode;
-use Antlr4\Tree\TerminalNodeImpl;
-use Antlr4\Utils\Printer;
+use \Antlr4\Atn\ATN;
+use \Antlr4\Atn\ATNDeserializationOptions;
+use \Antlr4\Atn\ATNDeserializer;
+use \Antlr4\Atn\ParserATNSimulator;
+use \Antlr4\Error\DefaultErrorStrategy;
+use \Antlr4\Error\Exceptions\RecognitionException;
+use \Antlr4\Tree\ErrorNode;
+use \Antlr4\Tree\ErrorNodeImpl;
+use \Antlr4\Tree\ParseTreeListener;
+use \Antlr4\Tree\TerminalNode;
+use \Antlr4\Tree\TerminalNodeImpl;
+use \Antlr4\Utils\Printer;
 
 abstract class Parser extends Recognizer
 {
@@ -49,7 +49,7 @@ abstract class Parser extends Recognizer
     /**
      * @var ParserRuleContext
      */
-    public $_ctx;
+    protected $_ctx;
 
     /**
      * @var bool 
@@ -153,7 +153,7 @@ abstract class Parser extends Recognizer
             if ($this->_buildParseTrees && $t->tokenIndex === -1)
             {
                 // we must have conjured up a new token during single token insertion if it's not the current symbol
-                $this->_ctx->addErrorNode($t);
+                $this->_ctx->addErrorNode($this->createErrorNode($this->_ctx, $t));
             }
         }
 
@@ -188,7 +188,7 @@ abstract class Parser extends Recognizer
             if ($this->_buildParseTrees && $t->tokenIndex === -1)
             {
                 // we must have conjured up a new token during single token insertion if it's not the current symbol
-                $this->_ctx->addErrorNode($t);
+                $this->_ctx->addErrorNode($this->createErrorNode($this->_ctx, $t));
             }
         }
         return $t;

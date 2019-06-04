@@ -2,8 +2,8 @@
 
 namespace Antlr4\Atn\Actions;
 
-use Antlr4\Lexer;
-use Antlr4\Utils\Hash;
+use \Antlr4\Lexer;
+use \Antlr4\Utils\Hash;
 
 // Executes a custom lexer action by calling {@link Recognizer//action} with the
 // rule and action indexes assigned to the custom action. The implementation of

@@ -4,14 +4,7 @@ namespace Antlr4\Atn\Transitions;
 
 class WildcardTransition extends Transition
 {
-    public $serializationType;
-
-    function __construct($target)
-    {
-        parent::__construct($target);
-
-        $this->serializationType = Transition::WILDCARD;
-    }
+    public $serializationType = Transition::WILDCARD;
 
     function matches(int $symbol, int $minVocabSymbol, int $maxVocabSymbol) : bool
     {

@@ -36,7 +36,7 @@ class SingletonPredictionContext extends PredictionContext
         $this->returnState = $returnState;
     }
 
-    static function create(PredictionContext $parent, int $returnState) : PredictionContext
+    static function create(?PredictionContext $parent, int $returnState) : PredictionContext
     {
         // someone can pass in the bits of an array ctx that mean $
         if ($returnState === PredictionContext::EMPTY_RETURN_STATE && !$parent) return PredictionContext::EMPTY();

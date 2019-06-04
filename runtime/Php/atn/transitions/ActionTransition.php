@@ -2,14 +2,12 @@
 
 namespace Antlr4\Atn\Transitions;
 
-use Antlr4\Atn\States\ATNState;
+use \Antlr4\Atn\States\ATNState;
 
 class ActionTransition extends Transition
 {
-    /**
-     * @var int
-     */
-    public $serializationType;
+    public $serializationType = Transition::ACTION;
+    public $isEpsilon = true;
 
     /**
      * @var int
@@ -26,18 +24,16 @@ class ActionTransition extends Transition
      */
     public $isCtxDependent;
 
-    function __construct(ATNState $target, int $ruleIndex, int $actionIndex=null, bool $isCtxDependent=false)
+    function __construct(ATNState $target, int $ruleIndex, int $actionIndex=null, bool $isCtxDependent=null)
     {
         parent::__construct($target);
 
-        $this->serializationType = Transition::ACTION;
         $this->ruleIndex = $ruleIndex;
-        $this->actionIndex = $actionIndex ?? -1;
-        $this->isCtxDependent = $isCtxDependent ?? false;
-        $this->isEpsilon = true;
+        $this->actionIndex = $actionIndex ?: -1;
+        $this->isCtxDependent = $isCtxDependent ?: false;
     }
 
-    function matches($symbol, $minVocabSymbol, $maxVocabSymbol) : bool
+    function matches(int $symbol, int $minVocabSymbol, int $maxVocabSymbol) : bool
     {
         return false;
     }

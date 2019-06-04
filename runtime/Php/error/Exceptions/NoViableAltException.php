@@ -2,11 +2,11 @@
 
 namespace Antlr4\Error\Exceptions;
 
-use Antlr4\Atn\ATNConfigSet;
-use Antlr4\Parser;
-use Antlr4\ParserRuleContext;
-use Antlr4\Token;
-use Antlr4\TokenStream;
+use \Antlr4\Atn\ATNConfigSet;
+use \Antlr4\Parser;
+use \Antlr4\ParserRuleContext;
+use \Antlr4\Token;
+use \Antlr4\TokenStream;
 
 // Indicates that the parser could not decide which of two or more paths
 // to take based upon the remaining input. It tracks the starting token
@@ -26,7 +26,7 @@ class NoViableAltException extends RecognitionException
 
     function __construct(Parser $recognizer, TokenStream $input=null, Token $startToken=null, Token $offendingToken=null, ATNConfigSet $deadEndConfigs=null, ParserRuleContext $ctx=null)
     {
-        if (!$ctx) $ctx = $recognizer->_ctx;
+        if (!$ctx) $ctx = $recognizer->getContext();
         if (!$offendingToken) $offendingToken = $recognizer->getCurrentToken();
         if (!$startToken) $startToken = $recognizer->getCurrentToken();
         if (!$input) $input = $recognizer->getInputStream();

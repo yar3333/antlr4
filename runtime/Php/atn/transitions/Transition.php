@@ -6,8 +6,8 @@
 
 namespace Antlr4\Atn\Transitions;
 
-use Antlr4\Atn\States\ATNState;
-use Antlr4\IntervalSet;
+use \Antlr4\Atn\States\ATNState;
+use \Antlr4\IntervalSet;
 
 /** An ATN transition between any two ATN states.  Subclasses define
  *  atom, set, epsilon, action, predicate, rule transitions.
@@ -69,26 +69,22 @@ abstract class Transition
     public $serializationType;
 
     /**
-     * @var ATNState
-     */
-    public $target;
-
-    /**
      * @var bool
      */
     public $isEpsilon;
 
+    /**
+     * @var ATNState
+     */
+    public $target;
+
+
     function __construct(ATNState $target)
     {
-        if (!isset($target)) throw new \Exception("target cannot be null.");
-
         $this->target = $target;
-
-        // Are we epsilon, action, sempred?
-        $this->isEpsilon = false;
     }
 
-    public function label() : IntervalSet { return null; }
+    function label() : IntervalSet { return null; }
 
     abstract function matches(int $symbol, int $minVocabSymbol, int $maxVocabSymbol) : bool;
 }

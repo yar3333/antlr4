@@ -2,7 +2,7 @@
 
 namespace Antlr4\Predictioncontexts;
 
-use Antlr4\Utils\Map;
+use \Antlr4\Utils\Map;
 
 class PredictionContextCache
 {

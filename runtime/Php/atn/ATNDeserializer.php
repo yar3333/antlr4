@@ -6,24 +6,24 @@
 
 namespace Antlr4\Atn;
 
-use Antlr4\Atn\Actions\LexerActionType;
-use Antlr4\Atn\Actions\LexerChannelAction;
-use Antlr4\Atn\Actions\LexerCustomAction;
-use Antlr4\Atn\Actions\LexerModeAction;
-use Antlr4\Atn\Actions\LexerMoreAction;
-use Antlr4\Atn\Actions\LexerPopModeAction;
-use Antlr4\Atn\Actions\LexerPushModeAction;
-use Antlr4\Atn\Actions\LexerSkipAction;
-use Antlr4\Atn\Actions\LexerTypeAction;
-use Antlr4\Atn\States\ATNState;
-use Antlr4\Atn\States\DecisionState;
-use Antlr4\Atn\States\LoopEndState;
-use Antlr4\Atn\States\RuleStopState;
-use Antlr4\Atn\States\StarLoopEntryState;
-use Antlr4\Atn\Transitions\Transition;
-use Antlr4\IntervalSet;
-use Antlr4\Token;
-use Antlr4\Utils\Utils;
+use \Antlr4\Atn\Actions\LexerActionType;
+use \Antlr4\Atn\Actions\LexerChannelAction;
+use \Antlr4\Atn\Actions\LexerCustomAction;
+use \Antlr4\Atn\Actions\LexerModeAction;
+use \Antlr4\Atn\Actions\LexerMoreAction;
+use \Antlr4\Atn\Actions\LexerPopModeAction;
+use \Antlr4\Atn\Actions\LexerPushModeAction;
+use \Antlr4\Atn\Actions\LexerSkipAction;
+use \Antlr4\Atn\Actions\LexerTypeAction;
+use \Antlr4\Atn\States\ATNState;
+use \Antlr4\Atn\States\DecisionState;
+use \Antlr4\Atn\States\LoopEndState;
+use \Antlr4\Atn\States\RuleStopState;
+use \Antlr4\Atn\States\StarLoopEntryState;
+use \Antlr4\Atn\Transitions\Transition;
+use \Antlr4\IntervalSet;
+use \Antlr4\Token;
+use \Antlr4\Utils\Utils;
 
 class ATNDeserializer
 {
@@ -678,6 +678,7 @@ class ATNDeserializer
             case Transition::RANGE:
                 return $arg3 !== 0 ? new \Antlr4\Atn\Transitions\RangeTransition($target, Token::EOF, $arg2) : new \Antlr4\Atn\Transitions\RangeTransition($target, $arg1, $arg2);
             case Transition::RULE:
+                /** @noinspection PhpParamsInspection */
                 return new \Antlr4\Atn\Transitions\RuleTransition($atn->states[$arg1], $arg2, $arg3, $target);
             case Transition::PREDICATE:
                 return new \Antlr4\Atn\Transitions\PredicateTransition($target, $arg1, $arg2, $arg3 !== 0);

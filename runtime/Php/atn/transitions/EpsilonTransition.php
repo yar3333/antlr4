@@ -2,18 +2,19 @@
 
 namespace Antlr4\Atn\Transitions;
 
+use \Antlr4\Atn\States\ATNState;
+
 class EpsilonTransition extends Transition
 {
-    public $serializationType;
+    public $serializationType = Transition::EPSILON;
+    public $isEpsilon = true;
 
     public $outermostPrecedenceReturn;
 
-    function __construct($target, $outermostPrecedenceReturn=null)
+    function __construct(ATNState $target, $outermostPrecedenceReturn=null)
     {
         parent::__construct($target);
 
-        $this->serializationType = Transition::EPSILON;
-        $this->isEpsilon = true;
         $this->outermostPrecedenceReturn = $outermostPrecedenceReturn;
     }
 

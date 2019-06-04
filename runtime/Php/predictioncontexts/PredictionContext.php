@@ -6,10 +6,9 @@
 
 namespace Antlr4\Predictioncontexts;
 
-use Antlr4\Atn\ATN;
-use Antlr4\ParserRuleContext;
-use Antlr4\RuleContext;
-use Antlr4\Utils\DoubleKeyMap;
+use \Antlr4\Atn\ATN;
+use \Antlr4\RuleContext;
+use \Antlr4\Utils\DoubleKeyMap;
 use \Antlr4\Utils\Hash;
 
 abstract class PredictionContext

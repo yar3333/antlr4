@@ -6,9 +6,9 @@
 
 namespace Antlr4\Dfa;
 
-use Antlr4\Utils\Utils;
-use Antlr4\Vocabulary;
-use Antlr4\VocabularyImpl;
+use \Antlr4\Utils\Utils;
+use \Antlr4\Vocabulary;
+use \Antlr4\VocabularyImpl;
 
 // A DFA walker that knows how to dump them to serialized strings.
 class DFASerializer

@@ -2,8 +2,8 @@
 
 namespace Antlr4\Atn\Actions;
 
-use Antlr4\Lexer;
-use Antlr4\Utils\Hash;
+use \Antlr4\Lexer;
+use \Antlr4\Utils\Hash;
 
 //  Implements the {@code type} lexer action by calling {@link Lexer//setType} with the assigned type.
 class LexerTypeAction extends LexerAction

@@ -2,7 +2,7 @@
 
 namespace Antlr4\Predictioncontexts;
 
-use Antlr4\Utils\Hash;
+use \Antlr4\Utils\Hash;
 
 class ArrayPredictionContext extends PredictionContext
 {

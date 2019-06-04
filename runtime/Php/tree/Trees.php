@@ -6,13 +6,13 @@
 
 namespace Antlr4\Tree;
 
-use Antlr4\Atn\ATN;
-use Antlr4\Parser;
-use Antlr4\ParserRuleContext;
-use Antlr4\Recognizer;
-use Antlr4\RuleContext;
-use Antlr4\Token;
-use Antlr4\Utils\Utils;
+use \Antlr4\Atn\ATN;
+use \Antlr4\Parser;
+use \Antlr4\ParserRuleContext;
+use \Antlr4\Recognizer;
+use \Antlr4\RuleContext;
+use \Antlr4\Token;
+use \Antlr4\Utils\Utils;
 
 /** A set of utility routines useful for all kinds of ANTLR trees. */
 class Trees

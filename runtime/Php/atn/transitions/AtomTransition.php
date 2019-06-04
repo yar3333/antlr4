@@ -2,8 +2,8 @@
 
 namespace Antlr4\Atn\Transitions;
 
-use Antlr4\Atn\States\ATNState;
-use Antlr4\IntervalSet;
+use \Antlr4\Atn\States\ATNState;
+use \Antlr4\IntervalSet;
 
 class AtomTransition extends Transition
 {
@@ -18,7 +18,7 @@ class AtomTransition extends Transition
     {
         parent::__construct($target);
 
-        $this->label = $label;// The token type or character value; or, signifies special label.
+        $this->label = $label;
     }
 
 	function label() : IntervalSet { return IntervalSet::fromInt($this->label); }

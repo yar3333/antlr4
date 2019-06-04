@@ -2,12 +2,13 @@
 
 namespace Antlr4\Atn\Transitions;
 
-use Antlr4\IntervalSet;
-use Antlr4\Utils\Utils;
+use \Antlr4\Atn\States\ATNState;
+use \Antlr4\IntervalSet;
+use \Antlr4\Utils\Utils;
 
 class RangeTransition extends Transition
 {
-    public $serializationType;
+    public $serializationType = Transition::RANGE;
 
     /**
      * @var int
@@ -19,11 +20,10 @@ class RangeTransition extends Transition
      */
     public $stop;
 
-    function __construct($target, int $start, int $stop)
+    function __construct(ATNState $target, int $start, int $stop)
     {
         parent::__construct($target);
 
-        $this->serializationType = Transition::RANGE;
         $this->start = $start;
         $this->stop = $stop;
     }

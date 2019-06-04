@@ -6,11 +6,11 @@
 
 namespace Antlr4\Dfa;
 
-use Antlr4\Atn\ATNConfigSet;
-use Antlr4\Atn\LexerActionExecutor;
-use Antlr4\Atn\Semanticcontexts\SemanticContext;
-use Antlr4\Utils\Hash;
-use Antlr4\Utils\Set;
+use \Antlr4\Atn\ATNConfigSet;
+use \Antlr4\Atn\LexerActionExecutor;
+use \Antlr4\Atn\Semanticcontexts\SemanticContext;
+use \Antlr4\Utils\Hash;
+use \Antlr4\Utils\Set;
 
 // A DFA state represents a set of possible ATN configurations.
 // As Aho, Sethi, Ullman p. 117 says "The DFA uses its state
