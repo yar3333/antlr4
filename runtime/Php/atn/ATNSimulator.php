@@ -54,7 +54,7 @@ abstract class ATNSimulator
     function getCachedContext(PredictionContext $context) : PredictionContext
     {
         if ($this->sharedContextCache === null) return $context;
-        return PredictionContextUtils::getCachedPredictionContext($context, $this->sharedContextCache, []);
+        return PredictionContextUtils::getCachedPredictionContext($context, $this->sharedContextCache, new \ArrayObject());
     }
 
     abstract function reset() : void;

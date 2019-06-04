@@ -40,12 +40,13 @@ class IntervalSet
     {
         if ($this->readOnly) throw new \RuntimeException("can't alter readonly IntervalSet");
 
-        //System.out.println("add "+addition+" to "+intervals.toString());
-		if ($addition->stop < $addition->start) return;
+        //echo "IntervalSet: add $addition to " . implode(", ", $this->intervals) . "\n";
+
+        if ($addition->stop < $addition->start) return;
 
 		// find position in list
 		// Use iterators as we modify list in place
-		for ($i = 0; $i < count($this->intervals);)
+		for ($i = 0; $i < count($this->intervals); $i++)
 		{
 			/** @var Interval $r */
 			$r = $this->intervals[$i];
@@ -80,6 +81,7 @@ class IntervalSet
 				array_splice($this->intervals, $i, 0, [$addition]);
 				return;
 			}
+
 			// if disjoint and after r, a future iteration will handle it
 		}
 		// ok, must be after last interval (and disjoint from last interval) just add it

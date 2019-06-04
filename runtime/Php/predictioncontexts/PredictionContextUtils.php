@@ -469,22 +469,24 @@ class PredictionContextUtils
         }
     }
 
-    static function getCachedPredictionContext(PredictionContext $context, PredictionContextCache $contextCache, $visited) : PredictionContext
+    static function getCachedPredictionContext(PredictionContext $context, PredictionContextCache $contextCache, \ArrayObject $visited) : PredictionContext
     {
         if ($context->isEmpty()) return $context;
 
-        $existing = $visited[$context] ?? null;
+        $existing = $visited[spl_object_id($context)] ?? null;
         if ($existing !== null) return $existing;
 
         $existing = $contextCache->get($context);
         if ($existing)
         {
-            $visited[$context] = $existing;
+            $visited[spl_object_id($context)] = $existing;
             return $existing;
         }
+
         $changed = false;
         $parents = [];
-        foreach ($parents as $i => $iValue) {
+        foreach ($parents as $i => $iValue)
+        {
             $parent = self::getCachedPredictionContext($context->getParent($i), $contextCache, $visited);
             if ($changed || $parent !== $context->getParent($i))
             {
@@ -503,7 +505,7 @@ class PredictionContextUtils
         if (!$changed)
         {
             $contextCache->add($context);
-            $visited[$context] = $context;
+            $visited[spl_object_id($context)] = $context;
             return $context;
         }
         $updated = null;
@@ -520,24 +522,24 @@ class PredictionContextUtils
             $updated = new ArrayPredictionContext($parents, $context->getReturnStates());
         }
         $contextCache->add($updated);
-        $visited[$updated] = $updated;
-        $visited[$context] = $updated;
+        $visited[spl_object_id($updated)] = $updated;
+        $visited[spl_object_id($context)] = $updated;
 
         return $updated;
     }
 
     // ter's recursive version of Sam's getAllNodes()
-    static function getAllContextNodes(PredictionContext $context, $nodes, $visited)
+    static function getAllContextNodes(PredictionContext $context, $nodes, \ArrayObject $visited)
     {
         if      ($nodes === null) return self::getAllContextNodes($context, [], $visited);
-        else if ($visited === null) return self::getAllContextNodes($context, $nodes, []);
+        else if ($visited === null) return self::getAllContextNodes($context, $nodes, new \ArrayObject());
         else
         {
-            if ($context === null || $visited[$context] !== null)
+            if ($context === null || $visited[spl_object_id($context)] !== null)
             {
                 return $nodes;
             }
-            $visited[$context] = $context;
+            $visited[spl_object_id($context)] = $context;
             array_push($nodes, $context);
             for ($i = 0; $i < $context->getLength(); $i++)
             {

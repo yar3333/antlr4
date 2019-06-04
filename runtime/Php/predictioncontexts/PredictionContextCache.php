@@ -30,7 +30,7 @@ class PredictionContextCache
         return $ctx;
     }
 
-    function get($ctx) : PredictionContext
+    function get(PredictionContext $ctx) : ?PredictionContext
     {
         return $this->cache->get($ctx);
     }

@@ -40,6 +40,12 @@ phpTypeInitMap ::= [
 ParserFile(file, parser, namedActions, contextSuperClass) ::= <<
 <fileHeader(file.grammarFileName, file.ANTLRVersion)>
 <if(file.genPackage)>
+/** @noinspection UnnecessaryParenthesesInspection */
+/** @noinspection PhpRedundantCatchClauseInspection */
+/** @noinspection PhpUnusedAliasInspection */
+/** @noinspection DegradedSwitchInspection */
+/** @noinspection PhpUnusedLocalVariableInspection */
+
 namespace <file.genPackage>;
 <endif>
 
@@ -54,6 +60,7 @@ use \\Antlr4\\Parser;
 use \\Antlr4\\Predictioncontexts\\PredictionContextCache;
 use \\Antlr4\\Error\\Exceptions\\RecognitionException;
 use \\Antlr4\\RuleContext;
+use \\Antlr4\\Token;
 use \\Antlr4\\TokenStream;
 use \\Antlr4\\Vocabulary;
 use \\Antlr4\\VocabularyImpl;
@@ -315,6 +322,7 @@ namespace <file.genPackage>\\Contexts;
 
 use \\Antlr4\\ParserRuleContext;
 use \\Antlr4\\Tree\\ParseTreeVisitor;
+use \\Antlr4\\Tree\\TerminalNode;
 use \\<file.genPackage>\\<parser.name>;
 use \\<file.genPackage>\\<file.grammarName>Visitor;
 
@@ -610,7 +618,7 @@ case <i>:
 OptionalBlock(choice, alts, error) ::= <<
 $this->setState(<choice.stateNumber>);
 $this->_errHandler->sync($this);
-switch ($this->getInterpreter().adaptivePredict($this->_input, <choice.decision>, $this->_ctx) ) {
+switch ($this->getInterpreter()->adaptivePredict($this->_input, <choice.decision>, $this->_ctx) ) {
 <alts:{alt |
 case <i><if(!choice.ast.greedy)>+1<endif>:
 	<alt>
@@ -667,7 +675,7 @@ testShiftInRange(shiftAmount) ::= <<
 
 // produces smaller bytecode only when bits.ttypes contains more than two items
 bitsetBitfieldComparison(s, bits) ::= <%
-(<testShiftInRange({<offsetShift(s.varName, bits.shift)>})> && ((1L \<\< <offsetShift(s.varName, bits.shift)>) & (<bits.ttypes:{ttype | (1L \<\< <offsetShift(ttype, bits.shift)>)}; separator=" | ">)) !== 0)
+(<testShiftInRange({<offsetShiftVar(s.varName, bits.shift)>})> && ((1 \<\< <offsetShiftVar(s.varName, bits.shift)>) & (<bits.ttypes:{ttype | (1 \<\< <offsetShiftConst(ttype, bits.shift)>)}; separator=" | ">)) !== 0)
 %>
 
 isZero ::= [
@@ -675,13 +683,16 @@ isZero ::= [
 default:false
 ]
 
-offsetShift(shiftAmount, offset) ::= <%
-<if(!isZero.(offset))>(<shiftAmount> - <offset>)<else><shiftAmount><endif>
+offsetShiftVar(shiftAmount, offset) ::= <%
+<if(!isZero.(offset))>($<shiftAmount> - <offset>)<else>$<shiftAmount><endif>
+%>
+offsetShiftConst(shiftAmount, offset) ::= <%
+<if(!isZero.(offset))>(self::<shiftAmount> - <offset>)<else>self::<shiftAmount><endif>
 %>
 
 // produces more efficient bytecode when bits.ttypes contains at most two items
 bitsetInlineComparison(s, bits) ::= <%
-<bits.ttypes:{ttype | <s.varName>==<ttype>}; separator=" || ">
+<bits.ttypes:{ttype | $<s.varName> === self::<ttype>}; separator=" || ">
 %>
 
 cases(ttypes) ::= <<
@@ -710,8 +721,8 @@ if ( <if(invert)><m.varName> \<= 0 || <else>!<endif>(<expr>) ) {
 	<if(m.labels)><m.labels:{l | <labelref(l)> = (Token)}><endif>$this->_errHandler->recoverInline($this);
 }
 else {
-	if ($this->_input->LA(1) === Token::EOF ) matchedEOF = true;
-	$this->_errHandler->reportMatch(this);
+	if ($this->_input->LA(1) === Token::EOF ) $matchedEOF = true;
+	$this->_errHandler->reportMatch($this);
 	$this->consume();
 }
 >>
@@ -796,7 +807,7 @@ TokenListDecl(t) ::= "/** @var Token[] */$<t.name> = []"
 RuleContextDecl(r) ::= "/** @var <r.ctxName> $<r.name> */"
 RuleContextListDecl(rdecl) ::= "/** @var <rdecl.ctxName>[] */$<rdecl.name> = []"
 
-ContextTokenGetterDecl(t) ::= "function <t.name>() : TerminalNode { return \$this->getToken(<parser.name>::<t.name>, 0); }"
+ContextTokenGetterDecl(t) ::= "function <t.name>() : TerminalNode { return $this->getToken(<parser.name>::<t.name>, 0); }"
 
 ContextTokenListGetterDecl(t)  ::= <<
     /**
@@ -850,8 +861,8 @@ ImplicitRuleLabel(ruleName)	  ::= "<ruleName>"
 ImplicitSetLabel(id)		  ::= "_tset<id>"
 ListLabelName(label)		  ::= "<label>"
 
-CaptureNextToken(d) ::= "<d.varName> = \$this->_input->LT(1);"
-CaptureNextTokenType(d) ::= "<d.varName> = \$this->_input->LA(1);"
+CaptureNextToken(d) ::= "$<d.varName> = \$this->_input->LT(1);"
+CaptureNextTokenType(d) ::= "$<d.varName> = $this->_input->LA(1);"
 
 StructDecl(struct,ctorAttrs,attrs,getters,dispatchMethods,interfaces,extensionMembers) ::= <<
 class <struct.name> extends <if(contextSuperClass)><contextSuperClass><else>ParserRuleContext<endif><if(interfaces)> implements <interfaces; separator=", "><endif>

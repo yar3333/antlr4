@@ -14,16 +14,16 @@ class Map
     public $data;
 
     /**
-     * @var \Closure
+     * @var callable
      */
     public $hashFunction;
 
     /*
-     * @var Closure
+     * @var callable
      */
     public $equalsFunction;
 
-    function __construct(\Closure $hashFunction=null, \Closure $equalsFunction=null)
+    function __construct(callable $hashFunction=null, callable $equalsFunction=null)
     {
         $this->data = [];
         $this->hashFunction = $hashFunction ?: function ($a) { return Utils::standardHashCodeFunction($a); };
@@ -43,12 +43,12 @@ class Map
 
     function put($key, $value)
     {
-        $hashKey = "hash_" . $this->hashFunction->call($key);
+        $hashKey = "hash_" . ($this->hashFunction)($key);
 
         if (isset($this->data[$hashKey])) {
             $entries = $this->data[$hashKey];
             foreach ($entries as $entry) {
-                if ($this->equalsFunction->call($key, $entry['key'])) {
+                if (($this->equalsFunction)($key, $entry['key'])) {
                     $oldValue = $entry['value'];
                     $entry['value'] = $value;
                     return $oldValue;
@@ -64,13 +64,13 @@ class Map
 
     function containsKey($key) : bool
     {
-        $hashKey = "hash_" . $this->hashFunction->call($key);
+        $hashKey = "hash_" . ($this->hashFunction)($key);
         if (isset($this->data[$hashKey]))
         {
             $entries = $this->data[$hashKey];
             foreach ($entries as $entry)
             {
-                if ($this->equalsFunction->call($key, $entry['key'])) return true;
+                if (($this->equalsFunction)($key, $entry['key'])) return true;
             }
         }
         return false;
@@ -78,13 +78,13 @@ class Map
 
     function get($key)
     {
-        $hashKey = "hash_" . $this->hashFunction->call($key);
+        $hashKey = "hash_" . ($this->hashFunction)($key);
         if (isset($this->data[$hashKey]))
         {
             $entries = $this->data[$hashKey];
             foreach ($entries as $entry)
             {
-                if ($this->equalsFunction->call($key, $entry['key'])) return $entry['value'];
+                if (($this->equalsFunction)($key, $entry['key'])) return $entry['value'];
             }
         }
         return null;
