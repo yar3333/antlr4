@@ -115,7 +115,7 @@ class ATNConfigSet
     // {@code pi} is the {@link ATNConfig//semanticContext}. We use {@code (s,i,pi)} as key.
     //
     // <p>This method updates {@link //dipsIntoOuterContext} and {@link //hasSemanticContext} when necessary.</p>
-    function add($config, $mergeCache=null) : bool
+    function add(ATNConfig $config, $mergeCache=null) : bool
     {
         if ($this->readOnly) throw new \RuntimeException("This set is readonly");
 
@@ -129,6 +129,7 @@ class ATNConfigSet
             $this->dipsIntoOuterContext = true;
         }
 
+        /** @var ATNConfig $existing */
         $existing = $this->configLookup->add($config);
         if ($existing === $config)
         {
@@ -147,9 +148,9 @@ class ATNConfigSet
         $existing->reachesIntoOuterContext = max( $existing->reachesIntoOuterContext, $config->reachesIntoOuterContext);
 
         // make sure to preserve the precedence filter suppression during the merge
-        if ($config->precedenceFilterSuppressed)
+        if ($config->isPrecedenceFilterSuppressed())
         {
-            $existing->precedenceFilterSuppressed = true;
+            $existing->setPrecedenceFilterSuppressed(true);
         }
 
         $existing->context = $merged;// replace context; no need to alt mapping
@@ -186,8 +187,6 @@ class ATNConfigSet
      * @return ATNConfig[]
      */
     function items() : array { return $this->configs; }
-
-    function item(int $index) : ATNConfig { return $this->configs[$index]; }
 
     function optimizeConfigs(ATNSimulator $interpreter) : void
     {

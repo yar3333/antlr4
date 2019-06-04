@@ -25,7 +25,7 @@ class PrecedencePredicate extends SemanticContext
         return $parser->precpred($outerContext, $this->precedence);
     }
 
-    function evalPrecedence(Recognizer $parser, $outerContext)
+    function evalPrecedence(Recognizer $parser, $outerContext) : ?SemanticContext
     {
         if ($parser->precpred($outerContext, $this->precedence)) {
             return SemanticContext::NONE();

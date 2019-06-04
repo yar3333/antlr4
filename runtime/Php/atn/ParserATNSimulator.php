@@ -1077,20 +1077,14 @@ class ParserATNSimulator extends ATNSimulator
          */
         $statesFromAlt1 = [];
         $configSet = new ATNConfigSet($configs->fullCtx);
-        for ($i=0; $i < count($configs->items()); $i++)
+        foreach ($configs->items() as $config)
         {
-            $config = $configs->item($i);
             // handle alt 1 first
-            if ($config->alt !== 1)
-            {
-                continue;
-            }
+            if ($config->alt !== 1) continue;
+
             $updatedContext = $config->semanticContext->evalPrecedence($this->parser, $this->_outerContext);
-            if ($updatedContext===null)
-            {
-                // the configuration was eliminated
-                continue;
-            }
+            if (!$updatedContext) continue;
+
             $statesFromAlt1[$config->state->stateNumber] = $config->context;
             if ($updatedContext !== $config->semanticContext)
             {
@@ -1101,6 +1095,7 @@ class ParserATNSimulator extends ATNSimulator
                 $configSet->add($config, $this->mergeCache);
             }
         }
+
         foreach ($configs->items() as $config)
         {
             if ($config->alt === 1) continue; // already handled
@@ -1108,7 +1103,7 @@ class ParserATNSimulator extends ATNSimulator
             // In the future, this elimination step could be updated to also
             // filter the prediction context for alternatives predicting alt>1
             // (basically a graph subtraction algorithm).
-            if (!$config->precedenceFilterSuppressed)
+            if (!$config->isPrecedenceFilterSuppressed())
             {
                 $context = $statesFromAlt1[$config->state->stateNumber] ?? null;
                 if ($context && $context->equals($config->context))
@@ -1444,9 +1439,13 @@ class ParserATNSimulator extends ATNSimulator
                     $parms = (object)[ 'state'=>$returnState, 'alt'=>$config->alt, 'context'=>$newContext, 'semanticContext'=>$config->semanticContext ];
                     $c = new ATNConfig($parms, null);
 
-                    // While we have context to pop back from, we may have
-                    // gotten that context AFTER having falling off a rule.
-                    // Make sure we track that we are now out of context.
+					// While we have context to pop back from, we may have
+					// gotten that context AFTER having falling off a rule.
+					// Make sure we track that we are now out of context.
+					//
+					// This assignment also propagates the
+					// isPrecedenceFilterSuppressed() value to the new
+					// configuration.
                     $c->reachesIntoOuterContext = $config->reachesIntoOuterContext;
                     $this->closureCheckingStopState($c, $configs, $closureBusy, $collectPredicates, $fullCtx, $depth - 1, $treatEofAsEpsilon);
                 }
@@ -1490,7 +1489,7 @@ class ParserATNSimulator extends ATNSimulator
 
             $continueCollecting = $collectPredicates && !($t instanceof ActionTransition);
             $c = $this->getEpsilonTarget($config, $t, $continueCollecting, $depth === 0, $fullCtx, $treatEofAsEpsilon);
-            if ($c!==null)
+            if ($c)
             {
                 $newDepth = $depth;
                 if ($config->state instanceof RuleStopState)
@@ -1500,11 +1499,11 @@ class ParserATNSimulator extends ATNSimulator
                     // track how far we dip into outer context.  Might
                     // come in handy and we avoid evaluating context dependent
                     // preds if this is > 0.
-                    if ($this->_dfa !== null && $this->_dfa->precedenceDfa)
+                    if ($this->_dfa && $this->_dfa->precedenceDfa)
                     {
                         if ($t instanceof EpsilonTransition && $t->outermostPrecedenceReturn === $this->_dfa->atnStartState->ruleIndex)
                         {
-                            $c->precedenceFilterSuppressed = true;
+                            $c->setPrecedenceFilterSuppressed(true);
                         }
                     }
 

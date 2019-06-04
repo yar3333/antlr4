@@ -46,8 +46,6 @@ class ATNConfig
      */
     public $reachesIntoOuterContext;
 
-    public $precedenceFilterSuppressed;
-
     private static function checkParams(?object $params, $isCfg=false) : object
     {
         if (!$params)
@@ -65,40 +63,33 @@ class ATNConfig
         if ($isCfg)
         {
             $props->reachesIntoOuterContext = $params->reachesIntoOuterContext ?? 0;
-            $props->precedenceFilterSuppressed = $params->precedenceFilterSuppressed ?? false;
         }
         return $props;
     }
+
+	function isPrecedenceFilterSuppressed() : bool { return ($this->reachesIntoOuterContext & self::SUPPRESS_PRECEDENCE_FILTER) !== 0; }
+
+	function setPrecedenceFilterSuppressed(bool $value) : void
+    {
+		if ($value) {
+			$this->reachesIntoOuterContext |= self::SUPPRESS_PRECEDENCE_FILTER;
+		}
+		else {
+			$this->reachesIntoOuterContext &= ~self::SUPPRESS_PRECEDENCE_FILTER;
+		}
+	}
+
 
     function __construct(?object $params, ?ATNConfig $_config)
     {
         $params = self::checkParams($params);
         $config = self::checkParams($_config, true);
 
-        // The ATN state associated with this configuration///
         $this->state = $params->state ?: $config->state;
-
-        // What alt (or lexer rule) is predicted by this configuration///
         $this->alt = $params->alt ?: $config->alt;
-
-        // The stack of invoking states leading to the rule/states associated
-        //  with this config.  We track only those contexts pushed during
-        //  execution of the ATN simulator.
         $this->context = $params->context ?: $config->context;
-
         $this->semanticContext = $params->semanticContext ?: ($config->semanticContext ?: SemanticContext::NONE());
-
-        // We cannot execute predicates dependent upon local context unless
-        // we know for sure we are in the correct context. Because there is
-        // no way to do this efficiently, we simply cannot evaluate
-        // dependent predicates unless we are in the rule that initially
-        // invokes the ATN simulator.
-        //
-        // closure() tracks the depth of how far we dip into the
-        // outer context: depth &gt; 0.  Note that it may not be totally
-        // accurate depth since I don't ever decrement. TODO: make it a boolean then
         $this->reachesIntoOuterContext = $config->reachesIntoOuterContext;
-        $this->precedenceFilterSuppressed = $config->precedenceFilterSuppressed ?? false;
     }
 
     function hashCode() : int
@@ -127,7 +118,7 @@ class ATNConfig
             $this->alt === $other->alt &&
             ($this->context === null ? $other->context === null : $this->context->equals($other->context)) &&
             $this->semanticContext->equals($other->semanticContext) &&
-            $this->precedenceFilterSuppressed === $other->precedenceFilterSuppressed;
+            $this->isPrecedenceFilterSuppressed() === $other->isPrecedenceFilterSuppressed();
     }
 
 
