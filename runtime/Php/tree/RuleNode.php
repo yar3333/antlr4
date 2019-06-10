@@ -7,9 +7,4 @@ use \Antlr4\RuleContext;
 interface RuleNode extends ParseTree
 {
     function getRuleContext() : RuleContext;
-
-    /**
-     * @return RuleNode[]
-     */
-    function children() : array;
 }

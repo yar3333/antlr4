@@ -396,21 +396,20 @@ class PredictionMode
         return !self::hasNonConflictingAltSet($altsets);
     }
 
-    // Determines if any single alternative subset in {@code altsets} contains
-    // exactly one alternative.
-    //
-    // @param altsets a collection of alternative subsets
-    // @return {@code true} if {@code altsets} contains a {@link BitSet} with
-    // {@link BitSet//cardinality cardinality} 1, otherwise {@code false}
-    /**
-     * @param BitSet[] $altsets
-     * @return bool
-     */
+	/**
+	 * Determines if any single alternative subset in {@code altsets} contains
+	 * exactly one alternative.
+	 *
+	 * @param BitSet[] $altsets a collection of alternative subsets
+	 * @return bool {@code true} if {@code altsets} contains a {@link BitSet} with
+	 * {@link BitSet#cardinality cardinality} 1, otherwise {@code false}
+	 */
     static function hasNonConflictingAltSet(array $altsets) : bool
     {
         foreach ($altsets as $alts)
         {
-            if ($alts->length === 1) return true;
+            /** @var BitSet $alts */
+            if ($alts->length() === 1) return true;
         }
         return false;
     }
@@ -553,9 +552,9 @@ class PredictionMode
 
     static function hasStateAssociatedWithOneAlt(ATNConfigSet $configs) : bool
     {
-        /** @var BitSet $value */
         foreach (self::getStateToAltMap($configs)->values() as $value)
         {
+            /** @var BitSet $value */
             if ($value->length() === 1) return true;
         }
         return false;

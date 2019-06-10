@@ -65,13 +65,13 @@ class DiagnosticErrorListener extends BaseErrorListener
         $recognizer->notifyErrorListeners($msg);
     }
 
-    function getDecisionDescription($recognizer, $dfa) : string
+    function getDecisionDescription(Parser $recognizer, DFA $dfa) : string
     {
         $decision = $dfa->decision;
         $ruleIndex = $dfa->atnStartState->ruleIndex;
 
-        $ruleNames = $recognizer->ruleNames;
-        if ($ruleIndex < 0 || $ruleIndex >= $ruleNames->length)
+        $ruleNames = $recognizer->getRuleNames();
+        if ($ruleIndex < 0 || $ruleIndex >= count($ruleNames))
         {
             return (string)$decision;
         }

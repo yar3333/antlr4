@@ -104,14 +104,12 @@ class RuleContext implements RuleNode
     // method.
     function getText() : string
     {
-        if ($this->getChildCount() === 0)
+        $r = "";
+        for ($i = 0; $i < $this->getChildCount(); $i++)
         {
-            return "";
+            $r .= $this->getChild($i)->getText();
         }
-        else
-        {
-            return implode("", Utils::arrayMap($this->children(), function(RuleNode $child) { return $child->getText(); }));
-        }
+        return $r;
     }
 
     // For rule associated with this parse tree internal node, return
@@ -142,11 +140,6 @@ class RuleContext implements RuleNode
     function getChildCount() : int
     {
         return 0;
-    }
-
-    function children() : array
-    {
-        return [];
     }
 
     function accept(ParseTreeVisitor $visitor)

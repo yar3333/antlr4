@@ -136,7 +136,7 @@ abstract class PredictionContext
     }
     */
 
-    static function merge(PredictionContext $a, PredictionContext $b, bool $rootIsWildcard, $mergeCache)
+    static function merge(PredictionContext $a, PredictionContext $b, bool $rootIsWildcard, ?DoubleKeyMap $mergeCache)
     {
 		// share same graph if both same
 		if ($a===$b || $a->equals($b)) return $a;
@@ -197,7 +197,7 @@ abstract class PredictionContext
     // otherwise false to indicate a full-context merge
     // @param mergeCache
     // /
-    static function mergeSingletons($a, $b, $rootIsWildcard, DoubleKeyMap $mergeCache)
+    static function mergeSingletons($a, $b, $rootIsWildcard, ?DoubleKeyMap $mergeCache)
     {
         if ($mergeCache !== null)
         {
@@ -386,7 +386,7 @@ abstract class PredictionContext
     //
     // <p>Equal tops, merge parents and reduce top to {@link SingletonPredictionContext}.<br>
     // <embed src="images/ArrayMerge_EqualTop.svg" type="image/svg+xml"/></p>
-    static function mergeArrays(ArrayPredictionContext $a, ArrayPredictionContext $b, bool $rootIsWildcard, DoubleKeyMap $mergeCache)
+    static function mergeArrays(ArrayPredictionContext $a, ArrayPredictionContext $b, bool $rootIsWildcard, ?DoubleKeyMap $mergeCache)
     {
         if ($mergeCache !== null)
         {
@@ -485,8 +485,7 @@ abstract class PredictionContext
             if ($k === 1)
             {
                 // for just one merged element, return singleton top
-                $a_ = SingletonPredictionContext::create($mergedParents[0],
-                        $mergedReturnStates[0]);
+                $a_ = SingletonPredictionContext::create($mergedParents[0], $mergedReturnStates[0]);
                 if ($mergeCache !== null)
                 {
                     $mergeCache->set($a, $b, $a_);

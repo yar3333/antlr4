@@ -22,7 +22,6 @@ use \Antlr4\Atn\Transitions\Transition;
 use \Antlr4\Dfa\DFA;
 use \Antlr4\Dfa\DFAState;
 use \Antlr4\Dfa\PredPrediction;
-use \Antlr4\DoubleDict;
 use \Antlr4\Error\Exceptions\NoViableAltException;
 use \Antlr4\InputStream;
 use \Antlr4\Parser;
@@ -34,6 +33,7 @@ use \Antlr4\RuleContext;
 use \Antlr4\Token;
 use \Antlr4\TokenStream;
 use \Antlr4\Utils\BitSet;
+use \Antlr4\Utils\DoubleKeyMap;
 use \Antlr4\Utils\Printer;
 use \Antlr4\Utils\Set;
 use \Antlr4\VocabularyImpl;
@@ -309,7 +309,7 @@ class ParserATNSimulator extends ATNSimulator
     private $_dfa;
 
     /**
-     * @var DoubleDict
+     * @var DoubleKeyMap
      */
     private $mergeCache;
 
@@ -819,9 +819,9 @@ class ParserATNSimulator extends ATNSimulator
         {
             //$console->log("in computeReachSet, starting closure: " . $closure);
         }
-        if( $this->mergeCache===null)
+        if ($this->mergeCache === null)
         {
-            $this->mergeCache = new DoubleDict();
+            $this->mergeCache = new DoubleKeyMap();
         }
         $intermediate = new ATNConfigSet($fullCtx);
 
@@ -1117,16 +1117,9 @@ class ParserATNSimulator extends ATNSimulator
         return $configSet;
     }
 
-    function getReachableTarget(Transition $trans, $ttype)
+    function getReachableTarget(Transition $trans, $ttype) : ?ATNState
     {
-        if ($trans->matches($ttype, 0, $this->atn->maxTokenType))
-        {
-            return $trans->target;
-        }
-        else
-        {
-            return null;
-        }
+        return $trans->matches($ttype, 0, $this->atn->maxTokenType) ? $trans->target : null;
     }
 
     /**
@@ -1414,7 +1407,7 @@ class ParserATNSimulator extends ATNSimulator
             // run thru all possible stack tops in ctx
             if (!$config->context->isEmpty())
             {
-                for ( $i =0; $i<$config->context->length; $i++)
+                for ($i =0; $i < $config->context->getLength(); $i++)
                 {
                     if ($config->context->getReturnState($i) === PredictionContext::EMPTY_RETURN_STATE)
                     {
@@ -1556,7 +1549,7 @@ class ParserATNSimulator extends ATNSimulator
         if ($p->stateType !== ATNState::STAR_LOOP_ENTRY || !$p->isPrecedenceDecision || $config->context->isEmpty() || $config->context->hasEmptyPath()) return false;
 
         // Require all return states to return back to the same rule that p is in.
-        $numCtxs = $config->context->length;
+        $numCtxs = $config->context->getLength();
         for($i=0; $i<$numCtxs; $i++)
         {
             // for each stack context
@@ -1806,7 +1799,7 @@ class ParserATNSimulator extends ATNSimulator
     function getConflictingAltsOrUniqueAlt(ATNConfigSet $configs) : BitSet
     {
         $conflictingAlts = null;
-        if ($configs->uniqueAlt!== ATN::INVALID_ALT_NUMBER)
+        if ($configs->uniqueAlt !== ATN::INVALID_ALT_NUMBER)
         {
             $conflictingAlts = new BitSet();
             $conflictingAlts->add($configs->uniqueAlt);

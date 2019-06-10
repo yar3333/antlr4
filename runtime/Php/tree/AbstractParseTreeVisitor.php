@@ -35,7 +35,6 @@ class AbstractParseTreeVisitor implements ParseTreeVisitor
 	public function visitChildren(RuleNode $node)
 	{
 		$result = $this->defaultResult();
-		/** @var int $n */
 		$n = $node->getChildCount();
 		for ($i=0; $i < $n; $i++)
 		{

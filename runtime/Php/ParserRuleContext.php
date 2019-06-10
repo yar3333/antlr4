@@ -45,7 +45,7 @@ class ParserRuleContext extends RuleContext
     /**
      * @var ParseTree[]
      */
-    public $children;
+    protected $children;
 
     /**
      * @var Token
@@ -154,10 +154,8 @@ class ParserRuleContext extends RuleContext
      */
     function getChild(int $i, string $type=null)
     {
-        if ($this->children === null || $i < 0 || $i >= count($this->children))
-        {
-            return null;
-        }
+        if ($this->children === null || $i < 0 || $i >= count($this->children)) return null;
+
         if ($type === null) return $this->children[$i];
 
         foreach ($this->children as $child)

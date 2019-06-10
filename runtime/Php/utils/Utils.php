@@ -149,7 +149,7 @@ class Utils
         return mb_chr($code, 'UTF-8');
     }
 
-    static function arrayMap(array $arr, \Closure $func) : array
+    static function arrayMap(array $arr, callable $func) : array
     {
         return array_map($func, $arr);
     }

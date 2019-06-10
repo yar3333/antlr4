@@ -45,6 +45,7 @@ class LL1Analyzer
         if ($s === null) return null;
 
         $count = count($s->transitions);
+        /** @var IntervalSet[] $look */
         $look = [];
         for ($alt = 0; $alt < $count; $alt++)
         {
@@ -54,7 +55,7 @@ class LL1Analyzer
             $this->_LOOK($s->transitions[$alt]->target, null, PredictionContext::EMPTY(), $look[$alt], $lookBusy, new BitSet(), $seeThruPreds, false);
             // Wipe out lookahead for this alternative if we found nothing
             // or we had a predicate when we !seeThruPreds
-            if ($look[$alt]->length===0 || $look[$alt]->contains(LL1Analyzer::HIT_PRED))
+            if ($look[$alt]->size() === 0 || $look[$alt]->contains(LL1Analyzer::HIT_PRED))
             {
                 $look[$alt] = null;
             }

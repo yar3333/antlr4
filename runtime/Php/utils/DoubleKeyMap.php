@@ -21,19 +21,12 @@ class DoubleKeyMap
 	{
 		/** @var Map $data2 */
 		$data2 = $this->data->get($k1);
-		$prev = null;
-		if ($data2===null)
+		if ($data2 === null)
 		{
 			$data2 = new Map();
 			$this->data->put($k1, $data2);
 		}
-		else
-		{
-			$prev = $data2->get($k2);
-		}
 		$data2->put($k2, $v);
-
-		return $prev;
 	}
 
 	public function getByTwoKeys($k1, $k2)

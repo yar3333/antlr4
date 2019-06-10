@@ -310,7 +310,7 @@ class PredictionContextUtils
     // <p>Equal tops, merge parents and reduce top to
     // {@link SingletonPredictionContext}.<br>
     // <embed src="images/ArrayMerge_EqualTop.svg" type="image/svg+xml"/></p>
-    static function mergeArrays($a, $b, $rootIsWildcard, DoubleKeyMap $mergeCache)
+    static function mergeArrays(ArrayPredictionContext $a, ArrayPredictionContext $b, $rootIsWildcard, DoubleKeyMap $mergeCache)
     {
         if ($mergeCache !== null)
         {
@@ -337,7 +337,7 @@ class PredictionContextUtils
         $mergedParents = [];
 
         // walk and merge to yield mergedParents, mergedReturnStates
-        while ($i < $a->returnStates->length && $j < $b->returnStates->length)
+        while ($i < count($a->returnStates) && $j < count($b->returnStates))
         {
             $a_parent = $a->parents[$i];
             $b_parent = $b->parents[$j];
@@ -385,9 +385,9 @@ class PredictionContextUtils
         }
 
         // copy over any payloads remaining in either array
-        if ($i < $a->returnStates->length)
+        if ($i < count($a->returnStates))
         {
-            for ($p = $i; $p < $a->returnStates->length; $p++)
+            for ($p = $i; $p < count($a->returnStates); $p++)
             {
                 $mergedParents[$k] = $a->parents[$p];
                 $mergedReturnStates[$k] = $a->returnStates[$p];
@@ -396,7 +396,7 @@ class PredictionContextUtils
         }
         else
         {
-            for ($p = $j; $p < $b->returnStates->length; $p++)
+            for ($p = $j; $p < count($b->returnStates); $p++)
             {
                 $mergedParents[$k] = $b->parents[$p];
                 $mergedReturnStates[$k] = $b->returnStates[$p];

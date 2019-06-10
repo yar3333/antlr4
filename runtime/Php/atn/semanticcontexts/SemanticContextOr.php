@@ -40,8 +40,8 @@ class SemanticContextOr extends SemanticContext
         if ($precedencePredicates)
         {
             // interested in the transition with the highest precedence
-            $s = usort($precedencePredicates, function (object $a, object $b) { return $a->compareTo($b); });
-            $reduced = $s[$s->length - 1];
+            usort($precedencePredicates, function (object $a, object $b) { return $a->compareTo($b); });
+            $reduced = $precedencePredicates[count($precedencePredicates) - 1];
             $operands->add($reduced);
         }
 

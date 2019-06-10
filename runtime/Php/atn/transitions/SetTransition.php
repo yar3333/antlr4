@@ -30,7 +30,7 @@ class SetTransition extends Transition
 
     function matches(int $symbol, int $minVocabSymbol, int $maxVocabSymbol) : bool
     {
-        return mb_strpos($this->set, $symbol) !== false;
+        return $this->set->contains($symbol);
     }
 
 	function label() : IntervalSet { return $this->set; }

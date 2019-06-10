@@ -9,6 +9,7 @@ namespace Antlr4\Atn;
 use \Antlr4\Atn\Semanticcontexts\SemanticContext;
 use \Antlr4\Predictioncontexts\PredictionContext;
 use \Antlr4\Utils\BitSet;
+use \Antlr4\Utils\DoubleKeyMap;
 use \Antlr4\Utils\Utils;
 use \Antlr4\Utils\Hash;
 use \Antlr4\Utils\Set;
@@ -115,7 +116,7 @@ class ATNConfigSet
     // {@code pi} is the {@link ATNConfig//semanticContext}. We use {@code (s,i,pi)} as key.
     //
     // <p>This method updates {@link //dipsIntoOuterContext} and {@link //hasSemanticContext} when necessary.</p>
-    function add(ATNConfig $config, $mergeCache=null) : bool
+    function add(ATNConfig $config, DoubleKeyMap $mergeCache=null) : bool
     {
         if ($this->readOnly) throw new \RuntimeException("This set is readonly");
 
@@ -199,13 +200,12 @@ class ATNConfigSet
         }
     }
 
-    function addAll($coll) : bool
+    function addAll(array $coll) : void
     {
-        for ($i = 0; $i < $coll->length; $i++)
+        foreach ($coll as $c)
         {
-            $this->add($coll[$i]);
+            $this->add($c);
         }
-        return false;
     }
 
     function equals($other) : bool

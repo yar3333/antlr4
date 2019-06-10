@@ -36,7 +36,7 @@ class DFASerializer
 
 		$buf = "";
 
-		/** @var DFAState $s */
+   		/** @var DFAState $s */
 		foreach ($this->dfa->states as $s)
 		{
 			$n = 0;

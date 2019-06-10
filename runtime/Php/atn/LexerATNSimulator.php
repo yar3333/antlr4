@@ -357,7 +357,6 @@ class LexerATNSimulator extends ATNSimulator
                 $target = $this->getReachableTarget($trans, $t);
                 if ($target !== null)
                 {
-
                     $lexerActionExecutor = $cfg->lexerActionExecutor;
                     if ($lexerActionExecutor !== null)
                     {
@@ -394,7 +393,7 @@ class LexerATNSimulator extends ATNSimulator
 
     function getReachableTarget(Transition $trans, int $t)
     {
-        if ($trans->matches($t, 0, Lexer::MAX_CHAR_VALUE))
+        if ($trans->matches($t, Lexer::MIN_CHAR_VALUE, Lexer::MAX_CHAR_VALUE))
         {
             return $trans->target;
         }
@@ -459,7 +458,7 @@ class LexerATNSimulator extends ATNSimulator
             }
             if ($config->context !== null && !$config->context->isEmpty())
             {
-                for ($i = 0; $i < $config->context->length; $i++)
+                for ($i = 0; $i < $config->context->getLength(); $i++)
                 {
                     if ($config->context->getReturnState($i) !== PredictionContext::EMPTY_RETURN_STATE)
                     {
