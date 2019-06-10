@@ -270,7 +270,7 @@ class DefaultErrorStrategy implements ErrorStrategy
                 $input = "<EOF>";
             } else {
                 // TODO: BUGFIXED
-                $input = $tokens->getTextByTokens($e->startToken->tokenIndex, $e->offendingToken->tokenIndex);
+                $input = $tokens->getTextByTokens($e->startToken, $e->offendingToken);
             }
         } else {
             $input = "<unknown input>";

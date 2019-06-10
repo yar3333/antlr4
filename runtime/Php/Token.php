@@ -39,43 +39,43 @@ class  Token
     
     /**
      * token type of the token
-     * @var 
+     * @var int
      */
     public $type;
     
     /**
      * The parser ignores everything not on DEFAULT_CHANNEL
-     * @var 
+     * @var int
      */
     public $channel;
     
     /**
      * optional; return -1 if not implemented.
-     * @var 
+     * @var int
      */
     public $start;
     
     /**
      * optional; return -1 if not implemented.
-     * @var 
+     * @var int
      */
     public $stop;
     
     /**
      * from 0..n-1 of the token object in the input stream
-     * @var 
+     * @var int
      */
     public $tokenIndex;
     
     /**
      * line=1..n of the 1st character
-     * @var 
+     * @var int
      */
     public $line;
     
     /**
      * beginning of the line at which it occurs, 0..n-1
-     * @var 
+     * @var int
      */
     public $charPositionInLine;
 

@@ -338,10 +338,9 @@ abstract class Parser extends Recognizer
     // </pre>
     /*function compileParseTreePattern($pattern, $patternRuleIndex, $lexer)
     {
-        $lexer = $lexer || null;
-        if ($lexer === null)
+        if (!$lexer)
         {
-            if ($this->getTokenStream() !== null)
+            if ($this->getTokenStream())
             {
                 $tokenSource = $this->getTokenStream()->tokenSource();
                 if ($tokenSource instanceof Lexer)
@@ -350,7 +349,7 @@ abstract class Parser extends Recognizer
                 }
             }
         }
-        if ($lexer === null)
+        if (!$lexer)
         {
             throw new \RuntimeException("Parser can't discover a lexer to use");
         }

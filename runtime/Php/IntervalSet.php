@@ -46,7 +46,8 @@ class IntervalSet
 
 		// find position in list
 		// Use iterators as we modify list in place
-		for ($i = 0; $i < count($this->intervals); $i++)
+        /** @noinspection ForeachInvariantsInspection */
+        for ($i = 0; $i < count($this->intervals); $i++)
 		{
 			/** @var Interval $r */
 			$r = $this->intervals[$i];

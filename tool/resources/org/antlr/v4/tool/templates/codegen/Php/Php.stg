@@ -842,7 +842,14 @@ function <r.name>() : array
 >>
 
 ContextRuleListIndexedGetterDecl(r)   ::= <<
-function <r.name>(int $i) : <r.ctxName>
+/**
+ * @return <r.ctxName>[]
+ */
+function <r.name>() : array
+{
+	return $this->getTypedRuleContexts(<r.ctxName>::class);
+}
+function <r.name>At(int $i) : <r.ctxName>
 {
     /** @noinspection PhpIncompatibleReturnTypeInspection */
     return $this->getTypedRuleContext(<r.ctxName>::class, $i);
