@@ -530,11 +530,11 @@ abstract class PredictionContext
 
     private static function combineCommonParents(array &$parents) : void
     {
-        $uniqueParents = [];
+        $uniqueParents = new \SplObjectStorage();
 
         foreach ($parents as $parent)
         {
-            if (!array_key_exists($parent, $uniqueParents))
+            if (!$uniqueParents->contains($parent))
             {
                 $uniqueParents[$parent] = $parent;
             }
