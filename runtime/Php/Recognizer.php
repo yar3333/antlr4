@@ -1,22 +1,23 @@
 <?php
-
 /* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
  * Use of this file is governed by the BSD 3-clause license that
  * can be found in the LICENSE.txt file in the project root.
  */
 
 /** @noinspection ReturnTypeCanBeDeclaredInspection */
+/** @noinspection PhpUnusedParameterInspection */
+/** @noinspection CascadeStringReplacementInspection */
 
 namespace Antlr4;
 
-use \Antlr4\Atn\ATN;
-use \Antlr4\Atn\ATNSimulator;
-use \Antlr4\Error\Exceptions\RecognitionException;
-use \Antlr4\Error\Listeners\ANTLRErrorListener;
-use \Antlr4\Error\Listeners\ConsoleErrorListener;
-use \Antlr4\Error\Listeners\ProxyErrorListener;
-use \Antlr4\Utils\Map;
-use \Antlr4\Utils\Utils;
+use Antlr4\Atn\ATN;
+use Antlr4\Atn\ATNSimulator;
+use Antlr4\Error\Exceptions\RecognitionException;
+use Antlr4\Error\Listeners\ANTLRErrorListener;
+use Antlr4\Error\Listeners\ConsoleErrorListener;
+use Antlr4\Error\Listeners\ProxyErrorListener;
+use Antlr4\Utils\Map;
+use Antlr4\Utils\Utils;
 
 abstract class Recognizer
 {
@@ -55,9 +56,9 @@ abstract class Recognizer
     function checkVersion($toolVersion) : void
     {
         $runtimeVersion = "4.7.2";
-        if ($runtimeVersion!==$toolVersion)
+        if ($runtimeVersion !== $toolVersion)
         {
-            //$console->log("ANTLR runtime and generated code versions disagree: "+runtimeVersion+"!=".$toolVersion);
+            Logger::log("ANTLR runtime and generated code versions disagree: $runtimeVersion != $toolVersion");
         }
     }
 

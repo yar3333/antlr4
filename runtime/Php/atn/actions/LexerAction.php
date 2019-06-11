@@ -6,8 +6,8 @@
 
 namespace Antlr4\Atn\Actions;
 
-use \Antlr4\Utils\Hash;
-use \Antlr4\Lexer;
+use Antlr4\Utils\Hash;
+use Antlr4\Lexer;
 
 abstract class LexerAction
 {

@@ -2,7 +2,7 @@
 
 namespace Antlr4\Error\Exceptions;
 
-use \Antlr4\Utils\Utils;
+use Antlr4\Utils\Utils;
 
 class LexerNoViableAltException extends RecognitionException
 {

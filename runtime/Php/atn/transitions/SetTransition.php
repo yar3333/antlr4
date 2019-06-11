@@ -2,8 +2,8 @@
 
 namespace Antlr4\Atn\Transitions;
 
-use \Antlr4\IntervalSet;
-use \Antlr4\Token;
+use Antlr4\IntervalSet;
+use Antlr4\Token;
 
 class SetTransition extends Transition
 {

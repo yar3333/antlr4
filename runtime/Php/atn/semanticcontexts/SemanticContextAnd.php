@@ -2,11 +2,11 @@
 
 namespace Antlr4\Atn\Semanticcontexts;
 
-use \Antlr4\Recognizer;
-use \Antlr4\RuleContext;
-use \Antlr4\Utils\Hash;
-use \Antlr4\Utils\Set;
-use \Antlr4\Utils\Utils;
+use Antlr4\Recognizer;
+use Antlr4\RuleContext;
+use Antlr4\Utils\Hash;
+use Antlr4\Utils\Set;
+use Antlr4\Utils\Utils;
 
 // A semantic context which is true whenever none of the contained contexts is false.
 class SemanticContextAnd extends SemanticContext
@@ -23,10 +23,10 @@ class SemanticContextAnd extends SemanticContext
         /** @var Set<SemanticContext> $operands */
         $operands = new Set();
 
-        if ($a instanceof SemanticContextAnd) $operands->addAll($a->opnds);
+        if ($a instanceof self) $operands->addAll($a->opnds);
         else $operands->add($a);
 
-        if ($b instanceof SemanticContextAnd) $operands->addAll($b->opnds);
+        if ($b instanceof self) $operands->addAll($b->opnds);
         else $operands->add($b);
 
         /** @var PrecedencePredicate[] $precedencePredicates */
@@ -45,7 +45,7 @@ class SemanticContextAnd extends SemanticContext
     function equals($other) : bool
     {
         if ($this === $other) return true;
-        if (!($other instanceof SemanticContextAnd)) return false;
+        if (!($other instanceof self)) return false;
         return $this->opnds === $other->opnds;
     }
 

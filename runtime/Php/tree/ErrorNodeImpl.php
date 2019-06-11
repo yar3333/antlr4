@@ -2,7 +2,7 @@
 
 namespace Antlr4\Tree;
 
-use \Antlr4\Token;
+use Antlr4\Token;
 
 // Represents a token that was consumed during resynchronization
 // rather than during a valid match operation. For example,

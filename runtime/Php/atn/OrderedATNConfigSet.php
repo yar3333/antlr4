@@ -2,7 +2,7 @@
 
 namespace Antlr4\Atn;
 
-use \Antlr4\Utils\Set;
+use Antlr4\Utils\Set;
 
 class OrderedATNConfigSet extends ATNConfigSet
 {

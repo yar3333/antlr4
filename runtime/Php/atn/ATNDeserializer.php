@@ -4,26 +4,28 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/** @noinspection PhpUnusedParameterInspection */
+
 namespace Antlr4\Atn;
 
-use \Antlr4\Atn\Actions\LexerActionType;
-use \Antlr4\Atn\Actions\LexerChannelAction;
-use \Antlr4\Atn\Actions\LexerCustomAction;
-use \Antlr4\Atn\Actions\LexerModeAction;
-use \Antlr4\Atn\Actions\LexerMoreAction;
-use \Antlr4\Atn\Actions\LexerPopModeAction;
-use \Antlr4\Atn\Actions\LexerPushModeAction;
-use \Antlr4\Atn\Actions\LexerSkipAction;
-use \Antlr4\Atn\Actions\LexerTypeAction;
-use \Antlr4\Atn\States\ATNState;
-use \Antlr4\Atn\States\DecisionState;
-use \Antlr4\Atn\States\LoopEndState;
-use \Antlr4\Atn\States\RuleStopState;
-use \Antlr4\Atn\States\StarLoopEntryState;
-use \Antlr4\Atn\Transitions\Transition;
-use \Antlr4\IntervalSet;
-use \Antlr4\Token;
-use \Antlr4\Utils\Utils;
+use Antlr4\Atn\Actions\LexerActionType;
+use Antlr4\Atn\Actions\LexerChannelAction;
+use Antlr4\Atn\Actions\LexerCustomAction;
+use Antlr4\Atn\Actions\LexerModeAction;
+use Antlr4\Atn\Actions\LexerMoreAction;
+use Antlr4\Atn\Actions\LexerPopModeAction;
+use Antlr4\Atn\Actions\LexerPushModeAction;
+use Antlr4\Atn\Actions\LexerSkipAction;
+use Antlr4\Atn\Actions\LexerTypeAction;
+use Antlr4\Atn\States\ATNState;
+use Antlr4\Atn\States\DecisionState;
+use Antlr4\Atn\States\LoopEndState;
+use Antlr4\Atn\States\RuleStopState;
+use Antlr4\Atn\States\StarLoopEntryState;
+use Antlr4\Atn\Transitions\Transition;
+use Antlr4\IntervalSet;
+use Antlr4\Token;
+use Antlr4\Utils\Utils;
 
 class ATNDeserializer
 {

@@ -2,7 +2,7 @@
 
 namespace Antlr4\Atn;
 
-use \Antlr4\Dfa\DFAState;
+use Antlr4\Dfa\DFAState;
 
 class SimState
 {

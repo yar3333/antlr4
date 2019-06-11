@@ -2,8 +2,8 @@
 
 namespace Antlr4\Atn\Transitions;
 
-use \Antlr4\Atn\Semanticcontexts\SemanticContextPredicate;
-use \Antlr4\Atn\States\ATNState;
+use Antlr4\Atn\Semanticcontexts\SemanticContextPredicate;
+use Antlr4\Atn\States\ATNState;
 
 class PredicateTransition extends AbstractPredicateTransition
 {

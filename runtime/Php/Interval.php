@@ -6,8 +6,8 @@ class Interval
 {
 	const INTERVAL_POOL_MAX_VALUE = 1000;
 
-	private static $INVALID;
-	static function INVALID() : self { return self::$INVALID ?? (self::$INVALID = new Interval(-1, -2)); }
+	private static $_INVALID;
+	static function INVALID() : self { return self::$_INVALID ?? (self::$_INVALID = new Interval(-1, -2)); }
 
     /**
      * @var int

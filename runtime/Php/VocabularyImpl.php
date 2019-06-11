@@ -20,8 +20,8 @@ class VocabularyImpl implements Vocabulary
      * {@link #getDisplayName(int)} returns the numeric value for all tokens
      * except {@link Token#EOF}.</p>
      */
-    private static $EMPTY_VOCABULARY;
-    static function EMPTY_VOCABULARY() : self { return self::$EMPTY_VOCABULARY ?? (self::$EMPTY_VOCABULARY = new self([], [], [])); }
+    private static $_EMPTY_VOCABULARY;
+    static function EMPTY_VOCABULARY() : self { return self::$_EMPTY_VOCABULARY ?? (self::$_EMPTY_VOCABULARY = new self([], [], [])); }
 
     /**
      * @var string[]

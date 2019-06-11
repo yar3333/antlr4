@@ -2,7 +2,7 @@
 
 namespace Antlr4\Tree;
 
-use \Antlr4\RuleContext;
+use Antlr4\RuleContext;
 
 interface RuleNode extends ParseTree
 {

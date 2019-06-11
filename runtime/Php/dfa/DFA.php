@@ -6,11 +6,11 @@
 
 namespace Antlr4\Dfa;
 
-use \Antlr4\Atn\ATNConfigSet;
-use \Antlr4\Atn\States\DecisionState;
-use \Antlr4\Atn\States\StarLoopEntryState;
-use \Antlr4\Utils\Set;
-use \Antlr4\Vocabulary;
+use Antlr4\Atn\ATNConfigSet;
+use Antlr4\Atn\States\DecisionState;
+use Antlr4\Atn\States\StarLoopEntryState;
+use Antlr4\Utils\Set;
+use Antlr4\Vocabulary;
 
 class DFA
 {

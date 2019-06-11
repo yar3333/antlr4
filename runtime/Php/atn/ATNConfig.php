@@ -4,13 +4,15 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/** @noinspection PhpUnusedParameterInspection */
+
 namespace Antlr4\Atn;
 
-use \Antlr4\Atn\Semanticcontexts\SemanticContext;
-use \Antlr4\Atn\States\ATNState;
-use \Antlr4\Predictioncontexts\PredictionContext;
-use \Antlr4\Recognizer;
-use \Antlr4\Utils\Hash;
+use Antlr4\Atn\Semanticcontexts\SemanticContext;
+use Antlr4\Atn\States\ATNState;
+use Antlr4\Predictioncontexts\PredictionContext;
+use Antlr4\Recognizer;
+use Antlr4\Utils\Hash;
 
 // A tuple: (ATN state, predicted alt, syntactic, semantic context).
 // The syntactic context is a graph-structured stack node whose
@@ -112,7 +114,7 @@ class ATNConfig
     {
         if ($this === $other) return true;
 
-        if (!($other instanceof ATNConfig)) return false;
+        if (!($other instanceof self)) return false;
 
         return $this->state->stateNumber === $other->state->stateNumber &&
             $this->alt === $other->alt &&
@@ -133,7 +135,7 @@ class ATNConfig
     function equalsForConfigSet($other) : bool
     {
         if ($this === $other) return true;
-        if (!($other instanceof ATNConfig)) return false;
+        if (!($other instanceof self)) return false;
 
         return $this->state->stateNumber === $other->state->stateNumber &&
             $this->alt === $other->alt &&

@@ -96,6 +96,7 @@ class Set implements \IteratorAggregate
         {
             if (strpos($key, "hash_") === 0)
             {
+                /** @noinspection SlowArrayOperationsInLoopInspection */
                 $l = array_merge($l, $value);
             }
         }

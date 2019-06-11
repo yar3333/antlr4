@@ -31,12 +31,12 @@ namespace Antlr4;
 //  I do not use getters for fields of objects that are used simply to
 //  group values such as this aggregate.  The getters/setters are there to
 //  satisfy the superclass interface.
-use \Antlr4\Error\Exceptions\RecognitionException;
-use \Antlr4\Tree\ErrorNode;
-use \Antlr4\Tree\ErrorNodeImpl;
-use \Antlr4\Tree\ParseTree;
-use \Antlr4\Tree\ParseTreeListener;
-use \Antlr4\Tree\TerminalNode;
+use Antlr4\Error\Exceptions\RecognitionException;
+use Antlr4\Tree\ErrorNode;
+use Antlr4\Tree\ErrorNodeImpl;
+use Antlr4\Tree\ParseTree;
+use Antlr4\Tree\ParseTreeListener;
+use Antlr4\Tree\TerminalNode;
 
 class ParserRuleContext extends RuleContext
 {

@@ -6,9 +6,9 @@
 
 namespace Antlr4\Error;
 
-use \Antlr4\Error\Exceptions\RecognitionException;
-use \Antlr4\Parser;
-use \Antlr4\Token;
+use Antlr4\Error\Exceptions\RecognitionException;
+use Antlr4\Parser;
+use Antlr4\Token;
 
 /**
  * The interface for defining strategies to deal with syntax errors encountered

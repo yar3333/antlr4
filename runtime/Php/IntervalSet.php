@@ -6,7 +6,7 @@
 
 namespace Antlr4;
 
-use \Antlr4\Utils\Utils;
+use Antlr4\Utils\Utils;
 
 class IntervalSet
 {
@@ -47,6 +47,7 @@ class IntervalSet
 		// find position in list
 		// Use iterators as we modify list in place
         /** @noinspection ForeachInvariantsInspection */
+        /** @noinspection CallableInLoopTerminationConditionInspection */
         for ($i = 0; $i < count($this->intervals); $i++)
 		{
 			/** @var Interval $r */
@@ -122,9 +123,9 @@ class IntervalSet
         }
     }*/
 
-    function complement(int $start, int $stop) : IntervalSet
+    function complement(int $start, int $stop) : self
     {
-        $result = new IntervalSet();
+        $result = new self();
         $result->addInterval(new Interval($start, $stop + 1));
         foreach ($this->intervals as $interval) {
             $result->removeRange($interval);
@@ -154,6 +155,7 @@ class IntervalSet
         if ($v->start === $v->stop - 1) { $this->removeOne($v->start); return; }
 
         $k = 0;
+        /** @noinspection CallableInLoopTerminationConditionInspection */
         for ($n = 0; $n < count($this->intervals); $n++)
         {
             $i = $this->intervals[$k];
@@ -319,16 +321,16 @@ class IntervalSet
         return $vocabulary->getDisplayName($a);
     }
 
-    static function fromInt(int $a) : IntervalSet
+    static function fromInt(int $a) : self
     {
-		$s = new IntervalSet();
+		$s = new self();
         $s->addOne($a);
         return $s;
     }
 
-    static function fromRange(int $a, int $b) : IntervalSet
+    static function fromRange(int $a, int $b) : self
     {
-		$s = new IntervalSet();
+		$s = new self();
         $s->addRange($a, $b);
         return $s;
     }

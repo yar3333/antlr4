@@ -6,7 +6,7 @@
 
 namespace Antlr4\Atn\States;
 
-use \Antlr4\Atn\Transitions\Transition;
+use Antlr4\Atn\Transitions\Transition;
 
 // The following images show the relation of states and
 // {@link ATNState//transitions} for various grammar constructs.
@@ -117,7 +117,7 @@ class ATNState
     {
         // Which ATN are we in?
         $this->atn = null;
-        $this->stateNumber = ATNState::INVALID_STATE_NUMBER;
+        $this->stateNumber = self::INVALID_STATE_NUMBER;
         $this->stateType = null;
         $this->ruleIndex = 0;// at runtime, we don't have Rule objects
         $this->epsilonOnlyTransitions = false;
@@ -136,7 +136,7 @@ class ATNState
 
     function equals($other) : bool
     {
-        return $other instanceof ATNState && $this->stateNumber === $other->stateNumber;
+        return $other instanceof self && $this->stateNumber === $other->stateNumber;
     }
 
     function isNonGreedyExitState() : bool

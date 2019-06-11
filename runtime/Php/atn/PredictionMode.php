@@ -6,12 +6,12 @@
 
 namespace Antlr4\Atn;
 
-use \Antlr4\Atn\Semanticcontexts\SemanticContext;
-use \Antlr4\Atn\States\RuleStopState;
-use \Antlr4\Utils\AltDict;
-use \Antlr4\Utils\BitSet;
-use \Antlr4\Utils\Map;
-use \Antlr4\Utils\Utils;
+use Antlr4\Atn\Semanticcontexts\SemanticContext;
+use Antlr4\Atn\States\RuleStopState;
+use Antlr4\Utils\AltDict;
+use Antlr4\Utils\BitSet;
+use Antlr4\Utils\Map;
+use Antlr4\Utils\Utils;
 
 // This enumeration defines the prediction modes available in ANTLR 4 along with
 // utility methods for analyzing configuration sets for conflicts and/or ambiguities.

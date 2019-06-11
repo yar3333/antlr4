@@ -6,12 +6,12 @@
 
 namespace Antlr4\Atn;
 
-use \Antlr4\Atn\Actions\LexerAction;
-use \Antlr4\CharStream;
-use \Antlr4\Lexer;
-use \Antlr4\Utils\Hash;
-use \Antlr4\Utils\Utils;
-use \Antlr4\Atn\Actions\LexerIndexedCustomAction;
+use Antlr4\Atn\Actions\LexerAction;
+use Antlr4\CharStream;
+use Antlr4\Lexer;
+use Antlr4\Utils\Hash;
+use Antlr4\Utils\Utils;
+use Antlr4\Atn\Actions\LexerIndexedCustomAction;
 
 // Represents an executor for a sequence of lexer actions which traversed during
 // the matching operation of a lexer rule (token).
@@ -93,7 +93,8 @@ class LexerActionExecutor
     function fixOffsetBeforeMatch(int $offset)
     {
         $updatedLexerActions = null;
-        for ($i = 0; $i < count($this->lexerActions); $i++)
+        $count = count($this->lexerActions);
+        for ($i = 0; $i < $count; $i++)
         {
             if ($this->lexerActions[$i]->isPositionDependent && !($this->lexerActions[$i] instanceof LexerIndexedCustomAction))
             {
@@ -179,7 +180,7 @@ class LexerActionExecutor
         {
             return true;
         }
-        else if (!($other instanceof LexerActionExecutor))
+        else if (!($other instanceof self))
         {
             return false;
         }

@@ -16,7 +16,7 @@ class Pair
 	function equals($obj) : bool
 	{
 		if ($obj === $this) return true;
-		if (!($obj instanceof Pair)) return false;
+		if (!($obj instanceof self)) return false;
 
 		/** @var Pair $obj */
 		return Utils::standardEqualsFunction($this->a, $obj->a)

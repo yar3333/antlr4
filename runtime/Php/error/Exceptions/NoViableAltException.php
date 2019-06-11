@@ -2,11 +2,11 @@
 
 namespace Antlr4\Error\Exceptions;
 
-use \Antlr4\Atn\ATNConfigSet;
-use \Antlr4\Parser;
-use \Antlr4\ParserRuleContext;
-use \Antlr4\Token;
-use \Antlr4\TokenStream;
+use Antlr4\Atn\ATNConfigSet;
+use Antlr4\Parser;
+use Antlr4\ParserRuleContext;
+use Antlr4\Token;
+use Antlr4\TokenStream;
 
 // Indicates that the parser could not decide which of two or more paths
 // to take based upon the remaining input. It tracks the starting token

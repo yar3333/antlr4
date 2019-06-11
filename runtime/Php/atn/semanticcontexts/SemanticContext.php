@@ -4,11 +4,13 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/** @noinspection PhpUnusedParameterInspection */
+
 namespace Antlr4\Atn\Semanticcontexts;
 
-use \Antlr4\Recognizer;
-use \Antlr4\RuleContext;
-use \Antlr4\Utils\Hash;
+use Antlr4\Recognizer;
+use Antlr4\RuleContext;
+use Antlr4\Utils\Hash;
 
 // A tree structure used to record the semantic context in which
 //  an ATN configuration is valid.  It's either a single predicate,
@@ -67,20 +69,20 @@ abstract class SemanticContext
 
     abstract function updateHashCode(Hash $hash) : void;
 
-    static function andContext(SemanticContext $a, SemanticContext $b)
+    static function andContext(self $a, self $b)
     {
-        if ($a === null || $a === SemanticContext::NONE()) return $b;
-        if ($b === null || $b === SemanticContext::NONE()) return $a;
+        if ($a === null || $a === self::NONE()) return $b;
+        if ($b === null || $b === self::NONE()) return $a;
 
         $result = new SemanticContextAnd($a, $b);
         return count($result->opnds) === 1 ? $result->opnds[0] : $result;
     }
 
-    static function orContext(SemanticContext $a, SemanticContext $b)
+    static function orContext(self $a, self $b)
     {
         if ($a === null) return $b;
         if ($b === null) return $a;
-        if ($a === SemanticContext::NONE() || $b === SemanticContext::NONE()) return SemanticContext::NONE();
+        if ($a === self::NONE() || $b === self::NONE()) return self::NONE();
 
         $result = new SemanticContextOr($a, $b);
         return count($result->opnds) === 1 ? $result->opnds[0] : $result;

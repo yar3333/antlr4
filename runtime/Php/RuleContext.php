@@ -8,11 +8,11 @@
 
 namespace Antlr4;
 
-use \Antlr4\Atn\ATN;
-use \Antlr4\Tree\ParseTree;
-use \Antlr4\Tree\ParseTreeVisitor;
-use \Antlr4\Tree\RuleNode;
-use \Antlr4\Tree\Trees;
+use Antlr4\Atn\ATN;
+use Antlr4\Tree\ParseTree;
+use Antlr4\Tree\ParseTreeVisitor;
+use Antlr4\Tree\RuleNode;
+use Antlr4\Tree\Trees;
 
 //  A rule context is a record of a single rule invocation. It knows
 //  which context invoked it, if any. If there is no parent context, then
@@ -161,12 +161,17 @@ class RuleContext implements RuleNode
 
     function __toString() : string
     {
-        return $this->toString(null,  null);
+        return $this->toString(null);
     }
 
     function getRuleIndex() : int { return -1; }
 
-    function toString(array $ruleNames, RuleContext $stop) : string
+    /**
+     * @param string[]|\ArrayObject $ruleNames
+     * @param RuleContext|null $stop
+     * @return string
+     */
+    function toString($ruleNames, ?RuleContext $stop=null) : string
     {
         $p = $this;
         $s = "[";

@@ -6,11 +6,11 @@
 
 namespace Antlr4\Dfa;
 
-use \Antlr4\Atn\ATNConfigSet;
-use \Antlr4\Atn\LexerActionExecutor;
-use \Antlr4\Atn\Semanticcontexts\SemanticContext;
-use \Antlr4\Utils\Hash;
-use \Antlr4\Utils\Set;
+use Antlr4\Atn\ATNConfigSet;
+use Antlr4\Atn\LexerActionExecutor;
+use Antlr4\Atn\Semanticcontexts\SemanticContext;
+use Antlr4\Utils\Hash;
+use Antlr4\Utils\Set;
 
 // A DFA state represents a set of possible ATN configurations.
 // As Aho, Sethi, Ullman p. 117 says "The DFA uses its state
@@ -153,7 +153,7 @@ class DFAState
     function equals($other) : bool
     {
         // compare set of ATN configurations in this set with other
-        return $this === $other || ($other instanceof DFAState && $this->configs->equals($other->configs));
+        return $this === $other || ($other instanceof self && $this->configs->equals($other->configs));
     }
 
     function __toString()

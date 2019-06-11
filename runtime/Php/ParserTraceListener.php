@@ -2,9 +2,9 @@
 
 namespace Antlr4;
 
-use \Antlr4\Tree\ErrorNode;
-use \Antlr4\Tree\ParseTreeListener;
-use \Antlr4\Tree\TerminalNode;
+use Antlr4\Tree\ErrorNode;
+use Antlr4\Tree\ParseTreeListener;
+use Antlr4\Tree\TerminalNode;
 
 class ParserTraceListener implements ParseTreeListener
 {

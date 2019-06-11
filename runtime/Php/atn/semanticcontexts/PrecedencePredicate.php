@@ -2,9 +2,9 @@
 
 namespace Antlr4\Atn\Semanticcontexts;
 
-use \Antlr4\Recognizer;
-use \Antlr4\Utils\Hash;
-use \Antlr4\Utils\Set;
+use Antlr4\Recognizer;
+use Antlr4\Utils\Hash;
+use Antlr4\Utils\Set;
 
 class PrecedencePredicate extends SemanticContext
 {
@@ -46,13 +46,9 @@ class PrecedencePredicate extends SemanticContext
 
     function equals(object $other) : bool
     {
-        if ($this === $other) {
-            return true;
-        } else if (!($other instanceof PrecedencePredicate)) {
-            return false;
-        } else {
-            return $this->precedence === $other->precedence;
-        }
+        if ($this === $other) return true;
+        if (!($other instanceof self)) return false;
+        return $this->precedence === $other->precedence;
     }
 
     function __toString()
@@ -68,8 +64,8 @@ class PrecedencePredicate extends SemanticContext
     {
         $result = [];
         foreach ($set->values() as $context) {
-            if ($context instanceof PrecedencePredicate) {
-                array_push($result, $context);
+            if ($context instanceof self) {
+                $result[] = $context;
             }
         }
         return $result;

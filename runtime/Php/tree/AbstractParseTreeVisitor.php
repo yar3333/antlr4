@@ -1,4 +1,5 @@
 <?php
+/** @noinspection PhpUnusedParameterInspection */
 
 namespace Antlr4\Tree;
 

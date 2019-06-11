@@ -4,12 +4,14 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+/** @noinspection CallableInLoopTerminationConditionInspection */
+
 namespace Antlr4\Predictioncontexts;
 
-use \Antlr4\Atn\ATN;
-use \Antlr4\RuleContext;
-use \Antlr4\Utils\DoubleKeyMap;
-use \Antlr4\Utils\Hash;
+use Antlr4\Atn\ATN;
+use Antlr4\RuleContext;
+use Antlr4\Utils\DoubleKeyMap;
+use Antlr4\Utils\Hash;
 
 abstract class PredictionContext
 {
@@ -66,12 +68,12 @@ abstract class PredictionContext
     // This means only the {@link //EMPTY} context is in set.
     function isEmpty() : bool
     {
-        return $this === PredictionContext::EMPTY();
+        return $this === self::EMPTY();
     }
 
     function hasEmptyPath() : bool
     {
-        return $this->getReturnState($this->getLength() - 1) === PredictionContext::EMPTY_RETURN_STATE;
+        return $this->getReturnState($this->getLength() - 1) === self::EMPTY_RETURN_STATE;
     }
 
     function hashCode() : int
@@ -95,7 +97,7 @@ abstract class PredictionContext
 
     abstract function equals($other) : bool;
 
-	abstract function getParent(int $index=null) : PredictionContext;
+	abstract function getParent(int $index=null) : self;
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -112,7 +114,7 @@ abstract class PredictionContext
         // is EMPTY. Nobody called us. (if we are empty, return empty)
         if ($outerContext->getParent() === null || $outerContext === RuleContext::EMPTY())
         {
-            return PredictionContext::EMPTY();
+            return self::EMPTY();
         }
 
         // If we have a parent, convert it to a PredictionContext graph
@@ -336,33 +338,33 @@ abstract class PredictionContext
     {
         if ($rootIsWildcard)
         {
-            if ($a === PredictionContext::EMPTY())
+            if ($a === self::EMPTY())
             {
-                return PredictionContext::EMPTY();// // + b =//
+                return self::EMPTY();// // + b =//
             }
-            if ($b === PredictionContext::EMPTY())
+            if ($b === self::EMPTY())
             {
-                return PredictionContext::EMPTY();// a +// =//
+                return self::EMPTY();// a +// =//
             }
         }
         else
         {
-            if ($a === PredictionContext::EMPTY() && $b === PredictionContext::EMPTY())
+            if ($a === self::EMPTY() && $b === self::EMPTY())
             {
-                return PredictionContext::EMPTY();// $ + $ = $
+                return self::EMPTY();// $ + $ = $
             }
 
-            else if ($a === PredictionContext::EMPTY())
+            else if ($a === self::EMPTY())
             {
                 // $ + x = [$,x]
-                $payloads = [ $b->returnState, PredictionContext::EMPTY_RETURN_STATE ];
+                $payloads = [ $b->returnState, self::EMPTY_RETURN_STATE ];
                 $parents = [ $b->parentCtx, null ];
                 return new ArrayPredictionContext($parents, $payloads);
             }
-            else if ($b === PredictionContext::EMPTY())
+            else if ($b === self::EMPTY())
             {
                 // x + $ = [$,x] ($ is always first if present)
-                $payloads = [ $a->returnState, PredictionContext::EMPTY_RETURN_STATE ];
+                $payloads = [ $a->returnState, self::EMPTY_RETURN_STATE ];
                 $parents = [ $a->parentCtx, null ];
                 return new ArrayPredictionContext($parents, $payloads);
             }
@@ -420,7 +422,7 @@ abstract class PredictionContext
                 // same payload (stack tops are equal), must yield merged singleton
                 $payload = $a->returnStates[$i];
                 // $+$ = $
-                $bothDollars = $payload === PredictionContext::EMPTY_RETURN_STATE &&
+                $bothDollars = $payload === self::EMPTY_RETURN_STATE &&
                         $a_parent === null && $b_parent === null;
                 $ax_ax = ($a_parent !== null && $b_parent !== null && $a_parent === $b_parent);// ax+ax
                 // ->

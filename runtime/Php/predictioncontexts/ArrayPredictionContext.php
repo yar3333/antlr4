@@ -1,8 +1,9 @@
 <?php
+/** @noinspection CallableInLoopTerminationConditionInspection */
 
 namespace Antlr4\Predictioncontexts;
 
-use \Antlr4\Utils\Hash;
+use Antlr4\Utils\Hash;
 
 class ArrayPredictionContext extends PredictionContext
 {
@@ -74,7 +75,7 @@ class ArrayPredictionContext extends PredictionContext
     function equals($other) : bool
     {
         if ($this === $other) return true;
-        if (!($other instanceof ArrayPredictionContext)) return false;
+        if (!($other instanceof self)) return false;
         if ($this->hashCode() !== $other->hashCode()) return false;
 
         return $this->returnStates === $other->returnStates &&

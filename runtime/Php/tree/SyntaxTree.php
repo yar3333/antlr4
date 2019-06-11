@@ -2,7 +2,7 @@
 
 namespace Antlr4\Tree;
 
-use \Antlr4\Interval;
+use Antlr4\Interval;
 
 interface SyntaxTree extends Tree
 {

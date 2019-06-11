@@ -6,7 +6,7 @@
 
 namespace Antlr4;
 
-use \Antlr4\Utils\Set;
+use Antlr4\Utils\Set;
 
 class BufferedTokenStream implements TokenStream
 {

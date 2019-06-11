@@ -69,7 +69,7 @@ class SingletonPredictionContext extends PredictionContext
     function equals($other) : bool
     {
         if ($this === $other) return true;
-        if (!($other instanceof SingletonPredictionContext)) return false;
+        if (!($other instanceof self)) return false;
         if ($this->hashCode() !== $other->hashCode()) return false; // can't be same if hash is different
         if ($this->returnState !== $other->returnState) return false;
         if (!$this->parentCtx) return $other->parentCtx === null;

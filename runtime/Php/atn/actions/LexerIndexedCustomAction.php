@@ -2,8 +2,8 @@
 
 namespace Antlr4\Atn\Actions;
 
-use \Antlr4\Lexer;
-use \Antlr4\Utils\Hash;
+use Antlr4\Lexer;
+use Antlr4\Utils\Hash;
 
 // This implementation of {@link LexerAction} is used for tracking input offsets
 // for position-dependent actions within a {@link LexerActionExecutor}.
@@ -60,7 +60,7 @@ class LexerIndexedCustomAction extends LexerAction
     function equals(LexerAction $other) : bool
     {
         if ($this === $other) return true;
-        if (!($other instanceof LexerIndexedCustomAction)) return false;
+        if (!($other instanceof self)) return false;
         return $this->offset === $other->offset && $this->action === $other->action;
     }
 }

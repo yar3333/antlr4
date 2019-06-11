@@ -8,7 +8,7 @@
 
 namespace Antlr4\Tree;
 
-use \Antlr4\Parser;
+use Antlr4\Parser;
 
 /** The basic notion of a tree has a parent, a payload, and a list of children.
  *  It is the most abstract interface for all the trees used by ANTLR.

@@ -54,9 +54,7 @@ class BitSet
 
     function equals($other) : bool
     {
-        if (!($other instanceof BitSet)) {
-            return false;
-        }
+        if (!($other instanceof self)) return false;
         return $this->hashCode() === $other->hashCode();
     }
 

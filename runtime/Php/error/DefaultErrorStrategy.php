@@ -1,17 +1,19 @@
 <?php
 
+/** @noinspection PhpUnusedParameterInspection */
+
 namespace Antlr4\Error;
 
-use \Antlr4\Atn\States\ATNState;
-use \Antlr4\Atn\Transitions\RuleTransition;
-use \Antlr4\Error\Exceptions\FailedPredicateException;
-use \Antlr4\Error\Exceptions\InputMismatchException;
-use \Antlr4\Error\Exceptions\NoViableAltException;
-use \Antlr4\Error\Exceptions\RecognitionException;
-use \Antlr4\IntervalSet;
-use \Antlr4\Parser;
-use \Antlr4\Recognizer;
-use \Antlr4\Token;
+use Antlr4\Atn\States\ATNState;
+use Antlr4\Atn\Transitions\RuleTransition;
+use Antlr4\Error\Exceptions\FailedPredicateException;
+use Antlr4\Error\Exceptions\InputMismatchException;
+use Antlr4\Error\Exceptions\NoViableAltException;
+use Antlr4\Error\Exceptions\RecognitionException;
+use Antlr4\IntervalSet;
+use Antlr4\Parser;
+use Antlr4\Recognizer;
+use Antlr4\Token;
 
 // This is the default implementation of {@link ANTLRErrorStrategy} used for
 // error reporting and recovery in ANTLR parsers.

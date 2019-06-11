@@ -6,7 +6,7 @@
 
 namespace Antlr4;
 
-use \Antlr4\Utils\Utils;
+use Antlr4\Utils\Utils;
 
 /**
  * Vacuum all input from a string and then treat it like a buffer.
@@ -61,7 +61,8 @@ class InputStream implements CharStream
         $stream->data = [];
         if ($stream->decodeToUnicodeCodePoints)
         {
-            for ($i = 0; $i < strlen($stream->strdata); )
+            $len = strlen($stream->strdata);
+            for ($i = 0; $i < $len; )
             {
                 $codePoint = Utils::codePointAt($stream->strdata, $i);
                 array_push($stream->data, $codePoint);
@@ -70,7 +71,8 @@ class InputStream implements CharStream
         }
         else
         {
-            for ($i = 0; $i < strlen($stream->strdata); $i++)
+            $len = strlen($stream->strdata);
+            for ($i = 0; $i < $len; $i++)
             {
                 $codeUnit = Utils::charCodeAt($stream->strdata, $i);
                 array_push($stream->data, $codeUnit);

@@ -2,9 +2,9 @@
 
 namespace Antlr4\Atn\Semanticcontexts;
 
-use \Antlr4\Recognizer;
-use \Antlr4\RuleContext;
-use \Antlr4\Utils\Hash;
+use Antlr4\Recognizer;
+use Antlr4\RuleContext;
+use Antlr4\Utils\Hash;
 
 class SemanticContextPredicate extends SemanticContext
 {
@@ -46,7 +46,7 @@ class SemanticContextPredicate extends SemanticContext
     function equals($other) : bool
     {
         if ($this === $other) return true;
-        if (!($other instanceof SemanticContextPredicate)) return false;
+        if (!($other instanceof self)) return false;
         return $this->ruleIndex === $other->ruleIndex &&
             $this->predIndex === $other->predIndex &&
             $this->isCtxDependent === $other->isCtxDependent;

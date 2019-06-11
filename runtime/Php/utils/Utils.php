@@ -119,7 +119,8 @@ class Utils
         if (!is_array($a) || !is_array($b)) return false;
         if ($a === $b) return true;
         if (count($a) !== count($b)) return false;
-        for ($i = 0; $i < count($a); $i++)
+        $count = count($a);
+        for ($i = 0; $i < $count; $i++)
         {
             if ($a[$i] === $b[$i]) continue;
             if (!$a[$i]->equals($b[$i])) return false;

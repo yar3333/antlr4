@@ -2,12 +2,12 @@
 
 namespace Antlr4\Tree;
 
-use \Antlr4\ParserRuleContext;
+use Antlr4\ParserRuleContext;
 
 class ParseTreeWalker
 {
-    private static $DEFAULT;
-    static function DEFAULT(): ParseTreeWalker { return self::$DEFAULT ?? (self::$DEFAULT = new ParseTreeWalker()); }
+    private static $_DEFAULT;
+    static function DEFAULT(): self { return self::$_DEFAULT ?? (self::$_DEFAULT = new self()); }
 
     function walk(ParseTreeListener $listener, ParseTree $t) : void
     {

@@ -2,7 +2,7 @@
 
 namespace Antlr4\Tree;
 
-use \Antlr4\ParserRuleContext;
+use Antlr4\ParserRuleContext;
 
 interface ParseTreeListener
 {

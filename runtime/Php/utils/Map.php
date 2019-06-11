@@ -97,6 +97,7 @@ class Map
         {
             if (strpos($key, "hash_") === 0)
             {
+                /** @noinspection SlowArrayOperationsInLoopInspection */
                 $l = array_merge($l, $value);
             }
         }

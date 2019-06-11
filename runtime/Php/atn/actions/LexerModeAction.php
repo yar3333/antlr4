@@ -2,8 +2,8 @@
 
 namespace Antlr4\Atn\Actions;
 
-use \Antlr4\Lexer;
-use \Antlr4\Utils\Hash;
+use Antlr4\Lexer;
+use Antlr4\Utils\Hash;
 
 class LexerModeAction extends LexerAction
 {
@@ -31,7 +31,7 @@ class LexerModeAction extends LexerAction
     function equals($other) : bool
     {
         if ($this === $other) return true;
-        if (!($other instanceof LexerModeAction)) return false;
+        if (!($other instanceof self)) return false;
         return $this->mode === $other->mode;
     }
 

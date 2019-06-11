@@ -4,8 +4,8 @@ namespace Antlr4\Atn\Actions;
 
 // Implements the {@code channel} lexer action by calling
 // {@link Lexer//setChannel} with the assigned channel.
-use \Antlr4\Lexer;
-use \Antlr4\Utils\Hash;
+use Antlr4\Lexer;
+use Antlr4\Utils\Hash;
 
 class LexerChannelAction extends LexerAction
 {
@@ -37,7 +37,7 @@ class LexerChannelAction extends LexerAction
     function equals($other) : bool
     {
         if ($this === $other) return true;
-        if (!($other instanceof LexerChannelAction)) return false;
+        if (!($other instanceof self)) return false;
         return $this->channel === $other->channel;
     }
 

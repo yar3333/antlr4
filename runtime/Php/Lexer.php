@@ -6,12 +6,12 @@
 
 namespace Antlr4;
 
-use \Antlr4\Atn\ATNSimulator;
-use \Antlr4\Atn\LexerATNSimulator;
-use \Antlr4\Error\Exceptions\LexerNoViableAltException;
-use \Antlr4\Error\Exceptions\RecognitionException;
-use \Antlr4\Utils\Pair;
-use \Antlr4\Utils\Utils;
+use Antlr4\Atn\ATNSimulator;
+use Antlr4\Atn\LexerATNSimulator;
+use Antlr4\Error\Exceptions\LexerNoViableAltException;
+use Antlr4\Error\Exceptions\RecognitionException;
+use Antlr4\Utils\Pair;
+use Antlr4\Utils\Utils;
 
 // A lexer is recognizer that draws input symbols from a character stream.
 //  lexer grammars result in a subclass of this object. A Lexer object
@@ -114,7 +114,7 @@ abstract class Lexer extends Recognizer implements TokenSource
         $this->_type = Token::INVALID_TYPE;
 
         $this->_modeStack = [];
-        $this->_mode = Lexer::DEFAULT_MODE;
+        $this->_mode = self::DEFAULT_MODE;
 
         // You can set the text for the current token to override what is in
         // the input char buffer. Use setText() or can set this instance var.
@@ -137,7 +137,7 @@ abstract class Lexer extends Recognizer implements TokenSource
         $this->_text = null;
 
         $this->_hitEOF = false;
-        $this->_mode = Lexer::DEFAULT_MODE;
+        $this->_mode = self::DEFAULT_MODE;
         $this->_modeStack = [];
 
         $this->_interp->reset();
@@ -170,7 +170,7 @@ abstract class Lexer extends Recognizer implements TokenSource
                 while (true)
                 {
                     $this->_type = Token::INVALID_TYPE;
-                    $ttype = Lexer::SKIP;
+                    $ttype = self::SKIP;
                     try
                     {
                         $ttype = $this->_interp->match($this->_input, $this->_mode);
@@ -196,12 +196,12 @@ abstract class Lexer extends Recognizer implements TokenSource
                     {
                         $this->_type = $ttype;
                     }
-                    if ($this->_type === Lexer::SKIP)
+                    if ($this->_type === self::SKIP)
                     {
                         $continueOuter = true;
                         break;
                     }
-                    if ($this->_type !== Lexer::MORE)
+                    if ($this->_type !== self::MORE)
                     {
                         break;
                     }
@@ -232,12 +232,12 @@ abstract class Lexer extends Recognizer implements TokenSource
     // /
     function skip() : void
     {
-        $this->_type = Lexer::SKIP;
+        $this->_type = self::SKIP;
     }
 
     function more() : void
     {
-        $this->_type = Lexer::MORE;
+        $this->_type = self::MORE;
     }
 
     function mode(int $m) : void
@@ -247,6 +247,7 @@ abstract class Lexer extends Recognizer implements TokenSource
 
     function pushMode(int $m) : void
     {
+        /** @noinspection PhpStatementHasEmptyBodyInspection */
         if ($this->_interp->debug)
         {
             //$console->log("pushMode " . $m);
@@ -261,6 +262,7 @@ abstract class Lexer extends Recognizer implements TokenSource
         {
             throw new \RuntimeException("Empty Stack");
         }
+        /** @noinspection PhpStatementHasEmptyBodyInspection */
         if ($this->_interp->debug)
         {
             //$console->log("popMode back to " . $this->_modeStack->slice(0, -1));

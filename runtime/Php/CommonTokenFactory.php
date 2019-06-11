@@ -6,7 +6,7 @@
 
 namespace Antlr4;
 
-use \Antlr4\Utils\Pair;
+use Antlr4\Utils\Pair;
 
 // This default implementation of {@link TokenFactory} creates {@link CommonToken} objects.
 // Indicates whether {@link CommonToken//setText} should be called after

@@ -2,13 +2,13 @@
 
 namespace Antlr4\Error\Listeners;
 
-use \Antlr4\Error\Exceptions\RecognitionException;
-use \Antlr4\Recognizer;
+use Antlr4\Error\Exceptions\RecognitionException;
+use Antlr4\Recognizer;
 
 class ConsoleErrorListener extends BaseErrorListener
 {
     private static $_INSTANCE;
-    static function INSTANCE(): ConsoleErrorListener { return self::$_INSTANCE ?? (self::$_INSTANCE = new ConsoleErrorListener()); }
+    static function INSTANCE(): ConsoleErrorListener { return self::$_INSTANCE ?? (self::$_INSTANCE = new self()); }
 
     // {@inheritDoc}
     //

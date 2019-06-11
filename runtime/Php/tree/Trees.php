@@ -6,13 +6,13 @@
 
 namespace Antlr4\Tree;
 
-use \Antlr4\Atn\ATN;
-use \Antlr4\Parser;
-use \Antlr4\ParserRuleContext;
-use \Antlr4\Recognizer;
-use \Antlr4\RuleContext;
-use \Antlr4\Token;
-use \Antlr4\Utils\Utils;
+use Antlr4\Atn\ATN;
+use Antlr4\Parser;
+use Antlr4\ParserRuleContext;
+use Antlr4\Recognizer;
+use Antlr4\RuleContext;
+use Antlr4\Token;
+use Antlr4\Utils\Utils;
 
 /** A set of utility routines useful for all kinds of ANTLR trees. */
 class Trees
@@ -116,8 +116,9 @@ class Trees
     {
         $ancestors = [];
         $t = $t->getParent();
-        while ($t!==null)
+        while ($t)
         {
+            /** @noinspection SlowArrayOperationsInLoopInspection */
             $ancestors = array_merge([$t],  $ancestors);
             $t = $t->getParent();
         }
@@ -171,6 +172,7 @@ class Trees
         $nodes = [$t];
         for ($i = 0; $i < $t->getChildCount(); $i++)
         {
+            /** @noinspection SlowArrayOperationsInLoopInspection */
             $nodes = array_merge($nodes, self::descendants($t->getChild($i)));
         }
         return $nodes;

@@ -2,8 +2,8 @@
 
 namespace Antlr4\Atn;
 
-use \Antlr4\Atn\States\DecisionState;
-use \Antlr4\Utils\Hash;
+use Antlr4\Atn\States\DecisionState;
+use Antlr4\Utils\Hash;
 
 class LexerATNConfig extends ATNConfig
 {
@@ -34,7 +34,7 @@ class LexerATNConfig extends ATNConfig
     {
         return $this === $other ||
             (
-                $other instanceof LexerATNConfig &&
+                $other instanceof self &&
                 $this->passedThroughNonGreedyDecision === $other->passedThroughNonGreedyDecision &&
                 ($this->lexerActionExecutor ? $this->lexerActionExecutor->equals($other->lexerActionExecutor) : !$other->lexerActionExecutor) &&
                 parent::equals($other)

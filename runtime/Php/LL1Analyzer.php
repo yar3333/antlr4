@@ -6,18 +6,18 @@
 
 namespace Antlr4;
 
-use \Antlr4\Atn\States\ATNState;
-use \Antlr4\Atn\Transitions\WildcardTransition;
-use \Antlr4\Predictioncontexts\PredictionContext;
-use \Antlr4\Predictioncontexts\PredictionContextUtils;
-use \Antlr4\Predictioncontexts\SingletonPredictionContext;
-use \Antlr4\Utils\BitSet;
-use \Antlr4\Atn\ATNConfig;
-use \Antlr4\Atn\States\RuleStopState;
-use \Antlr4\Atn\Transitions\RuleTransition;
-use \Antlr4\Atn\Transitions\NotSetTransition;
-use \Antlr4\Atn\Transitions\AbstractPredicateTransition;
-use \Antlr4\Utils\Set;
+use Antlr4\Atn\States\ATNState;
+use Antlr4\Atn\Transitions\WildcardTransition;
+use Antlr4\Predictioncontexts\PredictionContext;
+use Antlr4\Predictioncontexts\PredictionContextUtils;
+use Antlr4\Predictioncontexts\SingletonPredictionContext;
+use Antlr4\Utils\BitSet;
+use Antlr4\Atn\ATNConfig;
+use Antlr4\Atn\States\RuleStopState;
+use Antlr4\Atn\Transitions\RuleTransition;
+use Antlr4\Atn\Transitions\NotSetTransition;
+use Antlr4\Atn\Transitions\AbstractPredicateTransition;
+use Antlr4\Utils\Set;
 
 class LL1Analyzer
 {
@@ -55,7 +55,7 @@ class LL1Analyzer
             $this->_LOOK($s->transitions[$alt]->target, null, PredictionContext::EMPTY(), $look[$alt], $lookBusy, new BitSet(), $seeThruPreds, false);
             // Wipe out lookahead for this alternative if we found nothing
             // or we had a predicate when we !seeThruPreds
-            if ($look[$alt]->size() === 0 || $look[$alt]->contains(LL1Analyzer::HIT_PRED))
+            if ($look[$alt]->size() === 0 || $look[$alt]->contains(self::HIT_PRED))
             {
                 $look[$alt] = null;
             }
@@ -189,7 +189,7 @@ class LL1Analyzer
                 }
                 else
                 {
-                    $look->addOne(LL1Analyzer::HIT_PRED);
+                    $look->addOne(self::HIT_PRED);
                 }
             }
             else if ($t->isEpsilon)

@@ -2,9 +2,9 @@
 
 namespace Antlr4\Atn\Transitions;
 
-use \Antlr4\Atn\States\ATNState;
-use \Antlr4\IntervalSet;
-use \Antlr4\Utils\Utils;
+use Antlr4\Atn\States\ATNState;
+use Antlr4\IntervalSet;
+use Antlr4\Utils\Utils;
 
 class RangeTransition extends Transition
 {

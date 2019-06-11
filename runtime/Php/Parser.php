@@ -6,21 +6,22 @@
 
 /** @noinspection SenselessMethodDuplicationInspection */
 /** @noinspection ReturnTypeCanBeDeclaredInspection */
+/** @noinspection PhpUnusedParameterInspection */
 
 namespace Antlr4;
 
-use \Antlr4\Atn\ATN;
-use \Antlr4\Atn\ATNDeserializationOptions;
-use \Antlr4\Atn\ATNDeserializer;
-use \Antlr4\Atn\ParserATNSimulator;
-use \Antlr4\Error\DefaultErrorStrategy;
-use \Antlr4\Error\Exceptions\RecognitionException;
-use \Antlr4\Tree\ErrorNode;
-use \Antlr4\Tree\ErrorNodeImpl;
-use \Antlr4\Tree\ParseTreeListener;
-use \Antlr4\Tree\TerminalNode;
-use \Antlr4\Tree\TerminalNodeImpl;
-use \Antlr4\Utils\Printer;
+use Antlr4\Atn\ATN;
+use Antlr4\Atn\ATNDeserializationOptions;
+use Antlr4\Atn\ATNDeserializer;
+use Antlr4\Atn\ParserATNSimulator;
+use Antlr4\Error\DefaultErrorStrategy;
+use Antlr4\Error\Exceptions\RecognitionException;
+use Antlr4\Tree\ErrorNode;
+use Antlr4\Tree\ErrorNodeImpl;
+use Antlr4\Tree\ParseTreeListener;
+use Antlr4\Tree\TerminalNode;
+use Antlr4\Tree\TerminalNodeImpl;
+use Antlr4\Utils\Printer;
 
 abstract class Parser extends Recognizer
 {
@@ -673,7 +674,7 @@ abstract class Parser extends Recognizer
     // in the ATN a rule is invoked.
     //
     // this is very useful for error messages.
-    function getRuleInvocationStack(?ParserRuleContext $p) : array
+    function getRuleInvocationStack(ParserRuleContext $p=null) : array
     {
         if (!$p) $p = $this->_ctx;
 

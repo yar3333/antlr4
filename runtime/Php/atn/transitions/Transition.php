@@ -6,8 +6,8 @@
 
 namespace Antlr4\Atn\Transitions;
 
-use \Antlr4\Atn\States\ATNState;
-use \Antlr4\IntervalSet;
+use Antlr4\Atn\States\ATNState;
+use Antlr4\IntervalSet;
 
 /** An ATN transition between any two ATN states.  Subclasses define
  *  atom, set, epsilon, action, predicate, rule transitions.

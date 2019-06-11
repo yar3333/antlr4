@@ -6,16 +6,16 @@
 
 namespace Antlr4\Atn;
 
-use \Antlr4\Atn\Actions\LexerAction;
-use \Antlr4\Atn\States\ATNState;
-use \Antlr4\Atn\States\DecisionState;
-use \Antlr4\Atn\States\RuleStartState;
-use \Antlr4\Atn\States\RuleStopState;
-use \Antlr4\Atn\States\TokensStartState;
-use \Antlr4\LL1Analyzer;
-use \Antlr4\IntervalSet;
-use \Antlr4\RuleContext;
-use \Antlr4\Token;
+use Antlr4\Atn\Actions\LexerAction;
+use Antlr4\Atn\States\ATNState;
+use Antlr4\Atn\States\DecisionState;
+use Antlr4\Atn\States\RuleStartState;
+use Antlr4\Atn\States\RuleStopState;
+use Antlr4\Atn\States\TokensStartState;
+use Antlr4\LL1Analyzer;
+use Antlr4\IntervalSet;
+use Antlr4\RuleContext;
+use Antlr4\Token;
 
 class ATN
 {

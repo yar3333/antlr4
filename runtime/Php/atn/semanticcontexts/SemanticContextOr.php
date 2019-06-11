@@ -2,10 +2,10 @@
 
 namespace Antlr4\Atn\Semanticcontexts;
 
-use \Antlr4\Recognizer;
-use \Antlr4\RuleContext;
-use \Antlr4\Utils\Hash;
-use \Antlr4\Utils\Set;
+use Antlr4\Recognizer;
+use Antlr4\RuleContext;
+use Antlr4\Utils\Hash;
+use Antlr4\Utils\Set;
 
 // A semantic context which is true whenever at least one of the contained contexts is true.
 class SemanticContextOr extends SemanticContext
@@ -20,14 +20,14 @@ class SemanticContextOr extends SemanticContext
         parent::__construct();
 
         $operands = new Set();
-        if ($a instanceof SemanticContextOr) {
+        if ($a instanceof self) {
             foreach ($a->opnds as $o) {
                 $operands->add($o);
             }
         } else {
             $operands->add($a);
         }
-        if ($b instanceof SemanticContextOr) {
+        if ($b instanceof self) {
             foreach ($b->opnds as $o) {
                 $operands->add($o);
             }
@@ -51,7 +51,7 @@ class SemanticContextOr extends SemanticContext
     function equals($other) : bool
     {
         if ($this === $other) return true;
-        if (!($other instanceof SemanticContextOr)) return false;
+        if (!($other instanceof self)) return false;
         return $this->opnds === $other->opnds;
     }
 

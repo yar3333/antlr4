@@ -2,7 +2,7 @@
 
 namespace Antlr4\Atn\Actions;
 
-use \Antlr4\Lexer;
+use Antlr4\Lexer;
 
 class LexerMoreAction extends LexerAction
 {

@@ -2,8 +2,8 @@
 
 namespace Antlr4\Atn\Actions;
 
-use \Antlr4\Lexer;
-use \Antlr4\Utils\Hash;
+use Antlr4\Lexer;
+use Antlr4\Utils\Hash;
 
 //  Implements the {@code type} lexer action by calling {@link Lexer//setType} with the assigned type.
 class LexerTypeAction extends LexerAction
@@ -29,7 +29,7 @@ class LexerTypeAction extends LexerAction
     function equals(LexerAction $other) : bool
     {
         if ($this === $other) return true;
-        if (!($other instanceof LexerTypeAction)) return false;
+        if (!($other instanceof self)) return false;
         return $this->type === $other->type;
     }
 

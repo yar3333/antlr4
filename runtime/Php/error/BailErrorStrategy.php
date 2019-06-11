@@ -2,11 +2,11 @@
 
 namespace Antlr4\Error;
 
-use \Antlr4\Error\Exceptions\InputMismatchException;
-use \Antlr4\Error\Exceptions\ParseCancellationException;
-use \Antlr4\Error\Exceptions\RecognitionException;
-use \Antlr4\Parser;
-use \Antlr4\Token;
+use Antlr4\Error\Exceptions\InputMismatchException;
+use Antlr4\Error\Exceptions\ParseCancellationException;
+use Antlr4\Error\Exceptions\RecognitionException;
+use Antlr4\Parser;
+use Antlr4\Token;
 
 // This implementation of {@link ANTLRErrorStrategy} responds to syntax errors
 // by immediately canceling the parse operation with a
