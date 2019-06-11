@@ -8,7 +8,7 @@ use \Antlr4\Recognizer;
 class ConsoleErrorListener extends BaseErrorListener
 {
     private static $_INSTANCE;
-    static function INSTANCE(): ConsoleErrorListener { return self::$_INSTANCE ?: (self::$_INSTANCE = new ConsoleErrorListener()); }
+    static function INSTANCE(): ConsoleErrorListener { return self::$_INSTANCE ?? (self::$_INSTANCE = new ConsoleErrorListener()); }
 
     // {@inheritDoc}
     //

@@ -26,8 +26,8 @@ class Map
     function __construct(callable $hashFunction=null, callable $equalsFunction=null)
     {
         $this->data = [];
-        $this->hashFunction = $hashFunction ?: function ($a) { return Utils::standardHashCodeFunction($a); };
-        $this->equalsFunction = $equalsFunction ?: function ($a, $b) { return Utils::standardEqualsFunction($a, $b); };
+        $this->hashFunction = $hashFunction ?? function ($a) { return Utils::standardHashCodeFunction($a); };
+        $this->equalsFunction = $equalsFunction ?? function ($a, $b) { return Utils::standardEqualsFunction($a, $b); };
     }
 
     function size() : int

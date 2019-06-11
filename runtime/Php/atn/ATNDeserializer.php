@@ -73,7 +73,7 @@ class ATNDeserializer
 
     function __construct(ATNDeserializationOptions $options=null)
     {
-        $this->deserializationOptions = $options ?: ATNDeserializationOptions::defaultOptions();
+        $this->deserializationOptions = $options ?? ATNDeserializationOptions::defaultOptions();
     }
 
     // Determines if a particular serialized representation of an ATN supports

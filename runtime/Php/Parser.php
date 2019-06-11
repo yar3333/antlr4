@@ -199,7 +199,7 @@ abstract class Parser extends Recognizer
      */
     function getParseListeners() : array
     {
-        return $this->_parseListeners ?: [];
+        return $this->_parseListeners ?? [];
     }
 
     // Registers {@code listener} to receive events during the parsing process.

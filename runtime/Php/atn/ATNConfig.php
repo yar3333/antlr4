@@ -85,10 +85,10 @@ class ATNConfig
         $params = self::checkParams($params);
         $config = self::checkParams($_config, true);
 
-        $this->state = $params->state ?: $config->state;
-        $this->alt = $params->alt ?: $config->alt;
-        $this->context = $params->context ?: $config->context;
-        $this->semanticContext = $params->semanticContext ?: ($config->semanticContext ?: SemanticContext::NONE());
+        $this->state = $params->state ?? $config->state;
+        $this->alt = $params->alt ?? $config->alt;
+        $this->context = $params->context ?? $config->context;
+        $this->semanticContext = $params->semanticContext ?? ($config->semanticContext ?? SemanticContext::NONE());
         $this->reachesIntoOuterContext = $config->reachesIntoOuterContext;
     }
 

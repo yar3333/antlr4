@@ -21,7 +21,7 @@ class VocabularyImpl implements Vocabulary
      * except {@link Token#EOF}.</p>
      */
     private static $EMPTY_VOCABULARY;
-    static function EMPTY_VOCABULARY() : self { return self::$EMPTY_VOCABULARY ?: (self::$EMPTY_VOCABULARY = new self([], [], [])); }
+    static function EMPTY_VOCABULARY() : self { return self::$EMPTY_VOCABULARY ?? (self::$EMPTY_VOCABULARY = new self([], [], [])); }
 
     /**
      * @var string[]
@@ -63,9 +63,9 @@ class VocabularyImpl implements Vocabulary
      */
     public function __construct(?array $literalNames, ?array $symbolicNames, array $displayNames=null)
     {
-        $this->literalNames = $literalNames ?: self::EMPTY_NAMES;
-        $this->symbolicNames = $symbolicNames ?: self::EMPTY_NAMES;
-        $this->displayNames = $displayNames ?: self::EMPTY_NAMES;
+        $this->literalNames = $literalNames ?? self::EMPTY_NAMES;
+        $this->symbolicNames = $symbolicNames ?? self::EMPTY_NAMES;
+        $this->displayNames = $displayNames ?? self::EMPTY_NAMES;
 
         // See note here on -1 part: https://github.com/antlr/antlr4/pull/1146
         $this->maxTokenType = max(count($this->displayNames), count($this->literalNames), count($this->symbolicNames)) - 1;

@@ -13,7 +13,6 @@ use \Antlr4\Tree\ParseTree;
 use \Antlr4\Tree\ParseTreeVisitor;
 use \Antlr4\Tree\RuleNode;
 use \Antlr4\Tree\Trees;
-use \Antlr4\Utils\Utils; //('./tree/Tree').RuleNode;
 
 //  A rule context is a record of a single rule invocation. It knows
 //  which context invoked it, if any. If there is no parent context, then
@@ -37,7 +36,7 @@ use \Antlr4\Utils\Utils; //('./tree/Tree').RuleNode;
 class RuleContext implements RuleNode
 {
     private static $_EMPTY;
-    public static function EMPTY() : ParserRuleContext { return self::$_EMPTY ?: (self::$_EMPTY = new ParserRuleContext()); }
+    public static function EMPTY() : ParserRuleContext { return self::$_EMPTY ?? (self::$_EMPTY = new ParserRuleContext()); }
 
     /**
      * @var RuleContext
@@ -57,7 +56,7 @@ class RuleContext implements RuleNode
         // What state invoked the rule associated with this context?
         // The "return address" is the followState of invokingState
         // If parent is null, this should be -1.
-        $this->invokingState = $invokingState ?: -1;
+        $this->invokingState = $invokingState ?? -1;
     }
 
     function depth() : int

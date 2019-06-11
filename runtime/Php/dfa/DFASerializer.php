@@ -27,7 +27,7 @@ class DFASerializer
     function __construct(DFA $dfa, Vocabulary $vocabulary=null)
 	{
         $this->dfa = $dfa;
-        $this->vocabulary = $vocabulary ?: new VocabularyImpl(null , null);
+        $this->vocabulary = $vocabulary ?? new VocabularyImpl(null , null);
     }
 
     function __toString() 

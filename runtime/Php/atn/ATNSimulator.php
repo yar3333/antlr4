@@ -33,7 +33,7 @@ use \Antlr4\Predictioncontexts\PredictionContextUtils;
 abstract class ATNSimulator
 {
     private static $_ERROR;
-    public static function ERROR() : DFAState { return self::$_ERROR ?: (self::$_ERROR = new DFAState(0x7FFFFFFF, new ATNConfigSet())); }
+    public static function ERROR() : DFAState { return self::$_ERROR ?? (self::$_ERROR = new DFAState(0x7FFFFFFF, new ATNConfigSet())); }
 
     /**
      * @var ATN

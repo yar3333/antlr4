@@ -32,7 +32,7 @@ class LexerActionExecutor
 
     function __construct(?array $lexerActions)
     {
-        $this->lexerActions = $lexerActions ?: [];
+        $this->lexerActions = $lexerActions ?? [];
 
         // Caches the result of {@link //hashCode} since the hash code is an element
         // of the performance-critical {@link LexerATNConfig//hashCode} operation.

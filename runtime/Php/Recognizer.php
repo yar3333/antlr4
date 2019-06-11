@@ -133,7 +133,7 @@ abstract class Recognizer
     function getTokenType($tokenName) : int
     {
         $ttype = $this->getTokenTypeMap()[$tokenName];
-        return $ttype ?: Token::INVALID_TYPE;
+        return $ttype ?? Token::INVALID_TYPE;
     }
 
     // What is the error header, normally line/character position information?

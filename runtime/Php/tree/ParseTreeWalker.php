@@ -7,7 +7,7 @@ use \Antlr4\ParserRuleContext;
 class ParseTreeWalker
 {
     private static $DEFAULT;
-    static function DEFAULT(): ParseTreeWalker { return self::$DEFAULT ?: (self::$DEFAULT = new ParseTreeWalker()); }
+    static function DEFAULT(): ParseTreeWalker { return self::$DEFAULT ?? (self::$DEFAULT = new ParseTreeWalker()); }
 
     function walk(ParseTreeListener $listener, ParseTree $t) : void
     {

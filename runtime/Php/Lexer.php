@@ -355,7 +355,7 @@ abstract class Lexer extends Recognizer implements TokenSource
     // Set the complete text of this token; it wipes any previous changes to the text.
     function getText() : string
     {
-        return $this->_text ?: $this->_interp->getText($this->_input);
+        return $this->_text ?? $this->_interp->getText($this->_input);
     }
     function setText(string $text) : void
     {

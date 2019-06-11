@@ -40,7 +40,7 @@ class CommonTokenFactory implements TokenFactory
      * @var CommonTokenFactory
      */
     private static $DEFAULT;
-    static function DEFAULT() : CommonTokenFactory { return self::$DEFAULT ?: (self::$DEFAULT = new CommonTokenFactory()); }
+    static function DEFAULT() : CommonTokenFactory { return self::$DEFAULT ?? (self::$DEFAULT = new CommonTokenFactory()); }
 
     /**
      * @param Pair<TokenSource, CharStream> $source

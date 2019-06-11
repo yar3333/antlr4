@@ -254,7 +254,7 @@ class <parser.name> extends <superClass; null="Parser">
 	}
 
 	private static $__sharedContextCache;
-	protected static function _sharedContextCache() : PredictionContextCache { return self::$__sharedContextCache ?: (self::$__sharedContextCache = new PredictionContextCache()); }
+	protected static function _sharedContextCache() : PredictionContextCache { return self::$__sharedContextCache ?? (self::$__sharedContextCache = new PredictionContextCache()); }
 	
 	<if(parser.tokens)>
 	const <parser.tokens:{k | <k>=<parser.tokens.(k)>}; separator=", ", wrap, anchor>;
@@ -278,7 +278,7 @@ class <parser.name> extends <superClass; null="Parser">
 	/**
 	 * @return string[]|\\ArrayObject
 	 */
-	static function ruleNames() : \\ArrayObject { return self::$_ruleNames ?: (self::$_ruleNames = self::makeRuleNames()); }
+	static function ruleNames() : \\ArrayObject { return self::$_ruleNames ?? (self::$_ruleNames = self::makeRuleNames()); }
 
 	<vocabulary(parser.literalNames, parser.symbolicNames)>
 
@@ -342,7 +342,7 @@ private const _LITERAL_NAMES = [ <literalNames:{t | <t>}; null="null", separator
 private const _SYMBOLIC_NAMES = [ <symbolicNames:{t | <t>}; null="null", separator=", ", wrap, anchor> ];
 
 private static $_VOCABULARY;
-static function VOCABULARY() : Vocabulary { return self::$_VOCABULARY ?: (self::$_VOCABULARY = new VocabularyImpl(self::_LITERAL_NAMES, self::_SYMBOLIC_NAMES)); }
+static function VOCABULARY() : Vocabulary { return self::$_VOCABULARY ?? (self::$_VOCABULARY = new VocabularyImpl(self::_LITERAL_NAMES, self::_SYMBOLIC_NAMES)); }
 
 private static $_tokenNames;
 /**
@@ -1026,7 +1026,7 @@ class <lexer.name> extends <superClass; null="Lexer">
 	 * @var PredictionContextCache
 	 */
 	private static $__sharedContextCache;
-	protected static function _sharedContextCache() : PredictionContextCache { return self::$__sharedContextCache ?: (self::$__sharedContextCache = new PredictionContextCache()); }
+	protected static function _sharedContextCache() : PredictionContextCache { return self::$__sharedContextCache ?? (self::$__sharedContextCache = new PredictionContextCache()); }
 	
 	<if(lexer.tokens)>
 	const <lexer.tokens:{k | <k>=<lexer.tokens.(k)>}; separator=", ", wrap, anchor>;
@@ -1052,7 +1052,7 @@ class <lexer.name> extends <superClass; null="Lexer">
 	}
 	
 	private static $_ruleNames;
-	static function ruleNames() : \\ArrayObject { return self::$_ruleNames ?: (self::$_ruleNames = self::makeRuleNames()); }
+	static function ruleNames() : \\ArrayObject { return self::$_ruleNames ?? (self::$_ruleNames = self::makeRuleNames()); }
 
 	<vocabulary(lexer.literalNames, lexer.symbolicNames)>
 
@@ -1119,7 +1119,7 @@ static function _serializedATN() : string
  * @var ATN
  */
 private static $__ATN;
-static function _ATN() : ATN { return self::$__ATN ?: (self::$__ATN = (new ATNDeserializer())->deserialize(self::_serializedATN())); }
+static function _ATN() : ATN { return self::$__ATN ?? (self::$__ATN = (new ATNDeserializer())->deserialize(self::_serializedATN())); }
 >>
 
 /** Using a type to init value map, try to init a type; if not in table

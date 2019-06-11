@@ -14,7 +14,7 @@ use \Antlr4\Utils\Hash;
 abstract class PredictionContext
 {
     private static $_EMPTY;
-    static function EMPTY() : EmptyPredictionContext { return self::$_EMPTY ?: (self::$_EMPTY = new EmptyPredictionContext()); }
+    static function EMPTY() : EmptyPredictionContext { return self::$_EMPTY ?? (self::$_EMPTY = new EmptyPredictionContext()); }
 
     static $globalNodeCount = 1;
 

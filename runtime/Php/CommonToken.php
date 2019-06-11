@@ -18,9 +18,9 @@ class CommonToken extends Token
     {
         parent::__construct();
 
-        $this->source = $source ?: CommonToken::EMPTY_SOURCE();
+        $this->source = $source ?? CommonToken::EMPTY_SOURCE();
         $this->type = $type;
-        $this->channel = $channel ?: Token::DEFAULT_CHANNEL;
+        $this->channel = $channel ?? Token::DEFAULT_CHANNEL;
         $this->start = $start;
         $this->stop = $stop;
         $this->tokenIndex = -1;
@@ -41,7 +41,7 @@ class CommonToken extends Token
     // An empty {@link Pair} which is used as the default value of
     // {@link //source} for tokens that do not have a source.
     private static $EMPTY_SOURCE;
-    static function EMPTY_SOURCE() : Pair { return self::$EMPTY_SOURCE ?: self::$EMPTY_SOURCE = new Pair(null, null); }
+    static function EMPTY_SOURCE() : Pair { return self::$EMPTY_SOURCE ?? self::$EMPTY_SOURCE = new Pair(null, null); }
 
     // Constructs a new {@link CommonToken} as a copy of another {@link Token}.
     //

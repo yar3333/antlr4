@@ -12,7 +12,7 @@ class LexerMoreAction extends LexerAction
     }
 
     private static $_INSTANCE;
-    static function INSTANCE() : LexerMoreAction { return self::$_INSTANCE ?: (self::$_INSTANCE = new LexerMoreAction()); }
+    static function INSTANCE() : LexerMoreAction { return self::$_INSTANCE ?? (self::$_INSTANCE = new LexerMoreAction()); }
 
     // <p>This action is implemented by calling {@link Lexer//popMode}.</p>
     function execute(Lexer $lexer) : void
