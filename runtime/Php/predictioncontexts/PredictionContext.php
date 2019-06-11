@@ -108,11 +108,11 @@ abstract class PredictionContext
     // /
     static function fromRuleContext(ATN $atn, RuleContext $outerContext)
     {
-        if (!$outerContext) $outerContext = RuleContext::EMPTY();
+        if (!$outerContext) $outerContext = RuleContext::createEmpty();
 
         // if we are in RuleContext of start rule, s, then PredictionContext
         // is EMPTY. Nobody called us. (if we are empty, return empty)
-        if ($outerContext->getParent() === null || $outerContext === RuleContext::EMPTY())
+        if ($outerContext->getParent() === null || $outerContext === RuleContext::createEmpty())
         {
             return self::EMPTY();
         }

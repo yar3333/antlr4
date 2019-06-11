@@ -36,7 +36,8 @@ use Antlr4\Tree\Trees;
 class RuleContext implements RuleNode
 {
     private static $_EMPTY;
-    public static function EMPTY() : ParserRuleContext { return self::$_EMPTY ?? (self::$_EMPTY = new ParserRuleContext()); }
+
+    public static function createEmpty() : ParserRuleContext { return self::$_EMPTY ?? (self::$_EMPTY = new ParserRuleContext()); }
 
     /**
      * @var RuleContext
