@@ -69,7 +69,7 @@ abstract class SemanticContext
 
     abstract function updateHashCode(Hash $hash) : void;
 
-    static function andContext(self $a, self $b)
+    static function andContext(?self $a, ?self $b)
     {
         if ($a === null || $a === self::NONE()) return $b;
         if ($b === null || $b === self::NONE()) return $a;
@@ -78,7 +78,7 @@ abstract class SemanticContext
         return count($result->opnds) === 1 ? $result->opnds[0] : $result;
     }
 
-    static function orContext(self $a, self $b)
+    static function orContext(?self $a, ?self $b)
     {
         if ($a === null) return $b;
         if ($b === null) return $a;

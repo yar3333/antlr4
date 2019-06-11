@@ -45,7 +45,9 @@ class Hash
                 if (is_bool($value)) $k = $value ? 1 : 0;
                 else
                 {
-                    $value->updateHashCode($this);
+                    if (method_exists($value, 'updateHashCode')) {
+                        $value->updateHashCode($this);
+                    }
                     continue;
                 }
 

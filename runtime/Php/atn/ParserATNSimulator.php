@@ -1150,9 +1150,9 @@ class ParserATNSimulator extends ATNSimulator
         $altToPred = [];
         foreach ($configs->items() as $c)
         {
-            if($ambigAlts->contains( $c->alt ))
+            if ($ambigAlts->contains($c->alt))
             {
-                $altToPred[$c->alt] = SemanticContext::orContext($altToPred[$c->alt], $c->semanticContext);
+                $altToPred[$c->alt] = SemanticContext::orContext($altToPred[$c->alt] ?? null, $c->semanticContext);
             }
         }
         $nPredAlts = 0;
