@@ -391,7 +391,7 @@ class ParserATNSimulator extends ATNSimulator
             {
                 if ($outerContext===null)
                 {
-                    $outerContext = ParserRuleContext::EMPTY();
+                    $outerContext = ParserRuleContext::emptyContext();
                 }
                 if (self::$debug || self::$debug_list_atn_decisions)
                 {
@@ -399,7 +399,7 @@ class ParserATNSimulator extends ATNSimulator
                 }
 
                 $fullCtx = false;
-                $s0_closure = $this->computeStartState($dfa->atnStartState, ParserRuleContext::EMPTY(), $fullCtx);
+                $s0_closure = $this->computeStartState($dfa->atnStartState, ParserRuleContext::emptyContext(), $fullCtx);
 
                 if ($dfa->precedenceDfa)
                 {

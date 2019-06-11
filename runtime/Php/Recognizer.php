@@ -21,6 +21,8 @@ use Antlr4\Utils\Utils;
 
 abstract class Recognizer
 {
+    public const EOF = -1;
+
     /**
      * @var Map[] Original type: Map<Vocabulary, Map<String, Integer>>
      */

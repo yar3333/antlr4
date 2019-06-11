@@ -792,11 +792,11 @@ RulePropertyRef_text(r)	 ::= "($<ctx(r)>-><r.label>!=null?\$this->_input->getTex
 RulePropertyRef_ctx(r)	 ::= "$<ctx(r)>-><r.label>"
 RulePropertyRef_parser(r)::= "\$this"
 
-ThisRulePropertyRef_start(r) ::= "\$_localctx->start"
-ThisRulePropertyRef_stop(r)	 ::= "\$_localctx->stop"
-ThisRulePropertyRef_text(r)	 ::= "\$this->_input->getText(\$_localctx->start, \$this->_input->LT(-1))"
-ThisRulePropertyRef_ctx(r)	 ::= "\$_localctx"
-ThisRulePropertyRef_parser(r)::= "\$this"
+ThisRulePropertyRef_start(r) ::= "$_localctx->start"
+ThisRulePropertyRef_stop(r)	 ::= "$_localctx->stop"
+ThisRulePropertyRef_text(r)	 ::= "$this->_input->getText($_localctx->start, $this->_input->LT(-1))"
+ThisRulePropertyRef_ctx(r)	 ::= "$_localctx"
+ThisRulePropertyRef_parser(r)::= "$this"
 
 NonLocalAttrRef(s)		      ::= "((<s.ruleName; format=\"cap\">Context)\$this->getInvokingContext(<s.ruleIndex>))-><s.name>"
 SetNonLocalAttr(s, rhsChunks) ::= "((<s.ruleName; format=\"cap\">Context)\$this->getInvokingContext(<s.ruleIndex>))-><s.name> = <rhsChunks>;"

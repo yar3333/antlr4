@@ -18,11 +18,11 @@ class PredictionContextUtils
     // Return {@link //EMPTY} if {@code outerContext} is empty or null.
     static function predictionContextFromRuleContext(ATN $atn, $outerContext) : PredictionContext
     {
-        if (!isset($outerContext)) $outerContext = RuleContext::EMPTY();
+        if (!isset($outerContext)) $outerContext = RuleContext::emptyContext();
 
         // if we are in RuleContext of start rule, s, then PredictionContext
         // is EMPTY. Nobody called us. (if we are empty, return empty)
-        if ($outerContext->getParent() === null || $outerContext === RuleContext::EMPTY())
+        if ($outerContext->getParent() === null || $outerContext === RuleContext::emptyContext())
         {
             return PredictionContext::EMPTY();
         }

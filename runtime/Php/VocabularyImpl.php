@@ -117,7 +117,7 @@ class VocabularyImpl implements Vocabulary
 
 	function getMaxTokenType() : int { return $this->maxTokenType; }
 
-    function getLiteralName(int $tokenType) : string
+    function getLiteralName(int $tokenType) : ?string
     {
         if ($tokenType >= 0 && $tokenType < count($this->literalNames)) {
             return $this->literalNames[$tokenType];
