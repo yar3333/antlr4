@@ -54,7 +54,7 @@ interface Vocabulary
      * @return string The string literal associated with the specified token type, or
      * {@code null} if no string literal is associated with the type.
      */
-    function getLiteralName(int $tokenType) : string;
+    function getLiteralName(int $tokenType) : ?string;
 
     /**
      * Gets the symbolic name associated with a token type. The string returned
