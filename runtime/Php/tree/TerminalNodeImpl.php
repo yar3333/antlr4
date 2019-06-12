@@ -4,7 +4,6 @@
 namespace Antlr4\Tree;
 
 use Antlr4\Interval;
-use Antlr4\Parser;
 use Antlr4\RuleContext;
 use Antlr4\Token;
 
@@ -78,7 +77,7 @@ class TerminalNodeImpl implements TerminalNode
         return $this->symbol->getText();
     }
 
-    public function toStringTree(Parser $parser = null): string
+    public function toStringTree(\ArrayObject $ruleNames=null) : string
     {
         return (string)$this;
     }

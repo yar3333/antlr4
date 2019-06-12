@@ -3,7 +3,6 @@
 
 namespace Antlr4\Tree;
 
-use Antlr4\Parser;
 use Antlr4\RuleContext;
 
 interface ParseTree extends SyntaxTree
@@ -51,8 +50,8 @@ interface ParseTree extends SyntaxTree
     /**
      * Specialize toStringTree so that it can print out more information
      * based upon the parser.
-     * @param Parser $parser
+     * @param string[]|\ArrayObject $ruleNames
      * @return string
      */
-    function toStringTree(Parser $parser=null) : string;
+    function toStringTree(\ArrayObject $ruleNames=null) : string;
 }

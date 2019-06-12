@@ -7,9 +7,7 @@
 namespace Antlr4\Tree;
 
 use Antlr4\Atn\ATN;
-use Antlr4\Parser;
 use Antlr4\ParserRuleContext;
-use Antlr4\Recognizer;
 use Antlr4\RuleContext;
 use Antlr4\Token;
 use Antlr4\Utils\Utils;
@@ -24,26 +22,20 @@ class Trees
      *
      * @param Tree $tree
      * @param string[]|\ArrayObject $ruleNames
-     * @param Parser $recog
      * @return string
      */
-    static function toStringTree(Tree $tree, \ArrayObject $ruleNames, Parser $recog=null) : string
+    static function toStringTree(Tree $tree, \ArrayObject $ruleNames=null) : string
     {
-        if ($recog) $ruleNames = $recog->getRuleNames();
-
         $s = self::getNodeText($tree, $ruleNames);
         $s = Utils::escapeWhitespace($s, false);
+
         $childCount = $tree->getChildCount();
-        if ($childCount===0) return $s;
+        if ($childCount === 0) return $s;
+
         $res = "(" . $s . " ";
-        if ($childCount > 0)
+        for ($i = 0; $i < $childCount; $i++)
         {
-            $res .= self::toStringTree($tree->getChild(0), $ruleNames);
-        }
-        for ($i=1; $i<$childCount; $i++)
-        {
-            $s = self::toStringTree($tree->getChild($i), $ruleNames);
-            $res .= ' ' . $s;
+            $res .= ($i > 0 ? ' ' : '') . self::toStringTree($tree->getChild($i), $ruleNames);
         }
         $res .= ")";
         return $res;
@@ -52,23 +44,22 @@ class Trees
     /**
      * @param Tree $t
      * @param string[]|\ArrayObject $ruleNames
-     * @param Recognizer|null $recog
      * @return string
      */
-    static function getNodeText(Tree $t, \ArrayObject $ruleNames, Recognizer $recog=null) : string
+    static function getNodeText(Tree $t, ?\ArrayObject $ruleNames) : string
     {
-        if ($recog !== null) $ruleNames = $recog->getRuleNames();
-
         if ($ruleNames !== null)
         {
            if ($t instanceof RuleContext)
            {
-               $altNumber = $t->getAltNumber();
-               if ($altNumber !== ATN::INVALID_ALT_NUMBER)
-               {
-                   return $ruleNames[$t->getRuleContext()->ruleIndex] . ":" . $altNumber;
-               }
-               return $ruleNames[$t->getRuleContext()->ruleIndex];
+                $ruleIndex = $t->getRuleContext()->getRuleIndex();
+				$ruleName = $ruleNames[$ruleIndex];
+				$altNumber = $t->getAltNumber();
+				if ($altNumber !== ATN::INVALID_ALT_NUMBER)
+				{
+					return "$ruleName:$altNumber";
+				}
+				return $ruleName;
            }
            else if ($t instanceof ErrorNode)
            {
@@ -78,7 +69,7 @@ class Trees
            {
                if ($t->getSymbol()!==null)
                {
-                   return $t->getSymbol()->text;
+                   return $t->getSymbol()->getText();
                }
            }
         }

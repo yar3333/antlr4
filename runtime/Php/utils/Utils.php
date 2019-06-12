@@ -95,7 +95,7 @@ class Utils
         return $hash->finish();
     }
 
-    static function escapeWhitespace(string $s, bool $escapeSpaces) : bool
+    static function escapeWhitespace(string $s, bool $escapeSpaces) : string
     {
         $s = preg_replace('/\n/', "\\n", $s);
         $s = preg_replace('/\r/', "\\r", $s);

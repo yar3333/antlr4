@@ -8,8 +8,6 @@
 
 namespace Antlr4\Tree;
 
-use Antlr4\Parser;
-
 /** The basic notion of a tree has a parent, a payload, and a list of children.
  *  It is the most abstract interface for all the trees used by ANTLR.
  */
@@ -44,10 +42,11 @@ interface Tree
      */
     function getChildCount() : int;
 
-    /** Print out a whole tree, not just a node, in LISP format
-     *  {@code (root child1 .. childN)}. Print just a node if this is a leaf.
-     *  @param Parser $parser
-     *  @return string
+    /**
+     * Print out a whole tree, not just a node, in LISP format
+     * {@code (root child1 .. childN)}. Print just a node if this is a leaf.
+     * @param string[]|\ArrayObject $ruleNames
+     * @return string
      */
-    function toStringTree(Parser $parser=null) : string;
+    function toStringTree(\ArrayObject $ruleNames=null) : string;
 }

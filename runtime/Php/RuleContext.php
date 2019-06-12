@@ -125,7 +125,7 @@ class RuleContext implements RuleNode
     // trees that don't need it.  Create
     // a subclass of ParserRuleContext with backing field and set
     // option contextSuperClass.
-    function setAltNumber($altNumber) : void {}
+    function setAltNumber(int $altNumber) : void {}
 
     /**
      * @param int $i
@@ -147,22 +147,18 @@ class RuleContext implements RuleNode
         return $visitor->visitChildren($this);
     }
 
-    // Print out a whole tree, not just a node, in LISP format
-    // (root child1 .. childN). Print just a node if this is a leaf.
-
     /**
-     * @param array $ruleNames
-     * @param Parser $recog
+     * @param string[]|\ArrayObject $ruleNames
      * @return string
      */
-    function toStringTreeWithRuleNames(array $ruleNames, $recog) : string
+    function toStringTree(\ArrayObject $ruleNames=null) : string
     {
-        return Trees::toStringTree($this, $ruleNames, $recog);
+        return Trees::toStringTree($this, $ruleNames);
     }
 
     function __toString() : string
     {
-        return $this->toString(null);
+        return $this->toString();
     }
 
     function getRuleIndex() : int { return -1; }
@@ -172,7 +168,7 @@ class RuleContext implements RuleNode
      * @param RuleContext|null $stop
      * @return string
      */
-    function toString($ruleNames, ?RuleContext $stop=null) : string
+    function toString(\ArrayObject$ruleNames=null, ?RuleContext $stop=null) : string
     {
         $p = $this;
         $s = "[";
@@ -207,9 +203,4 @@ class RuleContext implements RuleNode
     function getParent() { return $this->parentCtx; }
 
     function setParent(?RuleContext $ctx): void { $this->parentCtx = $ctx; }
-
-    function toStringTree(Parser $recog = null): string
-    {
-        return Trees::toStringTree($this, null, $recog);
-    }
 }
