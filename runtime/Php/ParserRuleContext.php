@@ -127,7 +127,7 @@ class ParserRuleContext extends RuleContext
     // generic ruleContext object.
     function removeLastChild() : void
     {
-        if (!isset($this->children))
+        if (isset($this->children))
         {
             array_pop($this->children);
         }
