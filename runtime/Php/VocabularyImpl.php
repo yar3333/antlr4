@@ -125,7 +125,7 @@ class VocabularyImpl implements Vocabulary
         return null;
     }
 
-	function getSymbolicName(int $tokenType) : string
+	function getSymbolicName(int $tokenType) : ?string
     {
         if ($tokenType >= 0 && $tokenType < count($this->symbolicNames)) {
             return $this->symbolicNames[$tokenType];

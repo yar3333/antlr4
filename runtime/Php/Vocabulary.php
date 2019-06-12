@@ -99,7 +99,7 @@ interface Vocabulary
      * @return string The symbolic name associated with the specified token type, or
      * {@code null} if no symbolic name is associated with the type.
      */
-    function getSymbolicName(int $tokenType) : string;
+    function getSymbolicName(int $tokenType) : ?string;
 
     /**
      * Gets the display name of a token type.
