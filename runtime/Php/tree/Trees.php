@@ -91,7 +91,7 @@ class Trees
     static function getChildren(Tree $t) : array
     {
         $list = [];
-        for($i=0; $i < $t->getChildCount(); $i++)
+        for ($i = 0; $i < $t->getChildCount(); $i++)
         {
             array_push($list, $t->getChild($i));
         }
@@ -158,6 +158,10 @@ class Trees
         }
     }
 
+    /**
+     * @param ParseTree $t
+     * @return ParseTree[]
+     */
     static function descendants(ParseTree $t) : array
     {
         $nodes = [$t];
