@@ -312,7 +312,7 @@ class DefaultErrorStrategy implements ErrorStrategy
      */
     function reportFailedPredicate($recognizer, $e) : void
     {
-        $ruleName = $recognizer->getRuleNames()[$recognizer->getContext()->ruleIndex];
+        $ruleName = $recognizer->getRuleNames()[$recognizer->getContext()->getRuleIndex()];
         $msg = "rule " . $ruleName . " " . $e->getMessage();
         $recognizer->notifyErrorListeners($msg, $e->offendingToken, $e);
     }

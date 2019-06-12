@@ -40,8 +40,6 @@ use Antlr4\Tree\TerminalNode;
 
 class ParserRuleContext extends RuleContext
 {
-    public $ruleIndex;
-
     /**
      * @var ParseTree[]
      */
@@ -65,8 +63,6 @@ class ParserRuleContext extends RuleContext
     function __construct(ParserRuleContext $parent=null, int $invokingStateNumber=null)
     {
         parent::__construct($parent, $invokingStateNumber);
-
-        $this->ruleIndex = -1;
 
         // If we are debugging or building a parse tree for a visitor,
         // we need to track all of the tokens and rule invocations associated

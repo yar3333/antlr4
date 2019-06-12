@@ -589,7 +589,7 @@ abstract class Parser extends Recognizer
         $ctx = $this->_ctx;
         while ($ctx)
         {
-            if ($ctx->ruleIndex === $ruleIndex) return $ctx;
+            if ($ctx->getRuleIndex() === $ruleIndex) return $ctx;
             $ctx = $ctx->getParent();
         }
         return null;
@@ -682,7 +682,7 @@ abstract class Parser extends Recognizer
         while ($p)
         {
             // compute what follows who invoked us
-            $ruleIndex = $p->ruleIndex;
+            $ruleIndex = $p->getRuleIndex();
             if ($ruleIndex < 0)
             {
                 array_push($stack, "n/a");
