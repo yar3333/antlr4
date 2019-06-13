@@ -5,7 +5,6 @@
  */
 
 /** @noinspection SenselessMethodDuplicationInspection */
-/** @noinspection ReturnTypeCanBeDeclaredInspection */
 /** @noinspection PhpUnusedParameterInspection */
 
 namespace Antlr4;
@@ -13,6 +12,7 @@ namespace Antlr4;
 use Antlr4\Atn\ATN;
 use Antlr4\Atn\ATNDeserializationOptions;
 use Antlr4\Atn\ATNDeserializer;
+use Antlr4\Atn\ATNSimulator;
 use Antlr4\Atn\ParserATNSimulator;
 use Antlr4\Error\DefaultErrorStrategy;
 use Antlr4\Error\Exceptions\RecognitionException;
@@ -749,9 +749,5 @@ abstract class Parser extends Recognizer
     /**
      * @return ParserATNSimulator
      */
-	function getInterpreter()
-    {
-        /** @noinspection PhpIncompatibleReturnTypeInspection */
-        return $this->_interp;
-	}
+	function getInterpreter() : ?ATNSimulator { return $this->_interp; }
 }

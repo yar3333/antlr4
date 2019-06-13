@@ -145,7 +145,7 @@ class Trees
         }
         else if(!$findTokens && ($t instanceof ParserRuleContext))
         {
-            if ($t->ruleIndex === $index)
+            if ($t->getRuleIndex() === $index)
             {
                 $nodes->append($t);
             }

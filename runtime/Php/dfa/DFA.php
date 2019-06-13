@@ -39,13 +39,8 @@ class DFA
      */
     public $precedenceDfa;
 
-    function __construct($atnStartState, $decision)
+    function __construct(DecisionState $atnStartState, int $decision=0)
 	{
-        if (!isset($decision))
-        {
-            $decision = 0;
-        }
-
         // From which ATN state did we create this DFA?
         $this->atnStartState = $atnStartState;
         $this->decision = $decision;

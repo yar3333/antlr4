@@ -8,9 +8,8 @@ namespace Antlr4\Dfa;
 
 use Antlr4\Utils\Utils;
 use Antlr4\Vocabulary;
-use Antlr4\VocabularyImpl;
 
-// A DFA walker that knows how to dump them to serialized strings.
+/** A DFA walker that knows how to dump them to serialized strings. */
 class DFASerializer
 {
     /**
@@ -24,10 +23,10 @@ class DFASerializer
     public $vocabulary;
 
 
-    function __construct(DFA $dfa, Vocabulary $vocabulary=null)
+    function __construct(DFA $dfa, Vocabulary $vocabulary)
 	{
         $this->dfa = $dfa;
-        $this->vocabulary = $vocabulary ?? new VocabularyImpl(null , null);
+        $this->vocabulary = $vocabulary;
     }
 
     function __toString() 

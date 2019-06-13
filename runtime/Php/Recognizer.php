@@ -76,9 +76,7 @@ abstract class Recognizer
 
 	/**
 	 * Get the vocabulary used by the recognizer.
-	 *
-	 * @return Vocabulary A {@link Vocabulary} instance providing information about the
-	 * vocabulary used by the grammar.
+	 * @return Vocabulary A {@link Vocabulary} instance providing information about the vocabulary used by the grammar.
 	 */
 	function getVocabulary() : Vocabulary
     {
@@ -116,7 +114,6 @@ abstract class Recognizer
 
 	/**
 	 * Get a map from rule names to rule indexes.
-	 *
 	 * <p>Used for XPath and tree pattern compilation.</p>
 	 */
 	function getRuleIndexMap() : array
@@ -188,8 +185,13 @@ abstract class Recognizer
         return new ProxyErrorListener($this->_listeners);
     }
 
-    // subclass needs to override these if there are sempreds or actions
-    // that the ATN interp needs to execute
+    /**
+     * Subclass needs to override these if there are sempreds or actions that the ATN interp needs to execute
+     * @param RuleContext $localctx
+     * @param int $ruleIndex
+     * @param int $actionIndex
+     * @return bool
+     */
     function sempred(?RuleContext $localctx, int $ruleIndex, int $actionIndex) : bool
     {
         return true;
@@ -209,17 +211,11 @@ abstract class Recognizer
     function getState() : int { return $this->_stateNumber; }
     function setState($state) : void { $this->_stateNumber = $state; }
 
-    /**
-     * @return ATNSimulator
-     */
-    function getInterpreter() { return $this->_interp; }
+    function getInterpreter() : ?ATNSimulator { return $this->_interp; }
 
     /**
-     * If this recognizer was generated, it will have a serialized ATN
-     * representation of the grammar.
-     *
-     * <p>For interpreters, we don't know their serialized ATN despite having
-     * created the interpreter from it.</p>
+     * If this recognizer was generated, it will have a serialized ATN representation of the grammar.
+     * <p>For interpreters, we don't know their serialized ATN despite having created the interpreter from it.</p>
      */
     function getSerializedATN() : string
     {

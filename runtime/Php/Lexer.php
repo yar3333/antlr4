@@ -454,7 +454,7 @@ abstract class Lexer extends Recognizer implements TokenSource
     /**
      * @return LexerATNSimulator
      */
-	function getInterpreter(): ATNSimulator { return parent::getInterpreter(); }
+	function getInterpreter() : ?ATNSimulator { return parent::getInterpreter(); }
 
     function getCharPositionInLine() : int { return $this->getInterpreter()->charPositionInLine; }
 }

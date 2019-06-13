@@ -146,20 +146,20 @@ class ATNState
 
     function addTransition($trans, $index=null) : void
     {
-        if (!isset($index)) $index = -1;
+        $index = $index ?? -1;
 
-        if (count($this->transitions)===0)
+        if (!$this->transitions)
         {
             $this->epsilonOnlyTransitions = $trans->isEpsilon;
         }
-        else if($this->epsilonOnlyTransitions !== $trans->isEpsilon)
+        else if ($this->epsilonOnlyTransitions !== $trans->isEpsilon)
         {
             $this->epsilonOnlyTransitions = false;
         }
 
         if ($index === -1)
         {
-            array_push($this->transitions, $trans);
+            $this->transitions[] = $trans;
         }
         else
         {

@@ -114,7 +114,7 @@ class ParserRuleContext extends RuleContext
     function addChild(ParseTree $child) : ParseTree
     {
         if ($this->children === null) $this->children = [];
-        array_push($this->children, $child);
+        $this->children[] = $child;
         return $child;
     }
 
@@ -123,7 +123,7 @@ class ParserRuleContext extends RuleContext
     // generic ruleContext object.
     function removeLastChild() : void
     {
-        if (isset($this->children))
+        if ($this->children !== null)
         {
             array_pop($this->children);
         }

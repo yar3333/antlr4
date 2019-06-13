@@ -16,9 +16,9 @@ class PredictionContextUtils
 {
     // Convert a {@link RuleContext} tree to a {@link PredictionContext} graph.
     // Return {@link //EMPTY} if {@code outerContext} is empty or null.
-    static function predictionContextFromRuleContext(ATN $atn, $outerContext) : PredictionContext
+    static function predictionContextFromRuleContext(ATN $atn, ?RuleContext $outerContext) : PredictionContext
     {
-        if (!isset($outerContext)) $outerContext = RuleContext::emptyContext();
+        if ($outerContext === null) $outerContext = RuleContext::emptyContext();
 
         // if we are in RuleContext of start rule, s, then PredictionContext
         // is EMPTY. Nobody called us. (if we are empty, return empty)
