@@ -203,7 +203,7 @@ class ParserRuleContext extends RuleContext
         return $tokens;
     }
 
-    function getTypedRuleContext(string $ctxType, int $i) : ParseTree
+    function getTypedRuleContext(string $ctxType, int $i) : ?ParseTree
     {
         return $this->getChild($i, $ctxType);
     }
