@@ -69,6 +69,11 @@ class DFA
         }
     }
 
+    function isPrecedenceDfa() : bool
+    {
+        return $this->precedenceDfa;
+    }
+
     // Get the start state for a specific precedence value.
     //
     // @param precedence The current precedence.

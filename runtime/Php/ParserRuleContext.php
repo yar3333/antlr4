@@ -146,9 +146,9 @@ class ParserRuleContext extends RuleContext
     /**
      * @param int $i
      * @param string $type
-     * @return ParseTree
+     * @return ParseTree|null
      */
-    function getChild(int $i, string $type=null)
+    function getChild(int $i, string $type=null) : ?ParseTree
     {
         if ($this->children === null || $i < 0 || $i >= count($this->children)) return null;
 

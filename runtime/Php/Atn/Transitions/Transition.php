@@ -71,7 +71,7 @@ abstract class Transition
     /**
      * @var bool
      */
-    public $isEpsilon;
+    public $isEpsilon = false;
 
     /**
      * @var ATNState
