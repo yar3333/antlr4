@@ -1,6 +1,6 @@
 <?php
 
-namespace Antlr4\Atn\Semanticcontexts;
+namespace Antlr4\Atn\SemanticContexts;
 
 use Antlr4\Recognizer;
 use Antlr4\RuleContext;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Antlr4\Predictioncontexts;
+namespace Antlr4\PredictionContexts;
 
 class EmptyPredictionContext extends SingletonPredictionContext
 {
