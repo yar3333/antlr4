@@ -6,7 +6,7 @@
 
 namespace Antlr4\Atn;
 
-use Antlr4\Atn\Semanticcontexts\SemanticContext;
+use Antlr4\Atn\SemanticContexts\SemanticContext;
 use Antlr4\Atn\States\RuleStopState;
 use Antlr4\Utils\AltDict;
 use Antlr4\Utils\BitSet;

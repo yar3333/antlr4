@@ -6,8 +6,8 @@
 
 namespace Antlr4\Atn;
 
-use Antlr4\Atn\Semanticcontexts\SemanticContext;
-use Antlr4\Predictioncontexts\PredictionContext;
+use Antlr4\Atn\SemanticContexts\SemanticContext;
+use Antlr4\PredictionContexts\PredictionContext;
 use Antlr4\Utils\BitSet;
 use Antlr4\Utils\DoubleKeyMap;
 use Antlr4\Utils\Utils;

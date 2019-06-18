@@ -2,7 +2,7 @@
 
 namespace Antlr4\Atn\Transitions;
 
-use Antlr4\Atn\Semanticcontexts\PrecedencePredicate;
+use Antlr4\Atn\SemanticContexts\PrecedencePredicate;
 use Antlr4\Atn\States\ATNState;
 
 class PrecedencePredicateTransition extends AbstractPredicateTransition

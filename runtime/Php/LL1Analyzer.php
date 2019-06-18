@@ -8,9 +8,9 @@ namespace Antlr4;
 
 use Antlr4\Atn\States\ATNState;
 use Antlr4\Atn\Transitions\WildcardTransition;
-use Antlr4\Predictioncontexts\PredictionContext;
-use Antlr4\Predictioncontexts\PredictionContextUtils;
-use Antlr4\Predictioncontexts\SingletonPredictionContext;
+use Antlr4\PredictionContexts\PredictionContext;
+use Antlr4\PredictionContexts\PredictionContextUtils;
+use Antlr4\PredictionContexts\SingletonPredictionContext;
 use Antlr4\Utils\BitSet;
 use Antlr4\Atn\ATNConfig;
 use Antlr4\Atn\States\RuleStopState;

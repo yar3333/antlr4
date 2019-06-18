@@ -8,7 +8,7 @@ namespace Antlr4\Dfa;
 
 use Antlr4\Atn\ATNConfigSet;
 use Antlr4\Atn\LexerActionExecutor;
-use Antlr4\Atn\Semanticcontexts\SemanticContext;
+use Antlr4\Atn\SemanticContexts\SemanticContext;
 use Antlr4\Utils\Hash;
 use Antlr4\Utils\Set;
 

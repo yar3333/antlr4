@@ -8,7 +8,7 @@
 
 namespace Antlr4\Atn;
 
-use Antlr4\Atn\Semanticcontexts\SemanticContext;
+use Antlr4\Atn\SemanticContexts\SemanticContext;
 use Antlr4\Atn\States\ATNState;
 use Antlr4\Atn\States\DecisionState;
 use Antlr4\Atn\States\RuleStopState;
@@ -29,9 +29,9 @@ use Antlr4\Interval;
 use Antlr4\Logger;
 use Antlr4\Parser;
 use Antlr4\ParserRuleContext;
-use Antlr4\Predictioncontexts\PredictionContext;
-use Antlr4\Predictioncontexts\PredictionContextCache;
-use Antlr4\Predictioncontexts\SingletonPredictionContext;
+use Antlr4\PredictionContexts\PredictionContext;
+use Antlr4\PredictionContexts\PredictionContextCache;
+use Antlr4\PredictionContexts\SingletonPredictionContext;
 use Antlr4\RuleContext;
 use Antlr4\Token;
 use Antlr4\TokenStream;
