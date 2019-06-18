@@ -69,6 +69,11 @@ class ATNConfig
         return $props;
     }
 
+    function getState() : ATNState
+    {
+        return $this->state;
+    }
+
 	function isPrecedenceFilterSuppressed() : bool { return ($this->reachesIntoOuterContext & self::SUPPRESS_PRECEDENCE_FILTER) !== 0; }
 
 	function setPrecedenceFilterSuppressed(bool $value) : void

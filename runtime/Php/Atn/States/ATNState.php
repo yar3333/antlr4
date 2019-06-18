@@ -101,7 +101,7 @@ class ATNState
     /**
      * @var bool
      */
-    public $epsilonOnlyTransitions;
+    public $epsilonOnlyTransitions = false;
 
     /**
      * @var null
@@ -120,7 +120,6 @@ class ATNState
         $this->stateNumber = self::INVALID_STATE_NUMBER;
         $this->stateType = null;
         $this->ruleIndex = 0;// at runtime, we don't have Rule objects
-        $this->epsilonOnlyTransitions = false;
 
         // Track the transitions emanating from this ATN state.
         $this->transitions = [];
@@ -165,5 +164,10 @@ class ATNState
         {
             array_splice($this->transitions, $index, 1, $trans);
         }
+    }
+
+    function onlyHasEpsilonTransitions() : bool
+    {
+        return $this->epsilonOnlyTransitions;
     }
 }

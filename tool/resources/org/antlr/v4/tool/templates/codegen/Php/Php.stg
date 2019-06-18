@@ -809,7 +809,7 @@ TokenListDecl(t) ::= "/** @var Token[] */$<t.name> = []"
 RuleContextDecl(r) ::= "/** @var <r.ctxName> $<r.name> */"
 RuleContextListDecl(rdecl) ::= "/** @var <rdecl.ctxName>[] */$<rdecl.name> = []"
 
-ContextTokenGetterDecl(t) ::= "function <t.name>() : TerminalNode { return $this->getToken(<parser.name>::<t.name>, 0); }"
+ContextTokenGetterDecl(t) ::= "function <t.name>() : <if(t.optional)>?<endif>TerminalNode { return $this->getToken(<parser.name>::<t.name>, 0); }"
 
 ContextTokenListGetterDecl(t)  ::= <<
     /**
@@ -822,11 +822,11 @@ ContextTokenListGetterDecl(t)  ::= <<
 >>
 
 ContextTokenListIndexedGetterDecl(t)  ::= <<
-function <t.name>(int $i) : TerminalNode { return $this->getToken(<parser.name>::<t.name>, $i); }
+function <t.name>(int $i) : ?TerminalNode { return $this->getToken(<parser.name>::<t.name>, $i); }
 >>
 
 ContextRuleGetterDecl(r)       ::= <<
-function <r.name>() : ?<r.ctxName>
+function <r.name>() : <if(r.optional)>?<endif><r.ctxName>
 {
     /** @noinspection PhpIncompatibleReturnTypeInspection */
 	return $this->getTypedRuleContext(<r.ctxName>::class, 0);
@@ -959,7 +959,7 @@ $this->pushNewRecursionContext($_localctx, $_startState, <parser.name>::RULE_<ru
 >>
 
 recRuleLabeledAltStartAction(ruleName, currentAltLabel, label, isListLabel) ::= <<
-$_localctx = new Contexts\\<currentAltLabel; format="cap">Context(new <ruleName; format="cap">Context($_parentctx, $_parentState));
+$_localctx = new Contexts\\<currentAltLabel; format="cap">Context(new Contexts\\<ruleName; format="cap">Context($_parentctx, $_parentState));
 <if(label)>
 <if(isListLabel)>
 ((<currentAltLabel; format="cap">Context)$_localctx)-><label>->add($_prevctx);
@@ -972,7 +972,7 @@ $this->pushNewRecursionContext($_localctx, $_startState, <parser.name>::RULE_<ru
 
 recRuleReplaceContext(ctxName) ::= <<
 $_localctx = new Contexts\\<ctxName>Context($_localctx);
-$_ctx = $_localctx;
+$this->_ctx = $_localctx;
 $_prevctx = $_localctx;
 >>
 
