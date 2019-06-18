@@ -598,14 +598,8 @@ class ParserATNSimulator extends ATNSimulator
     // {@code t}, or {@code null} if the target state for this edge is not already cached
     function getExistingTargetState(DFAState $previousD, int $t) : ?DFAState
     {
-        /** @var DFAState $edges */
         $edges = $previousD->edges;
-
-        if ($edges === null || $t + 1 < 0 || $t + 1 >= \count($edges)) {
-            return null;
-        }
-
-        return $edges[$t + 1];
+        return $edges[$t + 1] ?? null;
     }
 
     // Compute a target state for an edge in the DFA, and attempt to add the
