@@ -106,7 +106,6 @@ class ATNConfig
         return $hash->finish();
     }
 
-
     function updateHashCode(Hash $hash) : void
     {
         $hash->update($this->state->stateNumber, $this->alt, $this->context, $this->semanticContext);
@@ -128,7 +127,6 @@ class ATNConfig
             $this->isPrecedenceFilterSuppressed() === $other->isPrecedenceFilterSuppressed();
     }
 
-
     function hashCodeForConfigSet() : int
     {
         $hash = new Hash();
@@ -136,16 +134,6 @@ class ATNConfig
         return $hash->finish();
     }
 
-
-    function equalsForConfigSet($other) : bool
-    {
-        if ($this === $other) return true;
-        if (!($other instanceof self)) return false;
-
-        return $this->state->stateNumber === $other->state->stateNumber &&
-            $this->alt === $other->alt &&
-            $this->semanticContext->equals($other->semanticContext);
-    }
 	/**
 	 * This method gets the value of the {@link #reachesIntoOuterContext} field
 	 * as it existed prior to the introduction of the

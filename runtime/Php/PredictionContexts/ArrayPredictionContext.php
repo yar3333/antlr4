@@ -4,11 +4,12 @@
 namespace Antlr4\PredictionContexts;
 
 use Antlr4\Utils\Hash;
+use Antlr4\Utils\Utils;
 
 class ArrayPredictionContext extends PredictionContext
 {
     /**
-     * @var array
+     * @var PredictionContext[]
      */
     public $parents;
 
@@ -79,7 +80,7 @@ class ArrayPredictionContext extends PredictionContext
         if ($this->hashCode() !== $other->hashCode()) return false;
 
         return $this->returnStates === $other->returnStates &&
-               $this->parents === $other->parents;
+               Utils::equalArrays($this->parents, $other->parents);
     }
 
     function __toString()

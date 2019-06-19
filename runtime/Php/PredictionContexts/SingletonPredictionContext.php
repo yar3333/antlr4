@@ -63,7 +63,7 @@ class SingletonPredictionContext extends PredictionContext
      */
     function getReturnStates(): array
     {
-        return  [ $this->returnState ];
+        return [ $this->returnState ];
     }
 
     function equals($other) : bool

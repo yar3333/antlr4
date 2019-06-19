@@ -6,6 +6,7 @@ use Antlr4\Recognizer;
 use Antlr4\RuleContext;
 use Antlr4\Utils\Hash;
 use Antlr4\Utils\Set;
+use Antlr4\Utils\Utils;
 
 // A semantic context which is true whenever at least one of the contained contexts is true.
 class SemanticContextOr extends SemanticContext
@@ -52,7 +53,7 @@ class SemanticContextOr extends SemanticContext
     {
         if ($this === $other) return true;
         if (!($other instanceof self)) return false;
-        return $this->opnds === $other->opnds;
+        return Utils::equalArrays($this->opnds, $other->opnds);
     }
 
     function updateHashCode(Hash $hash) : void

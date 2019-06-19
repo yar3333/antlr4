@@ -64,7 +64,7 @@ class ATNConfigSet
     {
         if ($a === $b) return true;
         if ($a === null || $b === null) return false;
-        return $a->equalsForConfigSet($b);
+        return $a->equals($b);
     }
 
     function __construct(bool $fullCtx=true)

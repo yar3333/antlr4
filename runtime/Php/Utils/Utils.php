@@ -116,8 +116,8 @@ class Utils
 
     static function equalArrays(?array $a, ?array $b) : bool
     {
-        if (!is_array($a) || !is_array($b)) return false;
         if ($a === $b) return true;
+        if (!is_array($a) || !is_array($b)) return false;
         if (count($a) !== count($b)) return false;
         $count = count($a);
         for ($i = 0; $i < $count; $i++)

@@ -46,7 +46,7 @@ class SemanticContextAnd extends SemanticContext
     {
         if ($this === $other) return true;
         if (!($other instanceof self)) return false;
-        return $this->opnds === $other->opnds;
+        return Utils::equalArrays($this->opnds, $other->opnds);
     }
 
     function updateHashCode(Hash $hash) : void

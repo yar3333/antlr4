@@ -1625,28 +1625,32 @@ class ParserATNSimulator extends ATNSimulator
         }
     }
 
-    function getEpsilonTarget(ATNConfig $config, Transition $t, bool $collectPredicates, bool $inContext, bool $fullCtx, bool $treatEofAsEpsilon)
+    function getEpsilonTarget(ATNConfig $config, Transition $t, bool $collectPredicates, bool $inContext, bool $fullCtx, bool $treatEofAsEpsilon) : ?ATNConfig
     {
         switch($t->serializationType)
         {
             case Transition::RULE:
                 return $this->ruleTransition($config, $t);
+
             case Transition::PRECEDENCE:
                 /** @var PrecedencePredicateTransition $t */
                 return $this->precedenceTransition($config, $t, $collectPredicates, $inContext, $fullCtx);
+
             case Transition::PREDICATE:
                 /** @var PredicateTransition $t */
                 return $this->predTransition($config, $t, $collectPredicates, $inContext, $fullCtx);
+
             case Transition::ACTION:
                 /** @var ActionTransition $t */
                 return $this->actionTransition($config, $t);
+
             case Transition::EPSILON:
                 return new ATNConfig((object)[ 'state'=>$t->target ], $config);
+
             case Transition::ATOM:
             case Transition::RANGE:
             case Transition::SET:
-                // EOF transitions act like epsilon transitions after the first EOF
-                // transition is traversed
+                // EOF transitions act like epsilon transitions after the first EOF transition is traversed
                 if ($treatEofAsEpsilon)
                 {
                     if ($t->matches(Token::EOF, 0, 1))
@@ -1655,6 +1659,7 @@ class ParserATNSimulator extends ATNSimulator
                     }
                 }
                 return null;
+
             default:
                 return null;
         }
@@ -1669,7 +1674,7 @@ class ParserATNSimulator extends ATNSimulator
         return new ATNConfig((object)[ 'state'=>$t->target ], $config);
     }
 
-    function precedenceTransition(ATNConfig $config, PrecedencePredicateTransition $pt, bool $collectPredicates, bool $inContext, bool $fullCtx)
+    function precedenceTransition(ATNConfig $config, PrecedencePredicateTransition $pt, bool $collectPredicates, bool $inContext, bool $fullCtx) : ATNConfig
     {
         if (self::$debug)
         {
@@ -1714,12 +1719,12 @@ class ParserATNSimulator extends ATNSimulator
         return $c;
     }
 
-    function predTransition(ATNConfig $config, PredicateTransition $pt, bool $collectPredicates, bool $inContext, bool $fullCtx)
+    function predTransition(ATNConfig $config, PredicateTransition $pt, bool $collectPredicates, bool $inContext, bool $fullCtx) : ATNConfig
     {
         if (self::$debug)
         {
             Logger::log("PRED (collectPredicates=" . $collectPredicates . ") " . $pt->ruleIndex . ":" . $pt->predIndex . ", ctx dependent=" . $pt->isCtxDependent);
-            if ($this->parser!==null)
+            if ($this->parser !== null)
             {
                 Logger::log("context surrounding pred is " . Utils::arrayToString($this->parser->getRuleInvocationStack()));
             }
