@@ -42,7 +42,7 @@ class DiagnosticErrorListener extends BaseErrorListener
         $this->exactOnly = $exactOnly;
     }
 
-	function reportAmbiguity(Parser $recognizer, DFA $dfa, int $startIndex, int $stopIndex, bool $exact, BitSet $ambigAlts, ATNConfigSet $configs) : void
+	function reportAmbiguity(Parser $recognizer, DFA $dfa, int $startIndex, int $stopIndex, bool $exact, ?BitSet $ambigAlts, ATNConfigSet $configs) : void
 	{
         if ($this->exactOnly && !$exact) return;
 
@@ -53,7 +53,7 @@ class DiagnosticErrorListener extends BaseErrorListener
         $recognizer->notifyErrorListeners($msg);
     }
 
-	function reportAttemptingFullContext(Parser $recognizer, DFA $dfa, int $startIndex, int $stopIndex, BitSet $conflictingAlts, ATNConfigSet $configs) : void
+	function reportAttemptingFullContext(Parser $recognizer, DFA $dfa, int $startIndex, int $stopIndex, ?BitSet $conflictingAlts, ATNConfigSet $configs) : void
 	{
         $msg = "reportAttemptingFullContext d=" . $this->getDecisionDescription($recognizer, $dfa) . ", input='" . $recognizer->getTokenStream()->getTextByInterval(new Interval($startIndex, $stopIndex)) . "'";
         $recognizer->notifyErrorListeners($msg);
