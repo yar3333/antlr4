@@ -783,6 +783,7 @@ class ParserATNSimulator extends ATNSimulator
         // without conflict, then we know that it's a full LL decision not SLL.
         if ($reach->uniqueAlt !== ATN::INVALID_ALT_NUMBER )
         {
+            /** @noinspection PhpUndefinedVariableInspection */
             $this->reportContextSensitivity($dfa, $predictedAlt, $reach, $startIndex, $input->index());
             return $predictedAlt;
         }
@@ -815,6 +816,7 @@ class ParserATNSimulator extends ATNSimulator
 
         $this->reportAmbiguity($dfa, $D, $startIndex, $input->index(), $foundExactAmbig, null, $reach);
 
+        /** @noinspection PhpUndefinedVariableInspection */
         return $predictedAlt;
     }
 
