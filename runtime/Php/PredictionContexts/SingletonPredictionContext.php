@@ -21,16 +21,7 @@ class SingletonPredictionContext extends PredictionContext
 
     function __construct(?PredictionContext $parent, int $returnState)
     {
-        $hashCode = 0;
-
-        if ($parent)
-        {
-            $hash = new Hash();
-            $hash->update($parent, $returnState);
-            $hashCode = $hash->finish();
-        }
-
-        parent::__construct($hashCode);
+        parent::__construct();
 
         $this->parentCtx = $parent;
         $this->returnState = $returnState;
@@ -42,6 +33,19 @@ class SingletonPredictionContext extends PredictionContext
         if ($returnState === PredictionContext::EMPTY_RETURN_STATE && !$parent) return PredictionContext::EMPTY();
         return new SingletonPredictionContext($parent, $returnState);
     }
+
+    protected function computeHashCode() : int
+    {
+        if (!$this->parentCtx) {
+            return 0;
+        }
+
+        $hash = new Hash();
+        $hash->update($this->parentCtx, $this->returnState);
+
+        return $hash->finish();
+    }
+
 
     function getLength(): int
     {

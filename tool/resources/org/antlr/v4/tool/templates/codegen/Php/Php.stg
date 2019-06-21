@@ -418,9 +418,9 @@ function __construct(TokenStream $input) {
  * overriding implementation impossible to maintain.
  */
 RuleActionFunction(r, actions) ::= <<
-private function <r.name>_action(<r.ctxType> _localctx, int actionIndex) : void
+private function <r.name>_action(<r.ctxType> $_localctx, int $actionIndex) : void
 {
-	switch (actionIndex) {
+	switch ($actionIndex) {
 	<actions:{index|
 case <index>:
 	<actions.(index)>

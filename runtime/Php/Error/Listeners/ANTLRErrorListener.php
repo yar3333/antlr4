@@ -38,7 +38,7 @@ interface ANTLRErrorListener
 	 * @param ATNConfigSet $configs
 	 * @return void
 	 */
-	function reportAmbiguity(Parser $recognizer, DFA $dfa, int $startIndex, int $stopIndex, bool $exact, ?BitSet $ambigAlts, ATNConfigSet $configs) : void;
+	function reportAmbiguity(Parser $recognizer, DFA $dfa, int $startIndex, int $stopIndex, bool $exact, BitSet $ambigAlts, ATNConfigSet $configs) : void;
 
 	/**
 	 * @param Parser $recognizer
@@ -49,7 +49,7 @@ interface ANTLRErrorListener
 	 * @param ATNConfigSet $configs
 	 * @return void
 	 */
-	function reportAttemptingFullContext(Parser $recognizer, DFA $dfa, int $startIndex, int $stopIndex, ?BitSet $conflictingAlts, ATNConfigSet $configs) : void;
+	function reportAttemptingFullContext(Parser $recognizer, DFA $dfa, int $startIndex, int $stopIndex, BitSet $conflictingAlts, ATNConfigSet $configs) : void;
 
 	/**
 	 * @param Parser $recognizer

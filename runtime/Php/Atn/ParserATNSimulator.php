@@ -1139,9 +1139,9 @@ class ParserATNSimulator extends ATNSimulator
      * @param BitSet $ambigAlts
      * @param ATNConfigSet $configs
      * @param int $nalts
-     * @return SemanticContext[]
+     * @return SemanticContext[]|null
      */
-    function getPredsForAmbigAlts(BitSet $ambigAlts, ATNConfigSet $configs, int $nalts) : array
+    function getPredsForAmbigAlts(BitSet $ambigAlts, ATNConfigSet $configs, int $nalts) : ?array
     {
         // REACH=[1|1|[]|0:0, 1|2|[]|0:1]
         // altToPred starts as an array of all null contexts. The entry at index i
@@ -1154,36 +1154,32 @@ class ParserATNSimulator extends ATNSimulator
         //      ATNConfig c such that c.alt==i, c.semanticContext!=SemanticContext.NONE.
         //
         // From this, it is clear that NONE||anything==NONE.
-        $altToPred = [];
-        foreach ($configs->items() as $c)
-        {
-            if ($ambigAlts->contains($c->alt))
-            {
+        $altToPred = new \SplFixedArray($nalts + 1);
+        foreach ($configs->items() as $c) {
+            if ($ambigAlts->contains($c->alt)) {
                 $altToPred[$c->alt] = SemanticContext::orContext($altToPred[$c->alt] ?? null, $c->semanticContext);
             }
         }
         $nPredAlts = 0;
         for ($i = 1; $i < $nalts + 1; $i++)
         {
-            $pred = $altToPred[$i] ?? null;
-            if (!$pred)
-            {
+            $pred = $altToPred[$i];
+
+            if (!$pred) {
                 $altToPred[$i] = SemanticContext::NONE();
-            }
-            else if ($pred !== SemanticContext::NONE())
-            {
+            } elseif ($pred !== SemanticContext::NONE()) {
                 $nPredAlts++;
             }
         }
 
         // nonambig alts are null in altToPred
-        if ($nPredAlts === 0)
-        {
+        if ($nPredAlts === 0) {
             $altToPred = null;
+        } else {
+            $altToPred = $altToPred->toArray();
         }
 
-        if (self::$debug)
-        {
+        if (self::$debug) {
             Logger::log("getPredsForAmbigAlts result " . Utils::arrayToString($altToPred));
         }
 
@@ -1206,7 +1202,7 @@ class ParserATNSimulator extends ATNSimulator
             // unpredicated is indicated by SemanticContext.NONE
             if ($ambigAlts && $ambigAlts->contains($i))
             {
-                array_push($pairs, new PredPrediction($pred, $i));
+                $pairs[] = new PredPrediction($pred, $i);
             }
             if ($pred !== SemanticContext::NONE())
             {
@@ -1505,7 +1501,7 @@ class ParserATNSimulator extends ATNSimulator
                     // track how far we dip into outer context.  Might
                     // come in handy and we avoid evaluating context dependent
                     // preds if this is > 0.
-                    if ($this->_dfa && $this->_dfa->precedenceDfa)
+                    if ($this->_dfa && $this->_dfa->isPrecedenceDfa())
                     {
                         if ($t instanceof EpsilonTransition && $t->outermostPrecedenceReturn === $this->_dfa->atnStartState->ruleIndex)
                         {
@@ -1514,11 +1510,14 @@ class ParserATNSimulator extends ATNSimulator
                     }
 
                     $c->reachesIntoOuterContext++;
-                    if ($closureBusy->add($c) !== $c)
+                    if ($closureBusy->contains($c))
                     {
                         // avoid infinite recursion for right-recursive rules
                         continue;
                     }
+
+                    $closureBusy->add($c);
+
                     $configs->dipsIntoOuterContext = true;// TODO: can remove? only care when we add to set per middle of this method
                     $newDepth--;
                     if (self::$debug)
@@ -1528,8 +1527,10 @@ class ParserATNSimulator extends ATNSimulator
                 }
                 else
                 {
-                    if (!$t->isEpsilon && $closureBusy->add($c) !== $c)
+                    if (!$t->isEpsilon && !$closureBusy->contains($c))
                     {
+                        $closureBusy->add($c);
+
                         // avoid infinite recursion for EOF* and EOF+
                         continue;
                     }
@@ -1721,7 +1722,7 @@ class ParserATNSimulator extends ATNSimulator
         return $c;
     }
 
-    function predTransition(ATNConfig $config, PredicateTransition $pt, bool $collectPredicates, bool $inContext, bool $fullCtx) : ATNConfig
+    function predTransition(ATNConfig $config, PredicateTransition $pt, bool $collectPredicates, bool $inContext, bool $fullCtx) : ?ATNConfig
     {
         if (self::$debug)
         {
