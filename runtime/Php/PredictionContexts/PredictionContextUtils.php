@@ -50,37 +50,37 @@ class PredictionContextUtils
 
     static function merge($a, $b, $rootIsWildcard, $mergeCache)
     {
+        if (!$a instanceof PredictionContext || !$b instanceof PredictionContext) {
+            throw new \InvalidArgumentException('Unexpected context');
+        }
+
         // share same graph if both same
-        if ($a === $b)
-        {
+        if ($a === $b || $a->equals($b)) {
             return $a;
         }
-        if ($a instanceof SingletonPredictionContext && $b instanceof SingletonPredictionContext)
-        {
+
+        if ($a instanceof SingletonPredictionContext && $b instanceof SingletonPredictionContext) {
             return self::mergeSingletons($a, $b, $rootIsWildcard, $mergeCache);
         }
 
         // At least one of a or b is array
         // If one is $ and rootIsWildcard, return $ as// wildcard
-        if ($rootIsWildcard)
-        {
-            if ($a instanceof EmptyPredictionContext)
-            {
+        if ($rootIsWildcard){
+            if ($a instanceof EmptyPredictionContext) {
                 return $a;
             }
-            if ($b instanceof EmptyPredictionContext)
-            {
+
+            if ($b instanceof EmptyPredictionContext) {
                 return $b;
             }
         }
 
         // convert singleton so both are arrays to normalize
-        if ($a instanceof SingletonPredictionContext)
-        {
+        if ($a instanceof SingletonPredictionContext){
             $a = new ArrayPredictionContext([$a->getParent()], [$a->returnState]);
         }
-        if ($b instanceof SingletonPredictionContext)
-        {
+
+        if ($b instanceof SingletonPredictionContext) {
             $b = new ArrayPredictionContext([$b->getParent()], [$b->returnState]);
         }
 
@@ -312,18 +312,18 @@ class PredictionContextUtils
     // <p>Equal tops, merge parents and reduce top to
     // {@link SingletonPredictionContext}.<br>
     // <embed src="images/ArrayMerge_EqualTop.svg" type="image/svg+xml"/></p>
-    static function mergeArrays(ArrayPredictionContext $a, ArrayPredictionContext $b, $rootIsWildcard, DoubleKeyMap $mergeCache)
+    static function mergeArrays(ArrayPredictionContext $a, ArrayPredictionContext $b, $rootIsWildcard, ?DoubleKeyMap $mergeCache)
     {
-        if ($mergeCache !== null)
-        {
+        if ($mergeCache !== null) {
             $previous = $mergeCache->getByTwoKeys($a, $b);
-            if ($previous !== null)
-            {
+
+            if ($previous !== null) {
                 return $previous;
             }
+
             $previous = $mergeCache->getByTwoKeys($b, $a);
-            if ($previous !== null)
-            {
+
+            if ($previous !== null) {
                 return $previous;
             }
         }
@@ -339,12 +339,11 @@ class PredictionContextUtils
         $mergedParents = [];
 
         // walk and merge to yield mergedParents, mergedReturnStates
-        while ($i < count($a->returnStates) && $j < count($b->returnStates))
-        {
+        while ($i < count($a->returnStates) && $j < count($b->returnStates)) {
             $a_parent = $a->parents[$i];
             $b_parent = $b->parents[$j];
-            if ($a->returnStates[$i] === $b->returnStates[$j])
-            {
+
+            if ($a->returnStates[$i] === $b->returnStates[$j]) {
                 // same payload (stack tops are equal), must yield merged singleton
                 $payload = $a->returnStates[$i];
                 // $+$ = $
@@ -353,51 +352,42 @@ class PredictionContextUtils
                 $ax_ax = ($a_parent !== null && $b_parent !== null && $a_parent === $b_parent);// ax+ax
                 // ->
                 // ax
-                if ($bothDollars || $ax_ax)
-                {
+                if ($bothDollars || $ax_ax) {
                     $mergedParents[$k] = $a_parent;// choose left
                     $mergedReturnStates[$k] = $payload;
-                }
-                else
-                {
+                } else {
                     // ax+ay -> a'[x,y]
                     $mergedParent = self::merge($a_parent, $b_parent, $rootIsWildcard, $mergeCache);
                     $mergedParents[$k] = $mergedParent;
                     $mergedReturnStates[$k] = $payload;
                 }
+
                 $i++;// hop over left one as usual
                 $j++;// but also skip one in right side since we merge
-            }
-
-            else if ($a->returnStates[$i] < $b->returnStates[$j])
-            {
+            } else if ($a->returnStates[$i] < $b->returnStates[$j]) {
                 // copy a[i] to M
                 $mergedParents[$k] = $a_parent;
                 $mergedReturnStates[$k] = $a->returnStates[$i];
                 $i++;
-            }
-            else
-            {
+            } else {
                 // b > a, copy b[j] to M
                 $mergedParents[$k] = $b_parent;
                 $mergedReturnStates[$k] = $b->returnStates[$j];
                 $j++;
             }
+
             $k++;
         }
 
         // copy over any payloads remaining in either array
-        if ($i < count($a->returnStates))
-        {
+        if ($i < count($a->returnStates)) {
             for ($p = $i; $p < count($a->returnStates); $p++)
             {
                 $mergedParents[$k] = $a->parents[$p];
                 $mergedReturnStates[$k] = $a->returnStates[$p];
                 $k++;
             }
-        }
-        else
-        {
+        } else {
             for ($p = $j; $p < count($b->returnStates); $p++)
             {
                 $mergedParents[$k] = $b->parents[$p];
@@ -407,19 +397,19 @@ class PredictionContextUtils
         }
 
         // trim merged if we combined a few that had same stack tops
-        if ($k < count($mergedParents))
-        {
+        if ($k < count($mergedParents)) {
             // write index < last position; trim
-            if ($k === 1)
-            {
+            if ($k === 1) {
                 // for just one merged element, return singleton top
                 $a_ = SingletonPredictionContext::create($mergedParents[0], $mergedReturnStates[0]);
-                if ($mergeCache !== null)
-                {
+
+                if ($mergeCache !== null) {
                     $mergeCache->set($a, $b, $a_);
                 }
+
                 return $a_;
             }
+
             $mergedParents = array_slice($mergedParents, 0, $k);
             $mergedReturnStates = array_slice($mergedReturnStates, 0, $k);
         }
@@ -428,40 +418,36 @@ class PredictionContextUtils
 
         // if we created same array as a or b, return that instead
         // TODO: track whether this is possible above during merge sort for speed
-        if ($M === $a)
-        {
-            if ($mergeCache !== null)
-            {
+        if ($M->equals($a)) {
+            if ($mergeCache !== null) {
                 $mergeCache->set($a, $b, $a);
             }
+
             return $a;
         }
-        if ($M === $b)
-        {
-            if ($mergeCache !== null)
-            {
+
+        if ($M->equals($b)) {
+            if ($mergeCache !== null) {
                 $mergeCache->set($a, $b, $b);
             }
             return $b;
         }
-        self::combineCommonParents($mergedParents);
 
-        if ($mergeCache !== null)
-        {
+        $M = $M->withParents(self::combineCommonParents($mergedParents));
+
+        if ($mergeCache !== null) {
             $mergeCache->set($a, $b, $M);
         }
+
         return $M;
     }
 
     // Make pass over all <em>M</em> {@code parents}; merge any {@code equals()} ones.
-    static function combineCommonParents(array $parents) : void
+    static function combineCommonParents(array $parents) : array
     {
         $uniqueParents = [];
-
-        foreach ($parents as $parent)
-        {
-            if (!array_key_exists($parent, $uniqueParents))
-            {
+        foreach ($parents as $parent) {
+            if (!array_key_exists($parent, $uniqueParents)) {
                 $uniqueParents[$parent] = $parent;
             }
         }
@@ -469,6 +455,8 @@ class PredictionContextUtils
         foreach ($parents as $i => $parent) {
             $parents[$i] = $uniqueParents[$parent];
         }
+
+        return $parents;
     }
 
     static function getCachedPredictionContext(PredictionContext $context, PredictionContextCache $contextCache, \ArrayObject $visited) : PredictionContext

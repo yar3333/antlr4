@@ -46,7 +46,7 @@ class Map
         $hashKey = "hash_" . ($this->hashFunction)($key);
 
         if (isset($this->data[$hashKey])) {
-            $entries = $this->data[$hashKey];
+            $entries = &$this->data[$hashKey];
             foreach ($entries as $entry) {
                 if (($this->equalsFunction)($key, $entry['key'])) {
                     $oldValue = $entry['value'];

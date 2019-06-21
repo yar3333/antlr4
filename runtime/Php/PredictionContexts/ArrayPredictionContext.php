@@ -28,12 +28,7 @@ class ArrayPredictionContext extends PredictionContext
         // Parent can be null only if full ctx mode and we make an array
         // from {@link //EMPTY} and non-empty. We merge {@link //EMPTY}
         // by using null parent and// returnState == {@link //EMPTY_RETURN_STATE}.
-
-        $h = new Hash();
-        $h->update($parents, $returnStates);
-        $hashCode = $h->finish();
-
-        parent::__construct($hashCode);
+        parent::__construct();
 
         $this->parents = $parents;
         $this->returnStates = $returnStates;
@@ -42,6 +37,13 @@ class ArrayPredictionContext extends PredictionContext
     public static function fromOne(SingletonPredictionContext $a) : self
     {
         return new ArrayPredictionContext([$a->getParent()], [$a->returnState]);
+    }
+
+    public function withParents(array $parents) : self {
+        $clone = clone $this;
+        $clone->parents = $parents;
+
+        return $clone;
     }
 
     function isEmpty() : bool
@@ -71,6 +73,14 @@ class ArrayPredictionContext extends PredictionContext
     function getReturnStates() : array
     {
         return $this->returnStates;
+    }
+
+    protected function computeHashCode() : int
+    {
+        $h = new Hash();
+        $h->update($this->parents, $this->returnStates);
+
+        return $h->finish();
     }
 
     function equals($other) : bool

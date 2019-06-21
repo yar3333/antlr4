@@ -15,10 +15,18 @@ use Antlr4\Utils\Hash;
 
 abstract class PredictionContext
 {
-    private static $_EMPTY;
-    static function EMPTY() : EmptyPredictionContext { return self::$_EMPTY ?? (self::$_EMPTY = new EmptyPredictionContext()); }
-
     static $globalNodeCount = 1;
+    private static $_EMPTY;
+
+    static function EMPTY() : EmptyPredictionContext {
+        if (self::$_EMPTY === null) {
+            static::$globalNodeCount--;
+            self::$_EMPTY = new EmptyPredictionContext();
+            self::$_EMPTY->id = 0;
+        }
+
+        return self::$_EMPTY;
+    }
 
     /**
      * @var int
@@ -33,11 +41,10 @@ abstract class PredictionContext
     /**
      * @var int
      */
-    public $cachedHashCode;
+    private $cachedHashCode;
 
-    function __construct($cachedHashCode)
+    function __construct()
     {
-        $this->cachedHashCode = $cachedHashCode;
         $this->id = self::$globalNodeCount++;
     }
 
@@ -78,12 +85,18 @@ abstract class PredictionContext
 
     function hashCode() : int
     {
+        if ($this->cachedHashCode === null) {
+            $this->cachedHashCode = $this->computeHashCode();
+        }
+
         return $this->cachedHashCode;
     }
 
+    protected abstract function computeHashCode() : int;
+
     function updateHashCode(Hash $hash) : void
     {
-        $hash->update($this->cachedHashCode);
+        $hash->update($this->hashCode());
     }
 
     abstract function getLength() : int;
@@ -544,6 +557,11 @@ abstract class PredictionContext
         {
             $parents[$i] = $uniqueParents[$parent];
         }
+    }
+
+    public function __clone()
+    {
+        $this->cachedHashCode = null;
     }
 
     /*static function getCachedPredictionContext(PredictionContext $context, $contextCache, $visited)

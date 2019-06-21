@@ -56,7 +56,7 @@ class Set implements \IteratorAggregate
         if (isset($this->data[$key]))
         {
             /** @var array $values */
-            $values = $this->data[$key];
+            $values = &$this->data[$key];
             foreach ($values as $v)
             {
                 if (($this->equalsFunction)($value, $v)) return $v;
