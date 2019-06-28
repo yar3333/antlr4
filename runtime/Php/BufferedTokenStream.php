@@ -398,7 +398,7 @@ class BufferedTokenStream implements TokenStream
             {
                 break;
             }
-            $s .= $t->text;
+            $s .= $t->getText();
         }
         return $s;
     }

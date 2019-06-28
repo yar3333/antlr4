@@ -132,7 +132,7 @@ class ATNConfigSet
 
         /** @var ATNConfig $existing */
         $existing = $this->configLookup->add($config);
-        if ($existing === $config)
+        if ($existing->equals($config))
         {
             $this->cachedHashCode = -1;
             array_push($this->configs, $config);// track order here
