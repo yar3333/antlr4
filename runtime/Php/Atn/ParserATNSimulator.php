@@ -1975,7 +1975,7 @@ class ParserATNSimulator extends ATNSimulator
         return $D;
     }
 
-    function reportAttemptingFullContext(DFA $dfa, ?BitSet $conflictingAlts, ATNConfigSet $configs, int $startIndex, int $stopIndex) : void
+    function reportAttemptingFullContext(DFA $dfa, BitSet $conflictingAlts, ATNConfigSet $configs, int $startIndex, int $stopIndex) : void
     {
         if (self::$debug || self::$retry_debug)
         {
@@ -2004,7 +2004,7 @@ class ParserATNSimulator extends ATNSimulator
     }
 
     // If context sensitive parsing, we know it's ambiguity not conflict
-    function reportAmbiguity(DFA $dfa, DFAState $D, int $startIndex, int $stopIndex, bool $exact, ?BitSet $ambigAlts, ATNConfigSet $configs) : void
+    function reportAmbiguity(DFA $dfa, DFAState $D, int $startIndex, int $stopIndex, bool $exact, BitSet $ambigAlts, ATNConfigSet $configs) : void
     {
         if (self::$debug || self::$retry_debug)
         {

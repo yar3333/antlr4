@@ -29,7 +29,7 @@ class ProxyErrorListener implements ANTLRErrorListener
         }
     }
 
-	function reportAmbiguity(Parser $recognizer, DFA $dfa, int $startIndex, int $stopIndex, bool $exact, ?BitSet $ambigAlts, ATNConfigSet $configs) : void
+	function reportAmbiguity(Parser $recognizer, DFA $dfa, int $startIndex, int $stopIndex, bool $exact, BitSet $ambigAlts, ATNConfigSet $configs) : void
     {
         foreach ($this->delegates as $d)
         {
@@ -37,7 +37,7 @@ class ProxyErrorListener implements ANTLRErrorListener
         }
     }
 
-	function reportAttemptingFullContext(Parser $recognizer, DFA $dfa, int $startIndex, int $stopIndex, ?BitSet $conflictingAlts, ATNConfigSet $configs) : void
+	function reportAttemptingFullContext(Parser $recognizer, DFA $dfa, int $startIndex, int $stopIndex, BitSet $conflictingAlts, ATNConfigSet $configs) : void
     {
         foreach ($this->delegates as $d)
         {
