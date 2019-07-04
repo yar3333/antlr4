@@ -28,12 +28,12 @@ class IntervalSet
 
     function addOne(int $v) : void
     {
-        $this->addInterval(new Interval($v, $v + 1));
+        $this->addInterval(new Interval($v, $v));
     }
 
     function addRange(int $l, int $h) : void
     {
-        $this->addInterval(new Interval($l, $h + 1));
+        $this->addInterval(new Interval($l, $h));
     }
 
     protected function addInterval(Interval $addition) : void
@@ -126,7 +126,7 @@ class IntervalSet
     function complement(int $start, int $stop) : self
     {
         $result = new self();
-        $result->addInterval(new Interval($start, $stop + 1));
+        $result->addInterval(new Interval($start, $stop));
         foreach ($this->intervals as $interval) {
             $result->removeRange($interval);
         }
@@ -135,12 +135,24 @@ class IntervalSet
 
     function contains(int $item) : bool
     {
-        /** @var Interval $interval */
-        foreach ($this->intervals as $interval)
-        {
-            if ($interval->contains($item)) return true;
-        }
-        return false;
+        $count = \count($this->intervals);
+		$l = 0;
+		$r = $count - 1;
+		// Binary search for the element in the (sorted, disjoint) array of intervals.
+		while ($l <= $r) {
+            $m = \intval($l + $r, 2);
+			$interval = $this->intervals[$m];
+			$start = $interval->start;
+			$stop = $interval->stop;
+			if ($stop < $item) {
+                $l = $m + 1;
+            } else if ($start > $item) {
+                $r = $m - 1;
+            } else { // item >= start && item <= stop
+                return true;
+            }
+		}
+		return false;
     }
 
     function size() : int
@@ -333,5 +345,19 @@ class IntervalSet
 		$s = new self();
         $s->addRange($a, $b);
         return $s;
+    }
+
+    public function toArray() : array
+    {
+        $values = [];
+		foreach ($this->intervals as $interval) {
+            $start = $interval->start;
+            $stop = $interval->stop;
+            for ($value = $start; $value <= $stop; $value++) {
+                $values[] = $value;
+            }
+		}
+
+		return $values;
     }
 }

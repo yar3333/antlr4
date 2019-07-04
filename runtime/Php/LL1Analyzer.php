@@ -6,6 +6,7 @@
 
 namespace Antlr4;
 
+use Antlr4\Atn\ATN;
 use Antlr4\Atn\States\ATNState;
 use Antlr4\Atn\Transitions\WildcardTransition;
 use Antlr4\PredictionContexts\PredictionContext;
@@ -27,7 +28,7 @@ class LL1Analyzer
 
     public $atn;
 
-    function __construct($atn)
+    function __construct(ATN $atn)
     {
         $this->atn = $atn;
     }

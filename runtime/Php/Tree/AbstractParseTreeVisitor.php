@@ -67,9 +67,10 @@ class AbstractParseTreeVisitor implements ParseTreeVisitor
 	 *
 	 * <p>The default implementation returns the result of
 	 * {@link #defaultResult defaultResult}.</p>
-	 * @param ErrorNode $node
+	 *
+	 * @param ErrorNode $tree
 	 */
-	public function visitErrorNode(ErrorNode $node)
+	public function visitErrorNode(ErrorNode $tree)
 	{
 		return $this->defaultResult();
 	}

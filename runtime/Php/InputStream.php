@@ -59,26 +59,17 @@ class InputStream implements CharStream
     {
         $stream->_index = 0;
         $stream->data = [];
-        if ($stream->decodeToUnicodeCodePoints)
-        {
-            $len = strlen($stream->strdata);
-            for ($i = 0; $i < $len; )
-            {
-                $codePoint = Utils::codePointAt($stream->strdata, $i);
-                array_push($stream->data, $codePoint);
-                $i += $codePoint <= 0xFFFF ? 1 : 2;
+        if ($stream->decodeToUnicodeCodePoints) {
+            for ($i = 0, $length = \mb_strlen($stream->strdata, 'UTF-8'); $i < $length; $i++) {
+                $stream->data[] = \mb_ord(mb_substr($stream->strdata, $i, 1, 'UTF-8'), 'UTF-8');
+            }
+        } else {
+            for ($i = 0, $length = \strlen($stream->strdata); $i < $length; $i++) {
+                $stream->data[] = \ord(\substr($stream->strdata, $i, 1));
             }
         }
-        else
-        {
-            $len = strlen($stream->strdata);
-            for ($i = 0; $i < $len; $i++)
-            {
-                $codeUnit = Utils::charCodeAt($stream->strdata, $i);
-                array_push($stream->data, $codeUnit);
-            }
-        }
-        $stream->_size = count($stream->data);
+
+        $stream->_size = \count($stream->data);
     }
 
     function index() : int { return $this->_index; }
