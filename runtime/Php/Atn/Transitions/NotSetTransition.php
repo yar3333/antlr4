@@ -14,6 +14,7 @@ class NotSetTransition extends SetTransition
 
     function __toString()
     {
+        /** @noinspection TypesCastingCanBeUsedInspection */
         return '~' . parent::__toString();
     }
 }

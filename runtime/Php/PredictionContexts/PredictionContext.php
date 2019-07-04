@@ -92,7 +92,7 @@ abstract class PredictionContext
         return $this->cachedHashCode;
     }
 
-    protected abstract function computeHashCode() : int;
+    abstract protected function computeHashCode() : int;
 
     function updateHashCode(Hash $hash) : void
     {
