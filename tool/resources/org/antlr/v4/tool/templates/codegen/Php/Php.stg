@@ -609,7 +609,6 @@ $this->setState(<choice.stateNumber>);
 $this->_errHandler->sync($this);
 <if(choice.label)><labelref(choice.label)> = $this->_input->LT(1);<endif>
 <preamble; separator="\n">
-/** @noinspection NullPointerExceptionInspection */
 switch ($this->getInterpreter()->adaptivePredict($this->_input, <choice.decision>, $this->_ctx) ) {
 <alts:{alt |
 case <i>:
@@ -621,7 +620,6 @@ case <i>:
 OptionalBlock(choice, alts, error) ::= <<
 $this->setState(<choice.stateNumber>);
 $this->_errHandler->sync($this);
-/** @noinspection NullPointerExceptionInspection */
 switch ($this->getInterpreter()->adaptivePredict($this->_input, <choice.decision>, $this->_ctx) ) {
 <alts:{alt |
 case <i><if(!choice.ast.greedy)>+1<endif>:
@@ -633,7 +631,6 @@ case <i><if(!choice.ast.greedy)>+1<endif>:
 StarBlock(choice, alts, sync, iteration) ::= <<
 $this->setState(<choice.stateNumber>);
 $this->_errHandler->sync($this);
-/** @noinspection NullPointerExceptionInspection */
 $_alt = $this->getInterpreter()->adaptivePredict($this->_input, <choice.decision>, $this->_ctx);
 while ($_alt !== <choice.exitAlt> && $_alt !== ATN::INVALID_ALT_NUMBER ) {
 	if ($_alt === 1<if(!choice.ast.greedy)>+1<endif> ) {
@@ -642,7 +639,6 @@ while ($_alt !== <choice.exitAlt> && $_alt !== ATN::INVALID_ALT_NUMBER ) {
 	}
 	$this->setState(<choice.loopBackStateNumber>);
 	$this->_errHandler->sync($this);
-	/** @noinspection NullPointerExceptionInspection */
 	$_alt = $this->getInterpreter()->adaptivePredict($this->_input, <choice.decision>, $this->_ctx);
 }
 >>
@@ -662,7 +658,6 @@ case <i><if(!choice.ast.greedy)>+1<endif>:
 	}
 	$this->setState(<choice.loopBackStateNumber>); <! loopback/exit decision !>
 	$this->_errHandler->sync($this);
-	/** @noinspection NullPointerExceptionInspection */
 	$_alt = $this->getInterpreter()->adaptivePredict($this->_input, <choice.decision>, $_ctx);
 } while ($_alt !== <choice.exitAlt> && $_alt !== ATN::INVALID_ALT_NUMBER);
 >>
