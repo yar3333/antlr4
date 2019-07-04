@@ -42,7 +42,7 @@ class RuleContext implements RuleNode
     /**
      * @var RuleContext
      */
-    protected $parentCtx;
+    public $parentCtx;
 
     /**
      * @var int

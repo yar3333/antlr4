@@ -50,13 +50,13 @@ abstract class Lexer extends Recognizer implements TokenSource
     /**
      * @var Token
      */
-    protected $_token;
+    public $_token;
 
-    protected $_tokenStartCharIndex;
+    public $_tokenStartCharIndex;
 
-    protected $_tokenStartLine;
+    public $_tokenStartLine;
 
-    protected $_tokenStartColumn;
+    public $_tokenStartColumn;
 
     protected $_hitEOF;
 

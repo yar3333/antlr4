@@ -6,8 +6,8 @@
 
 namespace Antlr4\Error\Exceptions;
 
-use Antlr4\InputStream;
 use Antlr4\IntervalSet;
+use antlr4\IntStream;
 use Antlr4\Parser;
 use Antlr4\Token;
 
@@ -24,7 +24,7 @@ class RecognitionException extends \Exception
     public $recognizer;
 
     /**
-     * @var InputStream
+     * @var IntStream
      */
     public $input;
 
@@ -80,6 +80,20 @@ class RecognitionException extends \Exception
     {
         if (!$this->recognizer) return null;
         return $this->recognizer->getATN()->getExpectedTokens($this->offendingState, $this->ctx);
+    }
+
+    /**
+     * Gets the input stream which is the symbol source for the recognizer where
+     * this exception was thrown.
+     *
+     * <p>If the input stream is not available, this method returns {@code null}.</p>
+     *
+     * @return IntStream The input stream which is the symbol source for the recognizer
+     * where this exception was thrown, or {@code null} if the stream is not
+     * available.
+     */
+    public function getInputStream() : IntStream {
+        return $this->input;
     }
 
     function __toString()

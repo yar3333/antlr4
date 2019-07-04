@@ -816,7 +816,6 @@ class ParserATNSimulator extends ATNSimulator
 
         $this->reportAmbiguity($dfa, $D, $startIndex, $input->index(), $foundExactAmbig, null, $reach);
 
-        /** @noinspection PhpUndefinedVariableInspection */
         return $predictedAlt;
     }
 
@@ -1979,7 +1978,7 @@ class ParserATNSimulator extends ATNSimulator
     {
         if (self::$debug || self::$retry_debug)
         {
-            $interval = new Interval($startIndex, $stopIndex + 1);
+            $interval = new Interval($startIndex, $stopIndex);
             Logger::log("reportAttemptingFullContext decision = " . $dfa->decision . ":" . $configs . ", input = " . $this->parser->getTokenStream()->getTextByInterval($interval));
         }
 
@@ -1993,7 +1992,7 @@ class ParserATNSimulator extends ATNSimulator
     {
         if (self::$debug || self::$retry_debug)
         {
-            $interval = new Interval($startIndex, $stopIndex + 1);
+            $interval = new Interval($startIndex, $stopIndex);
             Logger::log("reportContextSensitivity decision = " . $dfa->decision . ":" . $configs . ", input = " . $this->parser->getTokenStream()->getTextByInterval($interval));
         }
 
@@ -2008,7 +2007,7 @@ class ParserATNSimulator extends ATNSimulator
     {
         if (self::$debug || self::$retry_debug)
         {
-            $interval = new Interval($startIndex, $stopIndex + 1);
+            $interval = new Interval($startIndex, $stopIndex);
             Logger::log("reportAmbiguity " . $ambigAlts . ":" . $configs . ", input = " . $this->parser->getTokenStream()->getTextByInterval($interval));
         }
 

@@ -43,7 +43,7 @@ class ParserRuleContext extends RuleContext
     /**
      * @var ParseTree[]
      */
-    protected $children;
+    public $children;
 
     /**
      * @var Token

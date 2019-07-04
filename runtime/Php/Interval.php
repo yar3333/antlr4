@@ -19,7 +19,7 @@ class Interval
      */
     public $stop;
 
-    /* stop is not included! */
+    /* stop is included! */
     function __construct(int $start, int $stop)
     {
         $this->start = $start;
@@ -28,20 +28,20 @@ class Interval
 
     function contains(int $item) : bool
     {
-        return $item >= $this->start && $item < $this->stop;
+        return $item >= $this->start && $item <= $this->stop;
     }
 
     function __toString() : string
     {
-        if ($this->start === $this->stop - 1) {
+        if ($this->start === $this->stop) {
             return (string)$this->start;
         }
-        return $this->start . ".." . ($this->stop - 1);
+        return $this->start . ".." . ($this->stop);
     }
 
     function getLength() : int
     {
-        return $this->stop - $this->start;
+        return $this->stop - $this->start + 1;
     }
 
     function equals($other) : bool

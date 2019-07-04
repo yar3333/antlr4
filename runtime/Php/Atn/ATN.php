@@ -14,6 +14,7 @@ use Antlr4\Atn\States\RuleStopState;
 use Antlr4\Atn\States\TokensStartState;
 use Antlr4\LL1Analyzer;
 use Antlr4\IntervalSet;
+use Antlr4\ParserRuleContext;
 use Antlr4\RuleContext;
 use Antlr4\Token;
 
@@ -190,7 +191,7 @@ class ATN
     // @param context the full parse context
     // @return The set of potentially valid input symbols which could follow the specified state in the specified context.
     // @throws IllegalArgumentException if the ATN does not contain a state with number {@code stateNumber}
-    function getExpectedTokens($stateNumber, $ctx) : IntervalSet
+    function getExpectedTokens(int $stateNumber, ParserRuleContext $ctx) : IntervalSet
     {
         if ($stateNumber < 0 || $stateNumber >= count($this->states))
         {
@@ -213,7 +214,7 @@ class ATN
             $following = $this->nextTokens($rt->followState);
             $expected->addSet($following);
             $expected->removeOne(Token::EPSILON);
-            $ctx = $ctx->parentCtx;
+            $ctx = $ctx->getParent();
         }
         if ($following->contains(Token::EPSILON))
         {

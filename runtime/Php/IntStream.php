@@ -27,6 +27,12 @@ interface IntStream
     const EOF = -1;
 
     /**
+     * During lookahead operations, this "token" signifies we hit rule end ATN state
+     * and did not follow it despite needing to.
+     */
+    const EPSILON = -2;
+
+    /**
      * The value returned by {@link #getSourceName} when the actual name of the
      * underlying source is not known.
      */

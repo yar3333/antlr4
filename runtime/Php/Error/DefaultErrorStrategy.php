@@ -264,7 +264,7 @@ class DefaultErrorStrategy implements ErrorStrategy
      * @param Parser $recognizer
      * @param NoViableAltException $e
      */
-    function reportNoViableAlternative($recognizer, $e) : void
+    function reportNoViableAlternative(Parser $recognizer, NoViableAltException $e) : void
     {
         $tokens = $recognizer->getTokenStream();
         if ($tokens !== null) {
@@ -334,7 +334,7 @@ class DefaultErrorStrategy implements ErrorStrategy
     /**
      * @param Parser $recognizer
      */
-    function reportUnwantedToken($recognizer) : void
+    function reportUnwantedToken(Parser $recognizer) : void
     {
         if ($this->inErrorRecoveryMode($recognizer)) return;
 
