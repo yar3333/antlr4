@@ -196,12 +196,12 @@ class ATNDeserializer
             {
                 // special case
                 $loopBackStateNumber = $this->readInt();
-                array_push($loopBackStateNumbers, [$s, $loopBackStateNumber]);
+                $loopBackStateNumbers[] = [ $s, $loopBackStateNumber ];
             }
             else if($s instanceof \Antlr4\Atn\States\BlockStartState)
             {
                 $endStateNumber = $this->readInt();
-                array_push($endStateNumbers, [$s, $endStateNumber]);
+                $endStateNumbers[] = [ $s, $endStateNumber ];
             }
             $atn->addState($s);
         }
@@ -273,7 +273,7 @@ class ATNDeserializer
         for ($i=0; $i<$nmodes; $i++)
         {
             $s = $this->readInt();
-            array_push($atn->modeToStartState, $atn->states[$s]);
+            $atn->modeToStartState[] = $atn->states[$s];
         }
     }
 
@@ -283,7 +283,7 @@ class ATNDeserializer
         for ($i=0; $i < $m; $i++)
         {
             $iset = new IntervalSet();
-            array_push($sets, $iset);
+            $sets[] = $iset;
             $n = $this->readInt();
             $containsEof = $this->readInt();
             if ($containsEof !== 0)
@@ -379,7 +379,7 @@ class ATNDeserializer
             $s = $this->readInt();
             /** @var DecisionState $decState */
             $decState = $atn->states[$s];
-            array_push($atn->decisionToState, $decState);
+            $atn->decisionToState[] = $decState;
             $decState->decision = $i;
         }
     }

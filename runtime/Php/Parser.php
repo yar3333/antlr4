@@ -236,7 +236,7 @@ abstract class Parser extends Recognizer
         {
             $this->_parseListeners = [];
         }
-        array_push($this->_parseListeners, $listener);
+        $this->_parseListeners[] = $listener;
     }
 
     // Remove {@code listener} from the list of parse listeners.
@@ -528,7 +528,7 @@ abstract class Parser extends Recognizer
     function enterRecursionRule($localctx, $state, $ruleIndex, $precedence) : void
     {
         $this->setState($state);
-        array_push($this->_precedenceStack, $precedence);
+        $this->_precedenceStack[] = $precedence;
         $this->_ctx = $localctx;
         $this->_ctx->start = $this->_input->LT(1);
         if ($this->_parseListeners !== null)
@@ -685,11 +685,11 @@ abstract class Parser extends Recognizer
             $ruleIndex = $p->getRuleIndex();
             if ($ruleIndex < 0)
             {
-                array_push($stack, "n/a");
+                $stack[] = "n/a";
             }
             else
             {
-                array_push($stack, $this->getRuleNames()[$ruleIndex]);
+                $stack[] = $this->getRuleNames()[$ruleIndex];
             }
             $p = $p->getParent();
         }

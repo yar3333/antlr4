@@ -530,7 +530,7 @@ class PredictionContextUtils
                 return $nodes;
             }
             $visited[spl_object_id($context)] = $context;
-            array_push($nodes, $context);
+            $nodes[] = $context;
             for ($i = 0; $i < $context->getLength(); $i++)
             {
                 self::getAllContextNodes($context->getParent($i), $nodes, $visited);

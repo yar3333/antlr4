@@ -154,7 +154,7 @@ class ATN
             $state->atn = $this;
             $state->stateNumber = count($this->states);
         }
-        array_push($this->states, $state);
+        $this->states[] = $state;
     }
 
     function removeState(ATNState $state) : void
@@ -164,8 +164,8 @@ class ATN
 
     function defineDecisionState(DecisionState $s) : int
     {
-        array_push($this->decisionToState, $s);
-        $s->decision = count($this->decisionToState)-1;
+        $this->decisionToState[] = $s;
+        $s->decision = count($this->decisionToState) - 1;
         return $s->decision;
     }
 

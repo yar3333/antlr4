@@ -91,9 +91,10 @@ class Trees
     static function getChildren(Tree $t) : array
     {
         $list = [];
-        for($i=0; $i < $t->getChildCount(); $i++)
+        $count = $t->getChildCount();
+        for($i = 0; $i < $count; $i++)
         {
-            array_push($list, $t->getChild($i));
+            $list[] = $t->getChild($i);
         }
         return $list;
     }

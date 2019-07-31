@@ -61,7 +61,7 @@ class Set implements \IteratorAggregate
             {
                 if (($this->equalsFunction)($value, $v)) return $v;
             }
-            array_push($values, $value);
+            $values[] = $value;
             return $value;
         }
 

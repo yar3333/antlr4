@@ -168,7 +168,7 @@ class DefaultErrorStrategy implements ErrorStrategy
         if ($this->lastErrorStates === null) {
             $this->lastErrorStates = [];
         }
-        array_push($this->lastErrorStates, $recognizer->getState());
+        $this->lastErrorStates[] = $recognizer->getState();
         $followSet = $this->getErrorRecoverySet($recognizer);
         $this->consumeUntil($recognizer, $followSet);
     }

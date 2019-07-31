@@ -91,7 +91,7 @@ class SemanticContextOr extends SemanticContext
             else if ($evaluated !== null)
             {
                 // Reduce the result by skipping false elements
-                array_push($operands, $evaluated);
+                $operands[] = $evaluated;
             }
         }
         if (!$differs) return $this;

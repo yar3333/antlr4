@@ -135,7 +135,7 @@ class ATNConfigSet
         if ($existing->equals($config))
         {
             $this->cachedHashCode = -1;
-            array_push($this->configs, $config);// track order here
+            $this->configs[] = $config;// track order here
             return true;
         }
 
@@ -178,7 +178,7 @@ class ATNConfigSet
         {
             if ($c->semanticContext !== SemanticContext::NONE())
             {
-                array_push($preds, $c->semanticContext);
+                $preds[] = $c->semanticContext;
             }
         }
         return $preds;

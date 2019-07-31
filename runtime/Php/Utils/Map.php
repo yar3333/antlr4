@@ -54,7 +54,7 @@ class Map
                     return $oldValue;
                 }
             }
-            array_push($entries, ['key' => $key, 'value' => $value]);
+            $entries[] = ['key' => $key, 'value' => $value];
             return $value;
         }
 

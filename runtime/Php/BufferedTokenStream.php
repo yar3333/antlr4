@@ -150,7 +150,7 @@ class BufferedTokenStream implements TokenStream
         {
             $t = $this->tokenSource->nextToken();
             $t->tokenIndex = count($this->tokens);
-            array_push($this->tokens, $t);
+            $this->tokens[] = $t;
             if ($t->type === Token::EOF)
             {
                 $this->fetchedEOF = true;
@@ -178,7 +178,7 @@ class BufferedTokenStream implements TokenStream
 
             if ($types === null || $types->contains($t->type))
             {
-                array_push($subset, $t);
+                $subset[] = $t;
             }
         }
         return $subset;
@@ -342,12 +342,12 @@ class BufferedTokenStream implements TokenStream
             {
                 if ($t->channel !== Lexer::DEFAULT_TOKEN_CHANNEL)
                 {
-                    array_push($hidden, $t);
+                    $hidden[] = $t;
                 }
             }
             else if ($t->channel === $channel)
             {
-                array_push($hidden, $t);
+                $hidden[] = $t;
             }
         }
         if (count($hidden) === 0)

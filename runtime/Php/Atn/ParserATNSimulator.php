@@ -859,7 +859,7 @@ class ParserATNSimulator extends ATNSimulator
                         $skippedStopStates = [];
                     }
 
-                    array_push($skippedStopStates, $c);
+                    $skippedStopStates[] = $c;
 
                     if (self::$debug_add)
                     {
@@ -1289,11 +1289,11 @@ class ParserATNSimulator extends ATNSimulator
         $alts = [];
         foreach ($configs->items() as $c)
         {
-            if ($c->reachesIntoOuterContext > 0 || (($c->state instanceof RuleStopState) && $c->context->hasEmptyPath()))
+            if ($c->reachesIntoOuterContext > 0 || ($c->state instanceof RuleStopState && $c->context->hasEmptyPath()))
             {
                 if (!in_array($c->alt, $alts, true))
                 {
-                    array_push($alts, $c->alt);
+                    $alts[] = $c->alt;
                 }
             }
         }

@@ -66,7 +66,7 @@ abstract class Recognizer
 
     function addErrorListener($listener) : void
     {
-        array_push($this->_listeners, $listener);
+        $this->_listeners[] = $listener;
     }
 
     function removeErrorListeners() : void

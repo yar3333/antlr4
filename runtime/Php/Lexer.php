@@ -252,7 +252,7 @@ abstract class Lexer extends Recognizer implements TokenSource
         {
             //$console->log("pushMode " . $m);
         }
-        array_push($this->_modeStack, $this->_mode);
+        $this->_modeStack[] = $this->_mode;
         $this->mode($m);
     }
 
@@ -372,7 +372,7 @@ abstract class Lexer extends Recognizer implements TokenSource
         $t = $this->nextToken();
         while ($t && $t->type !== Token::EOF)
         {
-            array_push($tokens, $t);
+            $tokens[] = $t;
             $t = $this->nextToken();
         }
         return $tokens;
@@ -394,7 +394,7 @@ abstract class Lexer extends Recognizer implements TokenSource
         /*$d = [];
         for ($i = 0; $i < $s->length; $i++)
         {
-            array_push($d, $s[$i]);
+            $d[] = $s[$i];
         }
         return $d->join('');*/
         return $s;

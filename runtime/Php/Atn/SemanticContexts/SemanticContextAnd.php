@@ -81,7 +81,7 @@ class SemanticContextAnd extends SemanticContext
             if ($evaluated !== SemanticContext::NONE())
             {
                 // Reduce the result by skipping true elements
-                array_push($operands, $evaluated);
+                $operands[] = $evaluated;
             }
         }
         if (!$differs) return $this;

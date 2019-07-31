@@ -639,7 +639,7 @@ abstract class PredictionContext
             }
             $visited[$context] = $context;
 
-            array_push($nodes, $context);
+            $nodes[] = $context;
 
             for ($i = 0; $i < $context->getLength(); $i++)
             {
