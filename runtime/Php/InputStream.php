@@ -60,16 +60,16 @@ class InputStream implements CharStream
         $stream->_index = 0;
         $stream->data = [];
         if ($stream->decodeToUnicodeCodePoints) {
-            for ($i = 0, $length = \mb_strlen($stream->strdata, 'UTF-8'); $i < $length; $i++) {
-                $stream->data[] = \mb_ord(mb_substr($stream->strdata, $i, 1, 'UTF-8'), 'UTF-8');
+            for ($i = 0, $length = mb_strlen($stream->strdata, 'UTF-8'); $i < $length; $i++) {
+                $stream->data[] = mb_ord(mb_substr($stream->strdata, $i, 1, 'UTF-8'), 'UTF-8');
             }
         } else {
-            for ($i = 0, $length = \strlen($stream->strdata); $i < $length; $i++) {
-                $stream->data[] = \ord(\substr($stream->strdata, $i, 1));
+            for ($i = 0, $length = strlen($stream->strdata); $i < $length; $i++) {
+                $stream->data[] = ord($stream->strdata[$i]);
             }
         }
 
-        $stream->_size = \count($stream->data);
+        $stream->_size = count($stream->data);
     }
 
     function index() : int { return $this->_index; }

@@ -36,7 +36,7 @@ class Interval
         if ($this->start === $this->stop) {
             return (string)$this->start;
         }
-        return $this->start . ".." . ($this->stop);
+        return $this->start . ".." . $this->stop;
     }
 
     function getLength() : int

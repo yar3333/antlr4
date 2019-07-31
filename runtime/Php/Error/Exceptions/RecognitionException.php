@@ -92,7 +92,8 @@ class RecognitionException extends \Exception
      * where this exception was thrown, or {@code null} if the stream is not
      * available.
      */
-    public function getInputStream() : IntStream {
+    public function getInputStream()
+    {
         return $this->input;
     }
 
