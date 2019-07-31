@@ -2,18 +2,16 @@
 
 namespace Antlr4\PredictionContexts;
 
-use Antlr4\Utils\Map;
-
 class PredictionContextCache
 {
     /**
-     * @var Map
+     * @var \SplObjectStorage
      */
     private $cache;
 
     function __construct()
     {
-        $this->cache = new Map();
+        $this->cache = new \SplObjectStorage();
     }
 
     // Add a context to the cache and return it. If the context already exists,
@@ -22,21 +20,17 @@ class PredictionContextCache
     function add(PredictionContext $ctx) : PredictionContext
     {
         if ($ctx === PredictionContext::EMPTY()) return PredictionContext::EMPTY();
-        $existing = $this->cache->get($ctx);
-        if ($existing !== null) {
-            return $existing;
-        }
-        $this->cache->put($ctx, $ctx);
+        $this->cache->attach($ctx);
         return $ctx;
     }
 
     function get(PredictionContext $ctx) : ?PredictionContext
     {
-        return $this->cache->get($ctx);
+        return $this->cache->offsetExists($ctx)  ? $this->cache->offsetGet($ctx) : null;
     }
 
     function size() : int
     {
-        return $this->cache->size();
+        return $this->cache->count();
     }
 }

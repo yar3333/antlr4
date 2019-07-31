@@ -618,7 +618,7 @@ abstract class Parser extends Recognizer
     // @param symbol the symbol type to check
     // @return {@code true} if {@code symbol} can follow the current state in
     // the ATN, otherwise {@code false}.
-    function isExpectedToken($symbol) : bool
+    function isExpectedToken(int $symbol) : bool
     {
         $atn = $this->_interp->atn;
         $ctx = $this->_ctx;

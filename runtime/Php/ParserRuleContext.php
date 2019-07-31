@@ -33,7 +33,6 @@ namespace Antlr4;
 //  satisfy the superclass interface.
 use Antlr4\Error\Exceptions\RecognitionException;
 use Antlr4\Tree\ErrorNode;
-use Antlr4\Tree\ErrorNodeImpl;
 use Antlr4\Tree\ParseTree;
 use Antlr4\Tree\ParseTreeListener;
 use Antlr4\Tree\TerminalNode;

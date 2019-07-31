@@ -135,12 +135,11 @@ class IntervalSet
 
     function contains(int $item) : bool
     {
-        $count = \count($this->intervals);
 		$l = 0;
-		$r = $count - 1;
+		$r = count($this->intervals) - 1;
 		// Binary search for the element in the (sorted, disjoint) array of intervals.
 		while ($l <= $r) {
-            $m = \intval($l + $r, 2);
+            $m = intval($l + $r, 2);
 			$interval = $this->intervals[$m];
 			$start = $interval->start;
 			$stop = $interval->stop;

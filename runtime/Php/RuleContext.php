@@ -49,7 +49,7 @@ class RuleContext implements RuleNode
      */
     public $invokingState;
 
-    function __construct(?RuleContext $parent, int $invokingState=null)
+    function __construct(RuleContext $parent=null, int $invokingState=null)
     {
         // What context invoked this rule?
         $this->parentCtx = $parent;
