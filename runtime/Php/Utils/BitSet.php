@@ -45,17 +45,11 @@ class BitSet
         return min($this->values());
     }
 
-    function hashCode() : int
-    {
-        $hash = new Hash();
-        $hash->update($this->values());
-        return $hash->finish();
-    }
-
     function equals($other) : bool
     {
         if (!($other instanceof self)) return false;
-        if ($this->hashCode() !== $other->hashCode()) return false;
+        if (count($this->data) !== count($other->data)) return false;
+        foreach ($this->data as $key => $v) if (!$other->contains($key)) return false;
         return true;
     }
 

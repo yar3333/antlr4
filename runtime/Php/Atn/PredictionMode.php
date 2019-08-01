@@ -8,10 +8,8 @@ namespace Antlr4\Atn;
 
 use Antlr4\Atn\SemanticContexts\SemanticContext;
 use Antlr4\Atn\States\RuleStopState;
-use Antlr4\Utils\AltDict;
 use Antlr4\Utils\BitSet;
 use Antlr4\Utils\Map;
-use Antlr4\Utils\Utils;
 
 // This enumeration defines the prediction modes available in ANTLR 4 along with
 // utility methods for analyzing configuration sets for conflicts and/or ambiguities.
@@ -513,7 +511,6 @@ class PredictionMode
     static function getConflictingAltSubsets(ATNConfigSet $configs) : array
     {
         $configToAlts = new Map();
-        $configToAlts->hashFunction = function($cfg) { Utils::hashStuff($cfg->state->stateNumber, $cfg->context); };
         $configToAlts->equalsFunction = function($c1, $c2) { return $c1->state->stateNumber === $c2->state->stateNumber && $c1->context->equals($c2->context); };
         foreach ($configs->items() as $cfg)
         {
@@ -533,13 +530,14 @@ class PredictionMode
      * @param ATNConfigSet $configs
      * @return BitSet[]
      */
-    private static function getStateToAltMap(ATNConfigSet $configs) : array
+    static function getStateToAltMap(ATNConfigSet $configs) : array
     {
         $r = [];
         foreach ($configs->items() as $c)
         {
-            if (!array_key_exists($c->state, $r)) $r[$c->state] = new BitSet();
-            $r[$c->state]->add($c->alt);
+            $key = spl_object_hash($c->state);
+            if (!array_key_exists($key, $r)) $r[$key] = new BitSet();
+            $r[$key]->add($c->alt);
         }
         return $r;
     }

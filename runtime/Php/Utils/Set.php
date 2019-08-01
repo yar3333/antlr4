@@ -16,28 +16,17 @@ class Set implements \IteratorAggregate
     /**
      * @var callable
      */
-    private $hashFunction;
+    public $equalsFunction;
 
-    /**
-     * @var callable
-     */
-    private $equalsFunction;
-
-    function __construct(callable $hashFunction=null, callable $equalsFunction=null)
+    function __construct()
     {
         $this->data = [];
-        $this->hashFunction = $hashFunction ?? function ($a) { return Utils::standardHashCodeFunction($a); };
-        $this->equalsFunction = $equalsFunction ?? function ($a, $b) { return Utils::standardEqualsFunction($a, $b); };
+        $this->equalsFunction = function ($a, $b) { return Utils::standardEqualsFunction($a, $b); };
     }
 
     function length()
     {
-        $l = 0;
-        foreach ($this->data as $values)
-        {
-            $l += count($values);
-        }
-        return $l;
+        return count($this->data);
     }
 
     function addAll(array $values) : void
@@ -47,18 +36,11 @@ class Set implements \IteratorAggregate
 
     function add($value)
     {
-        $hash = ($this->hashFunction)($value);
-        if (array_key_exists($hash, $this->data))
+        foreach ($this->data as $v)
         {
-            foreach ($this->data[$hash] as $v)
-            {
-                if (($this->equalsFunction)($value, $v)) return $v;
-            }
-            $this->data[$hash][] = $value;
-            return $value;
+            if (($this->equalsFunction)($value, $v)) return $v;
         }
-
-        $this->data[$hash] = [ $value ];
+        $this->data[] = $value;
         return $value;
     }
 
@@ -69,26 +51,16 @@ class Set implements \IteratorAggregate
 
     function get($value)
     {
-        $hash = ($this->hashFunction)($value);
-        if (array_key_exists($hash, $this->data))
+        foreach ($this->data as $v)
         {
-            foreach ($this->data[$hash] as $v)
-            {
-                if (($this->equalsFunction)($value, $v)) return $v;
-            }
+            if (($this->equalsFunction)($value, $v)) return $v;
         }
         return null;
     }
 
     function values() : array
     {
-        $r = [];
-        foreach ($this->data as $value)
-        {
-            /** @noinspection SlowArrayOperationsInLoopInspection */
-            $r = array_merge($r, $value);
-        }
-        return $r;
+        return $this->data;
     }
 
     function isEmpty() : bool { return !$this->data; }
