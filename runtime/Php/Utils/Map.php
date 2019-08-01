@@ -34,16 +34,14 @@ class Map
     {
         $l = 0;
         foreach ($this->data as $hashKey => $v) {
-            if (strpos($hashKey, "hash_") === 0) {
-                $l += count($this->data[$hashKey]);
-            }
+            $l += count($this->data[$hashKey]);
         }
         return $l;
     }
 
     function put($key, $value)
     {
-        $hashKey = "hash_" . ($this->hashFunction)($key);
+        $hashKey = ($this->hashFunction)($key);
 
         if (isset($this->data[$hashKey])) {
             $entries = &$this->data[$hashKey];
@@ -64,7 +62,7 @@ class Map
 
     function containsKey($key) : bool
     {
-        $hashKey = "hash_" . ($this->hashFunction)($key);
+        $hashKey = ($this->hashFunction)($key);
         if (isset($this->data[$hashKey]))
         {
             $entries = $this->data[$hashKey];
@@ -78,7 +76,7 @@ class Map
 
     function get($key)
     {
-        $hashKey = "hash_" . ($this->hashFunction)($key);
+        $hashKey = ($this->hashFunction)($key);
         if (isset($this->data[$hashKey]))
         {
             $entries = $this->data[$hashKey];
@@ -95,11 +93,8 @@ class Map
         $l = [];
         foreach ($this->data as $key => $value)
         {
-            if (strpos($key, "hash_") === 0)
-            {
-                /** @noinspection SlowArrayOperationsInLoopInspection */
-                $l = array_merge($l, $value);
-            }
+            /** @noinspection SlowArrayOperationsInLoopInspection */
+            $l = array_merge($l, $value);
         }
         return $l;
     }
@@ -113,7 +108,6 @@ class Map
     {
         return Utils::arrayMap($this->entries(), function ($e) { return $e['value']; });
     }
-
 
     function __toString()
     {

@@ -20,7 +20,7 @@ class BitSet
         $this->data[$value] = true;
     }
 
-    function or($set) : void
+    function or(BitSet $set) : void
     {
         foreach ($set->data as $alt) $this->add($alt);
     }
@@ -55,7 +55,8 @@ class BitSet
     function equals($other) : bool
     {
         if (!($other instanceof self)) return false;
-        return $this->hashCode() === $other->hashCode();
+        if ($this->hashCode() !== $other->hashCode()) return false;
+        return true;
     }
 
     function length() : int

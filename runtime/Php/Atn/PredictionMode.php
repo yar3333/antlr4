@@ -528,33 +528,26 @@ class PredictionMode
         return $configToAlts->values();
     }
 
-    // Get a map from state to alt subset from a configuration set. For each
-    // configuration {@code c} in {@code configs}:
-    //
-    // <pre>
-    // map[c.{@link ATNConfig//state state}] U= c.{@link ATNConfig//alt alt}
-    // </pre>
-    static function getStateToAltMap(ATNConfigSet $configs) : AltDict
+    /**
+     * Get a map from state to alt subset from a configuration set.
+     * @param ATNConfigSet $configs
+     * @return BitSet[]
+     */
+    private static function getStateToAltMap(ATNConfigSet $configs) : array
     {
-        $m = new AltDict();
+        $r = [];
         foreach ($configs->items() as $c)
         {
-            $alts = $m->get($c->state);
-            if ($alts === null)
-            {
-                $alts = new BitSet();
-                $m->put($c->state, $alts);
-            }
-            $alts->add($c->alt);
+            if (!array_key_exists($c->state, $r)) $r[$c->state] = new BitSet();
+            $r[$c->state]->add($c->alt);
         }
-        return $m;
+        return $r;
     }
 
     static function hasStateAssociatedWithOneAlt(ATNConfigSet $configs) : bool
     {
-        foreach (self::getStateToAltMap($configs)->values() as $value)
+        foreach (self::getStateToAltMap($configs) as $value)
         {
-            /** @var BitSet $value */
             if ($value->length() === 1) return true;
         }
         return false;

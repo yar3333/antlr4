@@ -11,17 +11,17 @@ class Set implements \IteratorAggregate
     /**
      * @var array
      */
-    public $data;
+    private $data;
 
     /**
      * @var callable
      */
-    public $hashFunction;
+    private $hashFunction;
 
     /**
      * @var callable
      */
-    public $equalsFunction;
+    private $equalsFunction;
 
     function __construct(callable $hashFunction=null, callable $equalsFunction=null)
     {
@@ -33,12 +33,9 @@ class Set implements \IteratorAggregate
     function length()
     {
         $l = 0;
-        foreach ($this->data as $key => $value)
+        foreach ($this->data as $values)
         {
-            if (strpos($key, "hash_") === 0)
-            {
-                $l += count($this->data[$key]);
-            }
+            $l += count($values);
         }
         return $l;
     }
@@ -51,21 +48,17 @@ class Set implements \IteratorAggregate
     function add($value)
     {
         $hash = ($this->hashFunction)($value);
-        $key = "hash_" . $hash;
-
-        if (isset($this->data[$key]))
+        if (array_key_exists($hash, $this->data))
         {
-            /** @var array $values */
-            $values = &$this->data[$key];
-            foreach ($values as $v)
+            foreach ($this->data[$hash] as $v)
             {
                 if (($this->equalsFunction)($value, $v)) return $v;
             }
-            $values[] = $value;
+            $this->data[$hash][] = $value;
             return $value;
         }
 
-        $this->data[$key] = [$value];
+        $this->data[$hash] = [ $value ];
         return $value;
     }
 
@@ -77,13 +70,11 @@ class Set implements \IteratorAggregate
     function get($value)
     {
         $hash = ($this->hashFunction)($value);
-        $key = "hash_" . $hash;
-        if (isset($this->data[$key]))
+        if (array_key_exists($hash, $this->data))
         {
-            $values = $this->data[$key];
-            foreach ($values as $i => $v)
+            foreach ($this->data[$hash] as $v)
             {
-                if (($this->equalsFunction)($value, $v)) return $values[$i];
+                if (($this->equalsFunction)($value, $v)) return $v;
             }
         }
         return null;
@@ -91,16 +82,13 @@ class Set implements \IteratorAggregate
 
     function values() : array
     {
-        $l = [];
-        foreach ($this->data as $key => $value)
+        $r = [];
+        foreach ($this->data as $value)
         {
-            if (strpos($key, "hash_") === 0)
-            {
-                /** @noinspection SlowArrayOperationsInLoopInspection */
-                $l = array_merge($l, $value);
-            }
+            /** @noinspection SlowArrayOperationsInLoopInspection */
+            $r = array_merge($r, $value);
         }
-        return $l;
+        return $r;
     }
 
     function isEmpty() : bool { return !$this->data; }

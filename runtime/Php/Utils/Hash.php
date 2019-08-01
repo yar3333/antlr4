@@ -8,6 +8,8 @@ namespace Antlr4\Utils;
 
 class Hash
 {
+    public static $enabled = false;
+
     /**
      * @var int
      */
@@ -26,6 +28,8 @@ class Hash
 
     function update(...$arguments) : void
     {
+        if (!self::$enabled) return;
+
         foreach ($arguments as $value)
         {
             if ($value === null) continue;
